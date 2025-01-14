@@ -11,8 +11,3 @@
     * [06_GPIO_INTR](quickstart/06_GPIO_INTR.md)
 * 进阶缓存翻译
     * [01_blink](advance/01_blink.md)
-    * [02_ledBlink](advance/02_ledBlink.md)
-    * [03_easyio_led](advance/03_easyio_led.md)
-    * [04_GPIO_IN_OUT](advance/04_GPIO_IN_OUT.md)
-    * [05_Task](advance/05_Task.md)
-    * [06_GPIO_INTR](advance/06_GPIO_INTR.md)
