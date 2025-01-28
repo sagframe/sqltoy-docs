@@ -1,7 +1,7 @@
 * 简介
     * [sqltoy-orm是什么](introduction/introduction.md)
     * [sqltoy主要特性](introduction/feature.md)
-	* [sqltoy支持的数据库](introduction/esp32_iot_kit.md)
+	* [sqltoy支持的数据库](introduction/db_list.md)
 * quickstart
     * [first-sqltoy项目](quickstart/01_blink.md)
     * [02_ledBlink](quickstart/02_ledBlink.md)
