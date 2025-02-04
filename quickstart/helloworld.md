@@ -7,6 +7,17 @@
 
 ## 1、创建一个springboot项目，并配置好数据源
 * 参见:[sqltoy演示项目sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld)
+* 数据库连接池使用hikari(可以根据自己情况自行选择)
+
+```xml
+<!-- spring自带的数据库连接池 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
+    <version>3.4.2</version>
+</dependency>
+
+```
 
 ```yml
 spring:
