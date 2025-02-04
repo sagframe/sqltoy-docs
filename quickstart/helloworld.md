@@ -7,6 +7,20 @@
 
 ## 1、创建一个springboot项目，并配置好数据源
 * 参见:[sqltoy演示项目sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld)
+
+```java
+@SpringBootApplication
+@ComponentScan(basePackages = { "com.sqltoy.helloworld" })
+@EnableTransactionManagement
+public class SqlToyApplication {
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		SpringApplication.run(SqlToyApplication.class, args);
+	}
+}
+```
 * 数据库连接池使用hikari(可以根据自己情况自行选择)
 
 ```xml
