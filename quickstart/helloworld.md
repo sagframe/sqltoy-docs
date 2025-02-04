@@ -21,18 +21,27 @@ spring:
   
 ```
 
-## 2、引入sqltoy的jar，在pom.xml中引入sqltoy-orm-spring-starter
-* pom.xml配置
+## 2、在pom.xml中引入sqltoy-orm-spring-starter
+* springboot场景
 
 ```xml
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
-	<!-- 推荐使用最新正式版本 -->
+	<!-- jdk1.8则使用5.6.38.jre8 -->
 	<version>5.6.38</version>
 </dependency>
 ```
+* solon场景
 
+```xml
+<dependency>
+	<groupId>com.sagframe</groupId>
+	<artifactId>sagacity-sqltoy-solon-plugin</artifactId>
+	<!-- jdk1.8则使用5.6.38.jre8 -->
+	<version>5.6.38</version>
+</dependency>
+```
 ## 3、创建表:sqltoy_order_info
 
 ```sql
@@ -56,7 +65,7 @@ CREATE TABLE SQLTOY_ORDER_INFO(
 )  COMMENT = 'sqltoy订单信息演示表';
 
 ```
-## 4、配置sqltoy生成pojo、dto的maven插件quickvo
+## 4、配置sqltoy生成pojo、dto的maven插件quickvo-maven-plugin
 
 * pom.xml中加入quickvo-maven-plugin
 
