@@ -7,6 +7,18 @@
 
 ## 1、创建一个springboot项目，并配置好数据源
 
+```yml
+spring:
+    datasource:
+       name: dataSource
+       type: com.zaxxer.hikari.HikariDataSource
+       driver-class-name: com.mysql.cj.jdbc.Driver
+       username: helloworld
+       password: helloworld
+       isAutoCommit: false
+       url: jdbc:mysql://127.0.0.1:3306/helloworld?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true
+  
+```
 
 ## 2、引入sqltoy的jar，在pom.xml中引入sqltoy-orm-spring-starter
 * pom.xml配置
