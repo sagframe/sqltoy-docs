@@ -6,6 +6,7 @@
 # 快速搭建sqltoy项目的步骤
 
 ## 1、创建一个springboot项目，并配置好数据源
+* 参见:[sqltoy演示项目sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld)
 
 ```yml
 spring:
@@ -51,6 +52,10 @@ spring:
 </plugin>
 ```
 ## 4、创建表:sqltoy_order_info
+
+```sql
+
+```
 ## 5、执行quickvo，生产pojo
 
 
