@@ -45,7 +45,7 @@ spring:
        isAutoCommit: false
        url: jdbc:mysql://127.0.0.1:3306/helloworld?useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true
     sqltoy:
-       #sql.xml文件存放路径多个路径用逗号分隔(请务必看仔细)
+       #非必选项，设置sql.xml文件存放路径(会自动向下扫描,多路径范例:classpath:com/sqltoy/helloworld,classpath:com/sqltoy/system
        sqlResourcesDir: classpath:com/sqltoy/helloworld
        # 默认为false，debug模式将打印执行sql,并自动检测sql文件更新并重新加载
        debug: true
