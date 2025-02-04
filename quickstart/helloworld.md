@@ -32,7 +32,33 @@ spring:
 	<version>5.6.38</version>
 </dependency>
 ```
-## 3、pom中加入quickvo-maven-plugin通过数据库表生成pojo/dto
+
+## 3、创建表:sqltoy_order_info
+
+```sql
+DROP TABLE IF EXISTS SQLTOY_ORDER_INFO;
+CREATE TABLE SQLTOY_ORDER_INFO(
+    `ORDER_ID` VARCHAR(32) NOT NULL  COMMENT '订单编号' ,
+    `ORDER_TYPE` VARCHAR(32)   COMMENT '订单类别' ,
+    `PRODUCT_CODE` VARCHAR(32)   COMMENT '商品代码' ,
+    `UOM` VARCHAR(30)   COMMENT '计量单位' ,
+    `PRICE` DECIMAL(24,6)   COMMENT '价格' ,
+    `QUANTITY` DECIMAL(24,6)   COMMENT '数量' ,
+    `TOTAL_AMT` DECIMAL(24,6)   COMMENT '订单总金额' ,
+    `STAFF_CODE` VARCHAR(32)   COMMENT '销售员' ,
+    `ORGAN_ID` VARCHAR(32)   COMMENT '销售部门' ,
+    `STATUS` INT   COMMENT '订单状态' ,
+    `CREATE_BY` VARCHAR(32)   COMMENT '创建人' ,
+    `CREATE_TIME` DATETIME   COMMENT '创建时间' ,
+    `UPDATE_BY` VARCHAR(32)   COMMENT '更新人' ,
+    `UPDATE_TIME` DATETIME   COMMENT '更新时间' ,
+    PRIMARY KEY (ORDER_ID)
+)  COMMENT = 'sqltoy订单信息演示表';
+
+```
+## 3、通过sqltoy的maven插件quickvo生成POJO、DTO
+
+* pom.xml中加入quickvo-maven-plugin通过数据库表生成pojo/dto
 ```xml
 <plugin>
 	<groupId>com.sagframe</groupId>
@@ -51,11 +77,9 @@ spring:
 	</dependencies>
 </plugin>
 ```
-## 4、创建表:sqltoy_order_info
 
-```sql
+* 在src/main/resources下面创建quickvo.xml
 
-```
 ## 5、执行quickvo，生产pojo
 
 
