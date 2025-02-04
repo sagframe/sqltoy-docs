@@ -56,9 +56,10 @@ CREATE TABLE SQLTOY_ORDER_INFO(
 )  COMMENT = 'sqltoy订单信息演示表';
 
 ```
-## 3、通过sqltoy的maven插件quickvo生成POJO、DTO
+## 4、配置sqltoy生成pojo、dto的maven插件quickvo
 
-* pom.xml中加入quickvo-maven-plugin通过数据库表生成pojo/dto
+* pom.xml中加入quickvo-maven-plugin
+
 ```xml
 <plugin>
 	<groupId>com.sagframe</groupId>
@@ -79,8 +80,252 @@ CREATE TABLE SQLTOY_ORDER_INFO(
 ```
 
 * 在src/main/resources下面创建quickvo.xml
+  有关quickvo.xml的配置，详细请参见:[quickvo-maven-plugin](https://gitee.com/sagacity/maven-quickvo-plugin)
+  
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<quickvo xmlns="http://www.sagframe.com/schema/quickvo"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.sagframe.com/schema/quickvo http://www.sagframe.com/schema/sqltoy/quickvo.xsd">
+	<!-- db配置文件 -->
+	<property file="src/main/resources/application.yml" />
+	<property name="project.version" value="1.0.0" />
+	<property name="project.name" value="sqltoy-helloworld" />
+	<!-- 定义项目的默认包路径 -->
+	<property name="project.package" value="com.sqltoy.helloworld" />
+	<!-- 数据库定义,这里可以直接写具体值 -->
+	<datasource name="helloworld" url="${spring.datasource.url}"
+		driver="com.mysql.cj.jdbc.Driver" schema="${spring.datasource.username}"
+		username="${spring.datasource.username}" password="${spring.datasource.password}" />
+	<!-- dist 定义生成的java代码存放路径,相对于pom中baseDir -->
+	<tasks dist="src/main/java" encoding="UTF-8">
+		<!-- 可以设置多个任务便于将pojo生成到不同包路径下 -->
+		<task datasource="helloworld" author="zhongxuchen"	include="^SQLTOY_\w+" active="true">
+			<entity package="${project.package}.entity" substr="Sqltoy"	name="#{subName}" lombok-chain="true" />
+			<vo package="${project.package}.dto" lombok-chain="true" substr="Sqltoy" name="#{subName}VO" />
+		</task>
+	</tasks>
+</quickvo>
+```
+## 5、执行quickvo，生成pojo和dto
+* 在项目根路径下执行:mvn quickvo:quickvo
+* 在src/main/java/目录下com.sqltoy.helloworld.dto包下面会生成OrderInfoVO.java
+* 在src/main/java/目录下com.sqltoy.helloworld.entity包下面会生成OrderInfo.java  
+  会包含:@Entity、@Id、@Column 等描述对象跟数据库表关系的注解
 
-## 5、执行quickvo，生产pojo
+```java
+@Data
+@Accessors(chain = true)
+@Entity(tableName="sqltoy_order_info",comment="sqltoy订单信息演示表",pk_constraint="PRIMARY")
+public class OrderInfo implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7200696852961513069L;
+/*---begin-auto-generate-don't-update-this-area--*/	
 
+	/**
+	 * 订单编号
+	 */
+	@Id(strategy="generator",generator="org.sagacity.sqltoy.plugins.id.impl.NanoTimeIdGenerator")
+	@Column(name="ORDER_ID",comment="订单编号",length=32L,type=java.sql.Types.VARCHAR,nativeType="VARCHAR",nullable=false)
+	private String orderId;
+
+	/**
+	 * 订单类别
+	 */
+	@Column(name="ORDER_TYPE",comment="订单类别",length=32L,type=java.sql.Types.VARCHAR,nativeType="VARCHAR",nullable=true)
+	private String orderType;
+
+	/**
+	 * 商品代码
+	 */
+	@Column(name="PRODUCT_CODE",comment="商品代码",length=32L,type=java.sql.Types.VARCHAR,nativeType="VARCHAR",nullable=true)
+	private String productCode;
+
+	/**
+	 * 计量单位
+	 */
+	@Column(name="UOM",comment="计量单位",length=30L,type=java.sql.Types.VARCHAR,nativeType="VARCHAR",nullable=true)
+	private String uom;
+
+	/**
+	 * 价格
+	 */
+	@Column(name="PRICE",comment="价格",length=24L,scale=6,type=java.sql.Types.DECIMAL,nativeType="DECIMAL",nullable=true)
+	private BigDecimal price;
+
+	/**
+	 * 数量
+	 */
+	@Column(name="QUANTITY",comment="数量",length=24L,scale=6,type=java.sql.Types.DECIMAL,nativeType="DECIMAL",nullable=true)
+	private BigDecimal quantity;
+
+	/**
+	 * 订单总金额
+	 */
+	@Column(name="TOTAL_AMT",comment="订单总金额",length=24L,scale=6,type=java.sql.Types.DECIMAL,nativeType="DECIMAL",nullable=true)
+	private BigDecimal totalAmt;
+
+	/**
+	 * 销售员
+	 */
+	@Column(name="STAFF_CODE",comment="销售员",length=32L,type=java.sql.Types.VARCHAR,nativeType="VARCHAR",nullable=true)
+	private String staffCode;
+
+	/**
+	 * 销售部门
+	 */
+	@Column(name="ORGAN_ID",comment="销售部门",length=32L,type=java.sql.Types.VARCHAR,nativeType="VARCHAR",nullable=true)
+	private String organId;
+
+	/**
+	 * 订单状态
+	 */
+	@Column(name="STATUS",comment="订单状态",length=10L,type=java.sql.Types.INTEGER,nativeType="INT",nullable=true)
+	private Integer status;
+
+	/**
+	 * 创建人
+	 */
+	@Column(name="CREATE_BY",comment="创建人",length=32L,type=java.sql.Types.VARCHAR,nativeType="VARCHAR",nullable=true)
+	private String createBy;
+
+	/**
+	 * 创建时间
+	 */
+	@Column(name="CREATE_TIME",comment="创建时间",length=19L,type=java.sql.Types.DATE,nativeType="DATETIME",nullable=true)
+	private LocalDateTime createTime;
+
+	/**
+	 * 更新人
+	 */
+	@Column(name="UPDATE_BY",comment="更新人",length=32L,type=java.sql.Types.VARCHAR,nativeType="VARCHAR",nullable=true)
+	private String updateBy;
+
+	/**
+	 * 更新时间
+	 */
+	@Column(name="UPDATE_TIME",comment="更新时间",length=19L,type=java.sql.Types.DATE,nativeType="DATETIME",nullable=true)
+	private LocalDateTime updateTime;
+	/** default constructor */
+	public OrderInfo() {
+	}
+	
+	/** pk constructor */
+	public OrderInfo(String orderId)
+	{
+		this.orderId=orderId;
+	}
+/*---end-auto-generate-don't-update-this-area--*/
+}
+```
 
 ## 6、创建一个service和单元测试类
+
+* 1、创建OrderInfoService接口
+
+```java
+package com.sqltoy.helloworld.service;
+
+import org.sagacity.sqltoy.model.Page;
+import com.sqltoy.helloworld.dto.OrderInfoVO;
+
+public interface OrderInfoService {
+	/**
+	 * 创建订单
+	 * 
+	 * @param orderInfoVO
+	 */
+	public void createOrderInfo(OrderInfoVO orderInfoVO);
+
+	/**
+	 * 分页查询订单信息
+	 * 
+	 * @param pageModel
+	 * @param queryMap
+	 * @return
+	 */
+	public Page<OrderInfoVO> searchOrderInfo(Page pageModel, Map queryMap);
+}
+```
+
+* 2、编写OrderInfoService实现类OrderInfoServiceImpl
+
+```java
+/**
+ * 订单服务逻辑实现
+ * 
+ * @author zhongxuchen
+ * @date 2025/2/5
+ */
+@Service("orderInfoService")
+public class OrderInfoServiceImpl implements OrderInfoService {
+	// 注入sqltoy框架自带的LightDao
+	@Autowired
+	LightDao lightDao;
+
+	// 所有单表操作对象化完成，类似jpa
+	@Override
+	@Transactional
+	public void createOrderInfo(OrderInfoVO orderInfoVO) {
+		// 调用框架自带的dto<-->pojo 映射方法创建Entity实例
+		OrderInfo orderInfoEntity = lightDao.convertType(orderInfoVO, OrderInfo.class);
+		// 调用save完成保存
+		lightDao.save(orderInfoEntity);
+	}
+
+	// 复杂查询通过sql.xml 定义具体sql内容
+	@Override
+	public Page<OrderInfoVO> searchOrderInfo(Page pageModel, Map queryMap) {
+		String sql = """
+				select * from SQLTOY_ORDER_INFO t
+				where 1=1
+				#[and t.status in (:statusAry)]
+				#[and t.create_time>=:beginTime]
+				#[and t.create_time<=:endTime]
+				""";
+		return lightDao.findPage(pageModel, sql, queryMap, OrderInfoVO.class);
+	}
+
+}
+```
+
+* 3、编写单元测试类OrderInfoServiceTest
+
+```java
+@SpringBootTest
+public class OrderInfoServiceTest {
+	@Autowired
+	OrderInfoService orderInfoService;
+
+	@Test
+	public void testCreateOrderInfo() {
+		OrderInfoVO orderInfoVO = new OrderInfoVO();
+		orderInfoVO.setOrderType("PO");
+		orderInfoVO.setOrganId("T001");
+		orderInfoVO.setProductCode("P0001");
+		orderInfoVO.setPrice(BigDecimal.valueOf(100));
+		orderInfoVO.setQuantity(BigDecimal.valueOf(100));
+		orderInfoVO.setTotalAmt(BigDecimal.valueOf(10000));
+		orderInfoVO.setUom("KG");
+		orderInfoVO.setStaffCode("S0001");
+		orderInfoVO.setCreateBy("S0001");
+		orderInfoVO.setCreateTime(LocalDateTime.now());
+		orderInfoVO.setStatus(1);
+		orderInfoVO.setUpdateBy("S0001");
+		orderInfoVO.setUpdateTime(LocalDateTime.now());
+		orderInfoService.createOrderInfo(orderInfoVO);
+	}
+
+	@Test
+	public void testSearchOrderInfo() {
+		Page pageModel = orderInfoService.searchOrderInfo(new Page(10, 1),
+				MapKit.keys("statusAry", "beginTime", "endTime").values(new Integer[] { 1 },
+						LocalDateTime.parse("2024-10-17T00:00:01"), null));
+		System.err.println(JSON.toJSONString(pageModel));
+	}
+
+}
+```
