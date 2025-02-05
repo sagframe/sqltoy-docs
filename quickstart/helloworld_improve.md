@@ -92,6 +92,11 @@ public class SqlToyUnifyFieldsHandler implements IUnifyFieldsHandler {
 * 4、重新修改单元测试方法
 
 ```java
+@SpringBootTest
+public class OrderInfoServiceTest {
+	@Autowired
+	OrderInfoService orderInfoService;
+	
 	@Test
 	public void testCreateOrderInfo() {
 		OrderInfoVO orderInfoVO = new OrderInfoVO();
@@ -111,5 +116,6 @@ public class SqlToyUnifyFieldsHandler implements IUnifyFieldsHandler {
 		// orderInfoVO.setUpdateTime(LocalDateTime.now());
 		orderInfoService.createOrderInfo(orderInfoVO);
 	}
+}
 ```
  
