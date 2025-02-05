@@ -12,7 +12,10 @@
     * [03 sqltoy查询](quickstart/03_easyio_led.md)
 * 高级特性
     * [01 sql函数扩展](quickstart/helloworld.md)
-    * [02 sqltoy对象化CRUD](quickstart/helloworld_improve.md)
-    * [03 sqltoy查询](quickstart/03_easyio_led.md)
+    * [02 多租户支持](quickstart/helloworld_improve.md)
+    * [03 分库分表](quickstart/03_easyio_led.md)
+    * [04 分库分表](quickstart/03_easyio_led.md)
+    * [05 分库分表](quickstart/03_easyio_led.md)
+    * [04 分库分表](quickstart/03_easyio_led.md)
 * 常见问题解答
     * [01_blink](advance/01_blink.md)

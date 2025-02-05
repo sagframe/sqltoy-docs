@@ -5,7 +5,10 @@
   * [SqlToy Lambda](https://gitee.com/momoljw/sqltoy-lambda)
 * 演示项目
   * [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld)
+  * [sqltoy第三方脚手架项目](https://gitee.com/momoljw/sss-rbac-admin)
   * [sqltoy-strict](https://gitee.com/sagacity/sqltoy-strict)
-  * [ESP-IDF](https://blog.csdn.net/mark_md/category_10794878.html)
-  * [Arduino](https://blog.csdn.net/mark_md/category_11477137.html)
+  * [sqltoy mongo和elasticsearch演示](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-nosql)
+  * [sqltoy 分库分表](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-sharding)
+  * [sqltoy 动态数据源](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource)
+  
 
