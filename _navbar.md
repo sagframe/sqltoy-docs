@@ -10,5 +10,3 @@
   * [sqltoy mongo和elasticsearch演示](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-nosql)
   * [sqltoy 分库分表](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-sharding)
   * [sqltoy 动态数据源](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource)
-  
-
