@@ -7,7 +7,15 @@
   这就需要在框架层面提供统一的处理!
   
 ## sqltoy自定义公共字段赋值接口实现
-* 1、sqltoy提供了标准接口:org.sagacity.sqltoy.plugins.IUnifyFieldsHandler
+* 1、sqltoy提供了标准接口:org.sagacity.sqltoy.plugins.IUnifyFieldsHandler  
+  以创建为例，sqltoy统一字段赋值的逻辑:  
+  1) 字段不存在，会自动跳过(对象化CRUD很方便判断实际字段名称)  
+  2) 弹性赋值:比如字段:createBy已经赋值就会自动跳过
+  
+```java
+  //伪代码逻辑: 
+  if(entity.getCreateBy()!=null){entity.setCreateBy(unifyCreateMap.get("createBy"));}
+```
 * 2、自定义实现类:com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 * 3、在application.yml中配置sqltoy的公共字段处理类
 
@@ -37,33 +45,28 @@ import org.sagacity.sqltoy.plugins.IUnifyFieldsHandler;
 public class SqlToyUnifyFieldsHandler implements IUnifyFieldsHandler {
 	private String defaultUserName = "system-auto";
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sagframe.sqltoy.plugin.IUnifyFieldsHandler#createUnifyFields()
-	 */
-	@Override
-	public Map<String, Object> createUnifyFields() {
+	 /**
+	  * @TODO 设置创建记录时需要赋值的字段和对应的值(弹性模式:即以传递的值优先，为null再填充)
+	  */
+	 public Map<String, Object> createUnifyFields() {
 		LocalDateTime nowTime = LocalDateTime.now();
 		// 获取用户信息
 		String userId = getUserId();
+		// 字段不存在会自动跳过，如:createBy和createdBy,你可以两种都写上
 		return MapKit.keys("createBy", "createTime", "updateBy", "updateTime", "enabled").values(userId, nowTime,
-				userId, nowTime, 1);
-	}
+					userId, nowTime, 1);
+	 }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sagframe.sqltoy.plugin.IUnifyFieldsHandler#updateUnifyFields()
+	/**
+	 * @TODO 设置修改记录时需要赋值的字段和对应的值(弹性)
 	 */
 	@Override
 	public Map<String, Object> updateUnifyFields() {
-		// 获取用户信息，不存在的字段名称会自动忽略掉(因此下述属性未必是每个表中必须存在的)
 		return MapKit.keys("updateBy", "updateTime").values(getUserId(), LocalDateTime.now());
 	}
 
 	/**
-	 * 强制修改的字段，如果没有强制修改，直接返回null
+	 * @TODO 強制修改的字段(一般针对updateTime属性)
 	 */
 	@Override
 	public IgnoreCaseSet forceUpdateFields() {
