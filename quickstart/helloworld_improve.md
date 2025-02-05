@@ -88,4 +88,28 @@ public class SqlToyUnifyFieldsHandler implements IUnifyFieldsHandler {
 	}
 }
 ```
+
+* 4、重新修改单元测试方法
+
+```java
+	@Test
+	public void testCreateOrderInfo() {
+		OrderInfoVO orderInfoVO = new OrderInfoVO();
+		orderInfoVO.setOrderType("PO");
+		orderInfoVO.setOrganId("T001");
+		orderInfoVO.setProductCode("P0001");
+		orderInfoVO.setPrice(BigDecimal.valueOf(100));
+		orderInfoVO.setQuantity(BigDecimal.valueOf(100));
+		orderInfoVO.setTotalAmt(BigDecimal.valueOf(10000));
+		orderInfoVO.setUom("KG");
+		orderInfoVO.setStaffCode("S0001");
+		orderInfoVO.setStatus(1);
+		// 定义SqlToyUnifyFieldsHandler公共字段赋值后，就无需设置
+		// orderInfoVO.setCreateBy("S0001");
+		// orderInfoVO.setCreateTime(LocalDateTime.now());
+		// orderInfoVO.setUpdateBy("S0001");
+		// orderInfoVO.setUpdateTime(LocalDateTime.now());
+		orderInfoService.createOrderInfo(orderInfoVO);
+	}
+```
  
