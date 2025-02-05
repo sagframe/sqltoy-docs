@@ -2,7 +2,7 @@
     * [sqltoy-orm是什么](introduction/introduction.md)
     * [sqltoy主要特性](introduction/feature.md)
 	* [sqltoy支持的数据库](introduction/db_list.md)
-* 演示范例项目
+* 快速上手
     * [01 helloworld项目](quickstart/helloworld.md)
     * [02 helloworld增加公共字段处理](quickstart/helloworld_improve.md)
     * [03 缓存翻译使用](quickstart/translates.md)  
