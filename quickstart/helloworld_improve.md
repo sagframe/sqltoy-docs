@@ -14,11 +14,11 @@
   2) 弹性赋值:比如字段:createBy已经赋值就会自动跳过
   
 ```java
-  //伪代码逻辑: 
+  //逻辑示意: 
   if(entity.getCreateBy()!=null){entity.setCreateBy(unifyCreateMap.get("createBy"));}
 ```
-* 2、自定义实现类:com.sqltoy.plugins.SqlToyUnifyFieldsHandler
-* 3、在application.yml中配置sqltoy的公共字段处理类
+
+* 2、在application.yml中配置sqltoy的公共字段处理类
 
 ```yml
 spring:
@@ -26,7 +26,7 @@ spring:
         unifyFieldsHandler: com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 ```
 
-* 4、SqlToyUnifyFieldsHandler代码
+* 3、SqlToyUnifyFieldsHandler代码
 
 ```java
 package com.sqltoy.plugins;
