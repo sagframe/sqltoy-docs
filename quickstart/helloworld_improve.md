@@ -26,6 +26,7 @@ spring:
         unifyFieldsHandler: com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 ```
 
+* 4、SqlToyUnifyFieldsHandler代码
 
 ```java
 package com.sqltoy.plugins;
@@ -89,7 +90,7 @@ public class SqlToyUnifyFieldsHandler implements IUnifyFieldsHandler {
 }
 ```
 
-* 4、重新修改单元测试方法
+## 单元测试验证公共字段统一赋值
 
 ```java
 @SpringBootTest
