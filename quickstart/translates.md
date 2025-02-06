@@ -240,6 +240,16 @@ public class TranslateTest {
 				.resultType(OrderInfoVO.class)).getRows();
 		System.err.println(JSON.toJSONString(result));
 	}
+	
+	// sql参见com/sqltoy/helloworld/sqltoy/sqltoy-helloworld.sql.xml 文件,sqlId要全局唯一
+	@Test
+	public void testTranslateWithSqlId() {
+		List<OrderInfoVO> result = lightDao.find("helloworld_search_orderInfo",
+				MapKit.keys("statusAry", "beginTime", "endTime").values(new Integer[] { 1 },
+						LocalDateTime.parse("2024-10-17T00:00:01"), null),
+				OrderInfoVO.class);
+		System.err.println(JSON.toJSONString(result));
+	}
 }
 
 ```
