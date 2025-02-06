@@ -10,9 +10,10 @@
     * [01 sqltoy配置参数](api/sqltoy_config.md)
     * [02 sqltoy对象化CRUD](quickstart/helloworld_improve.md)
     * [03 sqltoy常规查询](quickstart/03_easyio_led.md)
-    * [04 mongo查询支持](quickstart/03_easyio_led.md)
-    * [05 elasticsearch查询支持](quickstart/03_easyio_led.md)
-    * [06 复杂查询统计](quickstart/03_easyio_led.md)
+    * [04 类型扩展处理typeHandler(如JSON)](quickstart/helloworld_improve.md)
+    * [05 mongo查询支持](quickstart/03_easyio_led.md)
+    * [06 elasticsearch查询支持](quickstart/03_easyio_led.md)
+    * [07 复杂查询统计](quickstart/03_easyio_led.md)
 * 高级特性
     * [01 sql函数扩展](quickstart/helloworld.md)
     * [02 多租户支持](quickstart/helloworld_improve.md)
