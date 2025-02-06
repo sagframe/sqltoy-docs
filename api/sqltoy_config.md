@@ -71,7 +71,7 @@ spring.sqltoy.updateTipCount=3000
 ```
 
 # 常规项目用法
-* 看到清单吓一跳(太复杂了,不学不学了),绝大多数项目只需要设置3~6个参数
+* 看到清单吓一跳,但绝大多数项目只需要设置3~5个参数
 
 ```properties
 #推荐复杂查询放xml中
@@ -80,6 +80,8 @@ spring.sqltoy.sqlResourcesDir=classpath:com/nebula/crm/modules
 spring.sqltoy.debug=true
 #公共字段统一赋值处理
 spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
+#慢sql的时长标准定义
+spring.sqltoy.printSqlTimeoutMillis=3000
 #typeHandler不涉及json也基本用不到,sqltoy针对枚举类型自动适配
 spring.sqltoy.typeHandler=com.sqltoy.plugins.JSONTypeHandler
 ```
