@@ -82,6 +82,6 @@ spring.sqltoy.debug=true
 spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 #慢sql的时长标准定义
 spring.sqltoy.printSqlTimeoutMillis=3000
-#typeHandler不涉及json也基本用不到,sqltoy针对枚举类型自动适配
+#此项使用比例也较低(枚举类型框架自动适配)
 spring.sqltoy.typeHandler=com.sqltoy.plugins.JSONTypeHandler
 ```
