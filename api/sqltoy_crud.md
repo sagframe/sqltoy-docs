@@ -321,8 +321,70 @@ lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE)
 ```java
 /**
  * @TODO 提供链式操作模式对象加载操作集合
+ *    <li>lightDao.load().dataSource(xxxx).lock(LockMode.UPGRADE_NOWAIT).one(new StaffInfo("S0001"));</li>
+ *    <li>lightDao.load().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);</li>
+ *    <li>加载主对象，同时级联加载子对象:lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).many(entities);</li>
+ *    <li>只根据主对象的主键级联加载子对象:lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).onlyCascade().many(entities);</li>
  * @return
  */
 public Load load();
+
+/**
+ * @todo 根据实体对象的主键值获取对象的详细信息
+ * @param entity
+ * @return entity
+ */
+public <T extends Serializable> T load(final T entity);
+
+/**
+ * @todo 根据主键获取对象,提供读取锁设定
+ * @param entity
+ * @param lockMode LockMode.UPGRADE 或LockMode.UPGRADE_NOWAIT等
+ * @return entity
+ */
+public <T extends Serializable> T load(final T entity, final LockMode lockMode);
+
+/**
+ * @todo 对象加载同时指定加载子类，实现级联加载
+ * @param entity
+ * @param lockMode
+ * @param cascadeTypes
+ * @return entity
+ */
+public <T extends Serializable> T loadCascade(final T entity, final LockMode lockMode, final Class... cascadeTypes);
+
+/**
+ * @todo 根据集合中的主键获取实体的详细信息(底层是批量加载优化了性能,同时控制了in 1000个问题)
+ * @param entities
+ * @return entities
+ */
+public <T extends Serializable> List<T> loadAll(List<T> entities);
+
+/**
+ * @todo 提供带锁记录的批量加载功能
+ * @param <T>
+ * @param entities
+ * @param lockMode
+ * @return
+ */
+public <T extends Serializable> List<T> loadAll(List<T> entities, final LockMode lockMode);
+
+/**
+ * @TODO 通过EntityQuery模式加载单条记录
+ * @param <T>
+ * @param entityClass
+ * @param entityQuery 例如:EntityQuery.create().select(a,b,c).where("tenantId=?
+ *                    and staffId=?).values("1","S0001")
+ * @return
+ */
+public <T extends Serializable> T loadEntity(Class<T> entityClass, EntityQuery entityQuery);
+
+public <T extends Serializable> T loadEntity(Class entityClass, EntityQuery entityQuery, Class<T> resultType);
+```
+
+* 大规模并行加载范例
+
+```java
+lightDao.load().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);
 ```
 
