@@ -4,6 +4,11 @@
     比如:前端select、checkbox、suggest组件、机构树等就可以直接从缓存获取数据
 * 3、通过API对缓存数据进行过滤,反向匹配key,用来替代sql like查询
 
+# 缓存翻译三种方式
+* 1、基于xml的translate标记
+* 2、通过findByQuery中QueryExecutor::translates(Translate...translates)
+* 3、通过DTO属性上加@Translate注解
+
 # 创建数据字典、机构表
 
 ```sql
@@ -218,7 +223,9 @@ import com.sqltoy.helloworld.dto.OrderInfoVO;
 public class TranslateTest {
 	@Autowired
 	LightDao lightDao;
-
+	
+	//基于findByQuery/findPageByQuery/findEntity/findPageEntity 中
+	//的QueryExecutor或EntityQuery使用translates(Translate...Translates)
 	@Test
 	public void testTranslate() {
 		String sql = """
@@ -240,7 +247,9 @@ public class TranslateTest {
 				.resultType(OrderInfoVO.class)).getRows();
 		System.err.println(JSON.toJSONString(result));
 	}
-	
+	//xml中的
+	//<translate cache="dictKeyNameCache" cache-type="ORDER_TYPE" columns="orderTypeName"/>
+	//<translate cache="organIdNameCache" columns="organName"/>
 	// sql参见com/sqltoy/helloworld/sqltoy/sqltoy-helloworld.sql.xml 文件,sqlId要全局唯一
 	@Test
 	public void testTranslateWithSqlId() {
@@ -250,6 +259,102 @@ public class TranslateTest {
 				OrderInfoVO.class);
 		System.err.println(JSON.toJSONString(result));
 	}
+	
+	/**
+	 * 在OrderInfoVO属性:organName、orderTypeName上加注解模式实现缓存翻译 如:
+	 * @Translate(cacheName = "organIdNameCache", keyField = "organId")
+	 * private String organName;
+	 */
+	@Test
+	public void testTranslateByAnnotationTrans() {
+		List<OrderInfoVO> result = lightDao.findEntity(OrderInfo.class,
+				// select * 场景无需写.select()这里仅仅示范一下
+				// EntityQuery.create().unselect(排除的字段)
+				EntityQuery.create().select()
+						// 沿用sqltoy动态条件的规则
+						.where("#[and status in (:statusAry)]#[and createTime>=:beginTime]#[and createTime<=:endTime]")
+						.values(MapKit.keys("statusAry", "beginTime", "endTime").values(new Integer[] { 1 },
+								LocalDateTime.parse("2024-10-17T00:00:01"), null)),
+				OrderInfoVO.class);
+		System.err.println(JSON.toJSONString(result));
+	}
 }
 
+```
+
+# 缓存的其他用法
+
+* 1、直接获取缓存:  
+  1)lightDao.getTranslateCache("dictCache","ORDER_TYPE");  
+  2)lightDao.getTranslateCache("organCache",null,OrganInfoVO.class);
+
+```java
+/**
+ * @todo 获取sqltoy中用于翻译的缓存,方便用于页面下拉框选项、checkbox选项、suggest组件等
+ * @param cacheName
+ * @param cacheType 如是数据字典,则传入字典类型否则为null即可
+ * @return
+ */
+public HashMap<String, Object[]> getTranslateCache(String cacheName, String cacheType);
+
+/**
+ * @TODO 将缓存数据以对象形式获取
+ * @param <T>
+ * @param cacheName
+ * @param cacheType  如是数据字典,则传入字典类型否则为null即可
+ * @param reusltType 缓存定义时的sql属性名称或自定义的properties属性要跟resultType的属性对应
+ * @return
+ */
+public <T> List<T> getTranslateCache(String cacheName, String cacheType, Class<T> reusltType);
+```
+
+* 2、调用缓存对集合进行翻译
+
+```java
+/**
+ * @todo 对数据集合通过反调函数对具体属性进行翻译
+ * @param dataSet        数据集合
+ * @param cacheName      缓存名称
+ * @param cacheType      例如数据字典存在分类的缓存填写字典分类，其它的如员工、机构等填null
+ * @param cacheNameIndex 默认为1，缓存名称在缓存数组的第几列(因为有:名称、别名、简称、全称之说)
+ * @param handler
+ */
+public void translate(Collection dataSet, String cacheName, String cacheType, Integer cacheNameIndex,
+		TranslateHandler handler);
+		
+//用法示例
+lightDao.translate(staffVOs<StaffInfoVO>, "staffIdName",	1， new TranslateHandler() {
+	//告知key值
+	public Object getKey(Object row) {
+		return ((StaffInfoVO)row).getStaffId();
+	}
+	// 将翻译后的名称值设置到对应的属性上
+	public void setName(Object row, String name) {
+		((StaffInfoVO)row).setStaffName(name);
+	}
+});
+```
+
+* 3、调用缓存进行过滤
+
+```java
+/**
+ * @TODO 通过缓存将名称进行模糊匹配取得key的集合
+ * @param cacheMatchFilter
+ * @param matchRegexes     数组
+ * @return
+ */
+public String[] cacheMatchKeys(CacheMatchFilter cacheMatchFilter, String... matchRegexes);
+
+//示例
+String[] keys = lightDao.cacheMatchKeys(CacheMatchFilter.create()
+		.cacheName("organIdNameCache")
+		//对第一列机构名称进行匹配，可以matchIndexs(1,2) 机构名称、别称
+		.matchIndexs(1)
+		//设置返回列为第0列
+		.cacheKeyIndex(0)
+		//优先以equal方式进行匹配(如有：上海新能源\ 中国上海新能源发展公司，传入:上海新能源 就返回第一个的机构代码，否则就以like形式匹配)
+		.priorMatchEqual(true)
+		//匹配结果数量
+		.matchSize(2), "新能源研究院");
 ```
