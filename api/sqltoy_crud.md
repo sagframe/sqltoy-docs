@@ -1,3 +1,14 @@
+# 说明
+* sqltoy的对象化crud跟JPA比较类似，主要特点:  
+1) 通过quickvo类似hibernate-tools工具产生POJO  
+2) 支持复合主键，如update操作lightDao.update(new StaffInfo("S0001","HUAWEI_SH").setName("李四"));  
+3) 提供显式快捷api和链式api 2种模式,链式API提供更多的参数,如指定数据源、设定并行、设定batchSize等参数,如  
+   lightDao.update().dataSource(xxx).forceUpdateProps("status").batchSize(500).many(entities);  
+4) 没有逻辑删除的概念,在sqltoy中就是状态更新  
+5) 相比较于JPA，sqltoy主要优化了update(提供了弹性修改)，新增了updateFetch和updateSaveFetch  
+6) sqltoy支持:OneToOne 和 OneToMany 两种形式的级联(有部分改进,如:加载支持过滤等)，但只支持一级级联  
+7) sqltoy在级联加载和级联删除等操作上底层做了优化,采用了id in (:ids)形式的查询和删除,用算法组织最终数据，减少数据库IO提升效率
+
 # 1、单条记录保存
 * 接口规范，涉及显式指定数据源，可用lightDao.save().dataSource(xxx).one(entity)链式操作
 
@@ -150,6 +161,16 @@ public Update update();
 public Long updateCascade(Serializable entity, String[] forceUpdateProps, Class[] forceCascadeClasses,
 		HashMap<Class, String[]> subTableForceUpdateProps);
 ```
+
+* 简单更新使用范例
+
+```java
+//对工号S0001的员工更新姓名和状态
+lightDao.update(new StaffInfo("S0001").setName("张三").setStatus(1));
+//复合主键（工号、租户)
+lightDao.update(new StaffInfo("S0001","HUAWEI_SH").setName("张三").setStatus(1));
+```
+
 * 级联修改使用范例
 
 ```java
@@ -159,6 +180,8 @@ lightDao.update().dataSource(crmDataSource).forceUpdateProps("status").cascadeFo
 ```
 
 # 4、批量修改
+
+* api规范
 
 ```java
 /**
@@ -177,4 +200,60 @@ public <T extends Serializable> Long updateAll(List<T> entities, String... force
  * @return Long 数据库发生变更的记录量
  */
 public <T extends Serializable> Long updateAllDeeply(List<T> entities);
+```
+
+* 大批量并行更新范例
+
+```java
+lightDao.update().dataSource(crmDataSource).forceUpdateProps("status")
+      .parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10))
+      .many(entities);
+```
+
+# 5、删除操作
+* sqltoy没有逻辑删除的概念  
+  (逻辑删除本质就是更新状态或更新标记字段，请用更新操作代替)
+
+
+* api规范
+
+```java
+/**
+ * @TODO 提供链式操作模式删除操作集合 示例:
+ *       <li>lightDao.delete().dataSource(xxxx).one(entity);</li>
+ *       <li>lightDao.delete().batchSize(1000).autoCommit(true).many(entities);</li>
+ *       <li>lightDao.delete().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);</li>
+ * @return
+ */
+public Delete delete();
+	
+/**
+ * @todo 删除单条对象并返回数据库记录影响的数量
+ * @param entity
+ * @return Long 数据库发生变更的记录量(删除数据量)
+ */
+public Long delete(final Serializable entity);
+
+/**
+ * @todo 批量删除对象并返回数据库记录影响的数量
+ * @param entities
+ * @return Long 数据库记录变更量(删除数据量)
+ */
+public <T extends Serializable> Long deleteAll(final List<T> entities);
+
+/**
+ * @TODO 根据id集合批量删除
+ * @param entityClass
+ * @param ids
+ * @return
+ */
+public Long deleteByIds(Class entityClass, Object... ids);
+
+/**
+ * @TODO 基于单表查询进行删除操作,提供在代码中进行快捷操作
+ * @param entityClass
+ * @param entityQuery 例如:lightDao.deleteByQuery(DictDetail.class,EntityQuery.create().where("status=?").values(0));
+ * @return Long 数据库记录变更量(插入数据量)
+ */
+public Long deleteByQuery(Class entityClass, EntityQuery entityQuery);
 ```
