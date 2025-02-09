@@ -7,7 +7,8 @@
 4) 没有逻辑删除的概念,在sqltoy中就是状态更新  
 5) 相比较于JPA，sqltoy主要优化了update(提供了弹性修改)，新增了updateFetch和updateSaveFetch  
 6) sqltoy支持:OneToOne 和 OneToMany 两种形式的级联(有部分改进,如:加载支持过滤等)，但只支持一级级联  
-7) sqltoy在级联加载和级联删除等操作上底层做了优化,采用了id in (:ids)形式的查询和删除,用算法组织最终数据，减少数据库IO提升效率
+7) sqltoy在级联加载和级联删除等操作上底层做了优化,采用了id in (:ids)形式的查询和删除,用算法组织最终数据，减少数据库IO提升效率  
+8) 详细请参见:org.sagacity.sqltoy.dao.LightDao接口,其有详细备注
 
 # 1、单条记录保存
 * 接口规范，涉及显式指定数据源，可用lightDao.save().dataSource(xxx).one(entity)链式操作
@@ -257,3 +258,71 @@ public Long deleteByIds(Class entityClass, Object... ids);
  */
 public Long deleteByQuery(Class entityClass, EntityQuery entityQuery);
 ```
+
+* 使用范例
+
+```java
+//复合主键
+lightDao.delete(new StaffInfo("S0001","HUAWEI_SH"));
+//单主键，删除多条
+lightDao.deleteByIds(OrderInfo.class,"10001"，"10002");
+//删除符合条件的数据
+lightDao.deleteByQuery(DictDetail.class,EntityQuery.create().dataSource(xxxx).where("status=?").values(0));
+```
+
+# 6、saveOrUpdate操作
+* 说明  
+  1) saveOrUpdate的逻辑是记录存在就做修改操作，如果不存在则新建(主键值为null则必然是新建)  
+  2) 类mysql数据库采用先update后insert ignore方式，其他采用merge into 模式
+
+* api规范
+
+```java
+/**
+ * @TODO 提供链式操作模式保存操作集合,如:
+ *    <li>lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE).many(entities)</li>
+ * @return
+ */
+public Save save();
+	
+/**
+ * @todo 保存或修改数据并返回数据库记录变更数量
+ * @param entity
+ * @param forceUpdateProps 强制修改的字段
+ * @return Long 数据库发生变更的记录量
+ */
+public Long saveOrUpdate(Serializable entity, String... forceUpdateProps);
+
+/**
+ * @TODO 批量保存或修改操作(当已经存在就执行修改)
+ * @param <T>
+ * @param entities
+ * @param forceUpdateProps 强制修改的字段
+ * @return Long 数据库发生变更的记录量
+ */
+public <T extends Serializable> Long saveOrUpdateAll(List<T> entities, String... forceUpdateProps);
+```
+
+* 使用范例
+
+```java
+//简单批量保存或修改
+lightDao.saveOrUpdateAll(entities,"name","status","quantity");
+
+//SaveMode分:APPEND\UPDATE\IGNORE三种
+lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE)
+	.parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);
+```
+
+* 7、对象加载
+
+* api规范
+
+```java
+/**
+ * @TODO 提供链式操作模式对象加载操作集合
+ * @return
+ */
+public Load load();
+```
+
