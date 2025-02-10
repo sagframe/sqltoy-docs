@@ -177,6 +177,8 @@ lightDao.update(new StaffInfo("S0001","HUAWEI_SH").setName("张三").setStatus(1
 ```java
 Map<Class,String[]> subTableForces=new HashMap<>();
 subTableForces.put(ComplexpkItem.class,new String[]{"status"});
+
+//单条记录修改一旦涉及cascadeForceUpdate或cascadeClasses 就开启了级联行为，否则update只针对自身
 lightDao.update().dataSource(crmDataSource).forceUpdateProps("status").cascadeForceUpdate(subTableForces).one(entity);
 ```
 
@@ -337,6 +339,15 @@ public Load load();
 public <T extends Serializable> T load(final T entity);
 
 /**
+ * @TODO 根据主键获取单个实体对象
+ * @param <T>
+ * @param entityClass
+ * @param id
+ * @return
+ */
+public <T extends Serializable> T loadById(final Class<T> entityClass, Object id);
+
+/**
  * @todo 根据主键获取对象,提供读取锁设定
  * @param entity
  * @param lockMode LockMode.UPGRADE 或LockMode.UPGRADE_NOWAIT等
@@ -370,21 +381,65 @@ public <T extends Serializable> List<T> loadAll(List<T> entities);
 public <T extends Serializable> List<T> loadAll(List<T> entities, final LockMode lockMode);
 
 /**
- * @TODO 通过EntityQuery模式加载单条记录
+ * @TODO 根据id集合批量加载对象
  * @param <T>
  * @param entityClass
- * @param entityQuery 例如:EntityQuery.create().select(a,b,c).where("tenantId=?
- *                    and staffId=?).values("1","S0001")
+ * @param ids
  * @return
  */
-public <T extends Serializable> T loadEntity(Class<T> entityClass, EntityQuery entityQuery);
+public <T extends Serializable> List<T> loadByIds(final Class<T> entityClass, Object... ids);
 
-public <T extends Serializable> T loadEntity(Class entityClass, EntityQuery entityQuery, Class<T> resultType);
+/**
+ * @TODO 根据id集合批量加载对象,并加锁
+ * @param <T>
+ * @param entityClass
+ * @param lockMode
+ * @param ids
+ * @return
+ */
+public <T extends Serializable> List<T> loadByIds(final Class<T> entityClass, final LockMode lockMode,
+		Object... ids);
+
+/**
+ * @todo 选择性的加载子表信息
+ * @param entities
+ * @param cascadeTypes
+ * @return
+ */
+public <T extends Serializable> List<T> loadAllCascade(List<T> entities, final Class... cascadeTypes);
+
+/**
+ * @TODO 锁住主表记录并级联加载子表数据
+ * @param <T>
+ * @param entities
+ * @param lockMode
+ * @param cascadeTypes
+ * @return
+ */
+public <T extends Serializable> List<T> loadAllCascade(List<T> entities, final LockMode lockMode,
+		final Class... cascadeTypes);
 ```
 
 * 大规模并行加载范例
 
 ```java
 lightDao.load().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);
+```
+
+* 级联加载
+
+```java
+lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).many(entities);
+
+lightDao.loadCascade(new OrderInfo("S0001"), null, OrderItem.class,OrderDeliverPlan.class);
+
+```
+
+* 仅级联加载子对象(将子对象构造到主对象的对应属性上)
+
+```java
+//.onlyCascade()即只会通过entities集合pojo的主键关联查询子对象，主对象不再做查询行为
+lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).onlyCascade().many(entities);
+
 ```
 
