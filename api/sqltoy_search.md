@@ -66,6 +66,14 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 			.filters(new ParamsFilter("status").eq("-1")));
 ```
 
+## 常用查询方式
+
+* 缓存翻译
+
+```xml
+
+```
+
 ## 查询单条记录
 * api接口说明  
   1、单条记录查询，都以load开头或findOne  
@@ -310,8 +318,10 @@ public QueryResult findTopByQuery(final QueryExecutor queryExecutor, final doubl
 
 ## 取随机记录
 
-* api接口
-
+* api接口  
+  1、findRandom(sql,paramsMap,StaffInfo.class,3)即随机抽3名员工  
+  2、findRandom(sql,paramsMap,StaffInfo.class,0.2)即随机抽符合条件总数的20%员工
+  
 ```java
 public QueryResult findRandomByQuery(final QueryExecutor queryExecutor, final double randomCount);
 
@@ -339,3 +349,4 @@ public <T> List<T> findRandom(final String sqlOrSqlId, final Serializable entity
 public <T> List<T> findRandom(final String sqlOrSqlId, final Map<String, Object> paramsMap,
 		final Class<T> resultType, final double randomCount);
 ```
+
