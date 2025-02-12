@@ -128,7 +128,8 @@ lightDao.loadEntity(OrderInfo.class,EntityQuery.create().select(a,b,c).where("or
 
 ## 获取单值
 
-* api说明
+* api说明  
+  只支持返回单行数据，如果存在多列数据，只返回第一列
 
 ```java
 public Object getValue(final String sqlOrSqlId, final Map<String, Object> paramsMap);
@@ -138,9 +139,203 @@ public Object getValue(final String sqlOrSqlId, final Map<String, Object> params
  *      <li>lightDao.getValue("select max(amt) from table",null,BigDecimal.class)</li>
  * @param <T>
  * @param sqlOrSqlId
- * @param paramsMap
- * @param resultType
+ * @param paramsMap map传递条件参数
+ * @param resultType 单个数值的返回结果类型 Integer.class、String.class、BigDecimal.class 等
  * @return
  */
 public <T> T getValue(final String sqlOrSqlId, final Map<String, Object> paramsMap, final Class<T> resultType);
+```
+
+## 判断唯一性
+
+* api接口  
+  1、查询结果为null，表示记录不存在，唯一
+  2、查询结果超过1条，表示记录已经存在，不唯一
+  3、查询结果为1条，分2种场景:1)如果主键值相同，表示是在做修改行为，结果唯一；2)如果主键值为null，则不唯一
+
+```java
+/**
+ * @TODO 提供链式操作模式唯一性验证操作集合
+ *       <li>lightDao.unique().entity(entity).fields("staffCode","tenantId").submit();</li>
+ * @return
+ */
+public Unique unique();
+
+/**
+ * @todo 判断对象属性在数据库中是否唯一
+ * @param entity
+ * @param paramsNamed 对象属性名称(不是数据库表字段名称)
+ * @return boolean true：唯一；false：不唯一
+ */
+public boolean isUnique(Serializable entity, String... paramsNamed);
+```
+
+## 集合查询
+
+* api接口
+
+```java
+/**
+ * @todo 通过Query构造查询条件进行数据查询
+ * @param query 范例:new QueryExecutor(sql).names(xxx).values(xxx).filters()
+ *              链式设置查询
+ * @return
+ */
+public QueryResult findByQuery(final QueryExecutor query);
+
+/**
+ * @todo 通过对象传参数,简化paramName[],paramValue[] 模式传参
+ * @param <T>
+ * @param sqlOrSqlId 可以是具体sql也可以是对应xml中的sqlId
+ * @param entity     通过对象传参数
+ * @param resultType
+ * @return
+ */
+public <T> List<T> find(final String sqlOrSqlId, final Serializable entity, final Class<T> resultType);
+
+/**
+ * @TODO 提供基于Map传参查询
+ * @param <T>
+ * @param sqlOrSqlId
+ * @param paramsMap  可以使用MapKit.keys().values()等进行构造
+ * @param resultType 可以是vo、dto、Map(默认驼峰命名)
+ * @return
+ */
+public <T> List<T> find(final String sqlOrSqlId, final Map<String, Object> paramsMap, final Class<T> resultType);
+
+public List find(final String sqlOrSqlId, final Map<String, Object> paramsMap);
+
+/**
+ * @TODO 通过EntityQuery 组织查询条件对POJO进行单表查询,为代码中进行逻辑处理提供便捷
+ *       <li>如果要查询整个表记录:findEntity(entityClass,null) 即可</li>
+ * @param <T>
+ * @param entityClass
+ * @param entityQuery EntityQuery.create().where("status=:status #[and staffName
+ *                    like
+ *                    :staffName]").names("status","staffName").values(1,null).orderBy()
+ *                    链式设置查询逻辑
+ * @return
+ */
+public <T> List<T> findEntity(Class<T> entityClass, EntityQuery entityQuery);
+
+/**
+ * @TODO 通过entity实体进行查询，但返回结果类型可自行指定
+ * @param <T>
+ * @param entityClass
+ * @param entityQuery
+ * @param resultType  指定返回结果类型
+ * @return
+ */
+public <T> List<T> findEntity(Class entityClass, EntityQuery entityQuery, Class<T> resultType);
+```
+
+## 分页查询
+
+* api接口
+
+```java
+/**
+ * @todo 通过QueryExecutor来构造查询逻辑进行分页查询
+ * @param page
+ * @param queryExecutor 范例:new
+ *                      QueryExecutor(sql).dataSource(dataSource).names(xxx).values(xxx).filters()
+ *                      链式设置查询
+ * @return
+ */
+public QueryResult findPageByQuery(final Page page, final QueryExecutor queryExecutor);
+
+public Page findPage(final Page page, final String sqlOrSqlId, final Map<String, Object> paramsMap);
+
+/**
+ * @TODO 提供基于Map传参的分页查询
+ * @param <T>
+ * @param page
+ * @param sqlOrSqlId sqlToy统一的逻辑:可以是xml中的sqlId 也可以直接是具体sql
+ * @param paramsMap  以Map形式传参
+ * @param resultType 返回结果类型:可以是vo、dto、Map(默认驼峰命名)、List.class、Array.class 等
+ * @return
+ */
+public <T> Page<T> findPage(final Page page, final String sqlOrSqlId, final Map<String, Object> paramsMap,
+		final Class<T> resultType);
+
+/**
+ * @TODO 通过VO对象传参模式的分页，返回结果是VO类型的集合
+ * @param <T>
+ * @param page
+ * @param sqlOrSqlId
+ * @param entity
+ * @param resultType
+ * @return
+ */
+public <T> Page<T> findPage(final Page page, final String sqlOrSqlId, final Serializable entity,
+		final Class<T> resultType);
+```
+
+## 取Top记录查询
+
+* api接口
+
+```java
+/**
+ * @TODO 提供基于Map传参的top查询
+ * @param <T>
+ * @param sqlOrSqlId
+ * @param paramsMap
+ * @param resultType 可以是vo、dto、Map(默认驼峰命名)
+ * @param topSize
+ * @return
+ */
+public <T> List<T> findTop(final String sqlOrSqlId, final Map<String, Object> paramsMap, final Class<T> resultType,
+		final double topSize);
+
+/**
+ * @todo 基于对象传参数模式(内部会根据sql中的参数提取对象对应属性的值),并返回对象对应类型的List
+ * @param <T>
+ * @param sqlOrSqlId
+ * @param entity
+ * @param resultType
+ * @param topSize    (大于1则取固定数量的记录，小于1，则表示按比例提取)
+ * @return
+ */
+public <T> List<T> findTop(final String sqlOrSqlId, final Serializable entity, final Class<T> resultType,
+		final double topSize);
+
+/*
+ * 用QueryExecutor组织查询逻辑,findTopByQuery(new
+ * QueryExecutor(sqlOrSqlId,MapKit.keys(...).values(...)).resultType(resultDTO),
+ * 10)
+ */
+public QueryResult findTopByQuery(final QueryExecutor queryExecutor, final double topSize);
+```
+
+## 取随机记录
+
+* api接口
+
+```java
+public QueryResult findRandomByQuery(final QueryExecutor queryExecutor, final double randomCount);
+
+/**
+ * @TODO 通过对象传参模式取随机记录
+ * @param <T>
+ * @param sqlOrSqlId
+ * @param entity
+ * @param resultType
+ * @param randomCount 小于1表示按比例提取，大于1则按整数部分提取记录数量
+ * @return
+ */
+public <T> List<T> findRandom(final String sqlOrSqlId, final Serializable entity, final Class<T> resultType,
+		final double randomCount);
+
+/**
+ * @TODO 提供基于Map传参的随机记录查询
+ * @param <T>
+ * @param sqlOrSqlId
+ * @param paramsMap
+ * @param resultType  可以是vo、dto、Map(默认驼峰命名)
+ * @param randomCount
+ * @return
+ */
+public <T> List<T> findRandom(final String sqlOrSqlId, final Map<String, Object> paramsMap,
+		final Class<T> resultType, final double randomCount);
 ```
