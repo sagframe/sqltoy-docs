@@ -4,12 +4,13 @@
 	* [sqltoy支持的数据库](introduction/db_list.md)
 * 快速上手
     * [01 helloworld项目](quickstart/helloworld.md)
-    * [02 helloworld增加公共字段处理](quickstart/helloworld_improve.md)
-    * [03 缓存翻译使用](quickstart/translates.md)  
+    * [02 helloworld-solon案例](quickstart/helloworld_solon.md.md)
+    * [03 helloworld增加公共字段处理](quickstart/helloworld_improve.md)
+    * [04 缓存翻译使用](quickstart/translates.md)  
 * API说明
     * [01 sqltoy配置参数](api/sqltoy_config.md)
     * [02 sqltoy对象化CRUD](quickstart/helloworld_improve.md)
-    * [03 sqltoy常规查询](quickstart/03_easyio_led.md)
+    * [03 sqltoy常规查询](api/sqltoy_query.md)
     * [04 类型扩展处理typeHandler(如JSON)](quickstart/helloworld_improve.md)
     * [05 mongo查询支持](quickstart/03_easyio_led.md)
     * [06 elasticsearch查询支持](quickstart/03_easyio_led.md)

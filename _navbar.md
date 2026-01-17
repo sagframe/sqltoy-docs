@@ -5,7 +5,7 @@
   * [SqlToy Lambda](https://gitee.com/momoljw/sqltoy-lambda)
 * 演示项目
   * [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld)
-  * [sqltoy第三方脚手架项目](https://gitee.com/momoljw/sss-rbac-admin)
+  * [sqltoy第三方脚手架项目](https://github.com/CoCoTeaNet/CyreneAdmin)
   * [sqltoy-strict](https://gitee.com/sagacity/sqltoy-strict)
   * [sqltoy mongo和elasticsearch演示](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-nosql)
   * [sqltoy 分库分表](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-sharding)

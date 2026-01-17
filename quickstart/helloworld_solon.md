@@ -62,11 +62,11 @@ public class DbConfig {
 
 连接池这里用了HikariDataSource，因此要多加个依赖：
 ```xml
-        <!-- 连接池 -->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-        </dependency>
+<!-- 连接池 -->
+<dependency>
+    <groupId>com.zaxxer</groupId>
+    <artifactId>HikariCP</artifactId>
+</dependency>
 ```
 
 - 然后是sqltoy的配置
