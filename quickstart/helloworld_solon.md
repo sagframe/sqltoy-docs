@@ -6,7 +6,7 @@
 - 打开 IDE（如 IntelliJ IDEA 或 Eclipse），选择创建 Maven 项目。这里直接使用idea solon插件创建。
 - 案例地址：[sqltoy-solon-demo](https://github.com/CoCoTeaNet/sqltoy-solon-demo)
 
-[![create_solon_project](/_media/create_solon_project.png)](https://github.com/sagframe/sqltoy-docs/raw/main/_media/create_solon_project.png)
+![create_solon_project](../_media/create_solon_project.png)
 
 
 ## 二、添加依赖

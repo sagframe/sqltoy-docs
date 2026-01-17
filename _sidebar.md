@@ -9,7 +9,7 @@
     * [04 缓存翻译使用](quickstart/translates.md)  
 * API说明
     * [01 sqltoy配置参数](api/sqltoy_config.md)
-    * [02 sqltoy对象化CRUD](quickstart/helloworld_improve.md)
+    * [02 sqltoy对象化CRUD](api/sqltoy_crud.md)
     * [03 sqltoy常规查询](api/sqltoy_query.md)
     * [04 类型扩展处理typeHandler(如JSON)](quickstart/helloworld_improve.md)
     * [05 mongo查询支持](quickstart/03_easyio_led.md)
