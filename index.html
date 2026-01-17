@@ -31,7 +31,18 @@
         depth: 3
       },
       plugins: [
-        EditOnGithubPlugin.create("https://github.com/sagframe/sqltoy-docs/tree/main/"),
+        EditOnGithubPlugin.create("https://github.com/sagframe/sqltoy-docs/tree/main/", "", "📝Edit Document"),
+        function pageFooter(hook, vm) {
+          var footer = [
+            '<hr/>',
+            '<footer>',
+            '发现错误？ 您可以在 <a href="https://gitee.com/sagacity/sagacity-sqltoy" target="_blank">Gitee</a> 或 <a href="https://github.com/sagframe/sagacity-sqltoy" target="_blank">GitHub</a> 帮助我们完善此页文档！或 加入讨论群 交流反馈',
+            '</footer>',
+          ].join('');
+          hook.afterEach(function (html) {
+            return html + footer;
+          });
+        },
       ]
     }
   </script>
