@@ -18,7 +18,7 @@
 
 ## 拓展插件
 
-- [qltoy-plus](https://gitee.com/gzghde/sqltoy-plus)：sqltoy增强框架,支持对象化sql操作，支持lamada表达式，使得条件拼装更加动态和灵活，简化多表关联操作。
+- [sqltoy-plus](https://gitee.com/gzghde/sqltoy-plus)：sqltoy增强框架,支持对象化sql操作，支持lamada表达式，使得条件拼装更加动态和灵活，简化多表关联操作。
 - [sqltoy-idea-plugin](https://github.com/imyuyu/sqltoy-idea-plugin)：一款 IntelliJ IDEA 插件，为 Sqltoy 框架提供 SQL 模板高亮、导航与 DAO 方法跳转等智能支持，提升开发效率。
 - [sagacity-quickvo](https://github.com/sagframe/sagacity-quickvo)：Sqltoy 官方推出的代码生成工具，基于 Maven 插件实现，可从数据库表自动生成 Entity、VO（或 DTO）等 Java 对象。
 
