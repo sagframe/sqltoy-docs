@@ -8,9 +8,11 @@
 
 1. sequence：数据库自身需要定义一个sequence名称，目前支持的数据库有oracle、postgresql、sqlserver等
 > 在quickvo.xml中定义表的主键策略
+
 <img width="798" height="56" alt="image" src="https://github.com/user-attachments/assets/2215566f-d185-4d4c-be5f-0b0156a9354b" />
 
 > 产生的AbstractVO中@Id()注解体现sequence策略
+
 <img width="696" height="141" alt="image" src="https://github.com/user-attachments/assets/fcc1a6d2-81e3-442f-9945-359eb69e940f" />
 
 2. identity: identity策略sqltoy无需通过quickvo.xml中额外指定，会自动根据数据库判断出是否是identity。
@@ -29,6 +31,7 @@ org.sagacity.sqltoy.plugins.id.impl.DefaultIdGenerator
 
 > sqltoy使用redis生成主键需要定义RedisTemplate
 > redis主键属于业务主键范畴，在quickvo.xml中定义方式
+
 <img width="806" height="222" alt="image" src="https://github.com/user-attachments/assets/7aa1da10-8e26-445d-a951-57f8ab7b48b0" />
 
 ## 使用自定义主键策略
