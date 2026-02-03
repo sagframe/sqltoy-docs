@@ -16,7 +16,7 @@
 
 ## 创建数据字典、机构表
 
-SQL示例脚本[translate_template.sql](https://github.com/sagframe/sqltoy-docs/scripts/translate_template.sql)
+SQL示例脚本[translate_template.sql](https://github.com/sagframe/sqltoy-docs/blob/main/scripts/translate_template.sql)
 
 ## 配置缓存翻译
 ### sqltoy增加缓存翻译的配置
