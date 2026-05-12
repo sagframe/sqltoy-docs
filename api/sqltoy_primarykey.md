@@ -22,12 +22,20 @@ org.sagacity.sqltoy.plugins.id.impl.DefaultIdGenerator
 例如: 1592214184072221900219.
 
 4. nanotime:26位有序不重复数字，格式:15位:yyMMddHHmmssSSS+后6位纳秒+2位(线程Id+随机数)+3位主机ID
-
 5. snowflake:雪花算法16位有序不重复数字。
+6. UUID:32位UUIDv7(sqltoy5.6.59版本升级为UUIDv7有序版本)
+7. ULID:26位有序字符，时间戳10位 + 随机熵16位，项目需要引入
 
-6. UUID:32位UUID。
+```xml
+<dependency>
+	<groupId>com.github.f4b6a3</groupId>
+	<artifactId>ulid-creator</artifactId>
+	<!-- 具体版本可调整 -->
+	<version>5.2.4</version>
+</dependency>
+```
 
-7. redis:基于redis进行统一生成有序主键，一般用于有规则的主键生成，如订单号:年月日+几位流水。
+8. redis:基于redis进行统一生成有序主键，一般用于有规则的主键生成，如订单号:年月日+几位流水。
 
 > sqltoy使用redis生成主键需要定义RedisTemplate
 > redis主键属于业务主键范畴，在quickvo.xml中定义方式
@@ -46,7 +54,7 @@ org.sagacity.sqltoy.plugins.id.impl.DefaultIdGenerator
 
 Sqltoy的default、nanotime、snowflake 三种主键策略在单个IP服务器上部署多个应用，就会出现重复现象，原理：默认会获取IP地址来区分不同的worker。解决方法：
 1. default、nanotime：java -Dsqltoy.server.id=112(三位数字)
-2. snowflakc：则需要设置2个参数，数字形式，且小于32
+2. snowflake：则需要设置2个参数，数字形式，且小于32
 ```shell
 java -Dsqltoy.snowflake.workerId=11
 java -Dsqltoy.snowflake.dataCenterId=20
