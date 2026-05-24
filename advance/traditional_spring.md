@@ -33,16 +33,16 @@
 		<property name="delayCheckSeconds" value="300" />
 		<property name="breakWhenSqlRepeat" value="false"/>
 		<property name="overPageToFirst" value="true"/>
+		<!-- 关键2个配置: appContext 和 connectionFactory -->
 		<property name="appContext">
 			<bean class="org.sagacity.sqltoy.integration.impl.SpringAppContext"/>
 		</property>
 		<property name="connectionFactory">
 			<bean class="org.sagacity.sqltoy.integration.impl.SpringConnectionFactory"/>
 		</property>
-		<property name="sqlInterceptors">
-			<bean class="com.sinochem.ubmp.plugins.sqltoy.SqlWrapperInterceptor" />
-		</property>
 	</bean>
+	
+	<!-- 定义lazyDao和lightDao,可以根据实际使用选择性定义  -->
 	<bean id="sqlToyLazyDao" name="sqlToyLazyDao"
 		class="org.sagacity.sqltoy.dao.impl.SqlToyLazyDaoImpl" />
 	<bean id="lightDao" name="lightDao"
