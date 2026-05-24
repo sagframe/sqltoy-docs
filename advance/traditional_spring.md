@@ -6,7 +6,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
 	default-autowire="byName" default-lazy-init="true">
-	<!-- 配置辅助sql处理工具用于sql查询条件的处理 -->
+	<!-- 定义sqltoy上下文 -->
 	<bean id="sqlToyContext" name="sqlToyContext" class="org.sagacity.sqltoy.SqlToyContext" init-method="initialize"
 		destroy-method="destroy">
 		<!-- 指定sql.xml 文件的路径实现目录的递归查找,可以用逗号分隔配置多个路径，非必须属性 -->
