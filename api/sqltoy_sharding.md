@@ -121,7 +121,7 @@ public void testSharding() {
 
 * 4、增删改操作分库分表:需要在POJO上增加@Sharding注解，然后通过lightDao.save(entity)就会自动存放到具体表或库中
 
-* 4.1 分库分表
+* 4.1 POJO上注解示例同时分库、分表
 
 ```java
 @Data
@@ -147,7 +147,7 @@ public class SqlToyTransInfo implements Serializable
 
 ```
 
-* 4.2 只分表
+* 4.2 POJO上注解示例同时分表
 
 ```java
 @Data
