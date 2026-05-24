@@ -15,7 +15,8 @@
 		<property name="functionConverts" value="default" />
 		<!-- 统一公共字段赋值,原理:只做补漏，开发者已经设置了值不会被覆盖,当没有被赋值时才会起作用 -->
 		<property name="unifyFieldsHandler">
-			<bean class="com.sinochem.ubmp.sqltoy.SqltoyUnifyFieldsHandler" />
+			<!-- 这里是示意 -->
+			<bean class="com.company.framework.sqltoy.SqltoyUnifyFieldsHandler" />
 		</property>
 		<!-- 缓存翻译管理器,非必须属性(仅当不使用缓存翻译) -->
 		<property name="translateConfig" value="classpath:sqltoy-translate.xml" />
