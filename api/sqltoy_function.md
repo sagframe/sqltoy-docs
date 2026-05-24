@@ -12,7 +12,7 @@ spring.sqltoy.functionConverts=default
 spring.sqltoy.functionConverts=default,com.yourpackage.Nvl
 ```
 
-* 你也可以关闭default，完全自行定义开启哪些函数
+* 你也可以关闭default，完全自行定义开启哪些函数或加载自定义的函数
 
 ```properties
 # 启用框架自带Nvl、Instr
