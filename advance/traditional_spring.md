@@ -10,7 +10,7 @@
 	<bean id="sqlToyContext" name="sqlToyContext" class="org.sagacity.sqltoy.SqlToyContext" init-method="initialize"
 		destroy-method="destroy">
 		<!-- 指定sql.xml 文件的路径实现目录的递归查找,可以用逗号分隔配置多个路径，非必须属性 -->
-		<property name="sqlResourcesDir" value="classpath:com/sinochem" />
+		<property name="sqlResourcesDir" value="classpath:com/company/project" />
 		<!-- 针对不同数据库函数进行转换,非必须属性 -->
 		<property name="functionConverts" value="default" />
 		<!-- 统一公共字段赋值,原理:只做补漏，开发者已经设置了值不会被覆盖,当没有被赋值时才会起作用 -->
