@@ -1,5 +1,19 @@
 # 传统spring项目配置
 
+* 引入sqltoy依赖,推荐依然引入sagacity-sqltoy-spring-starter
+
+```xml
+<!-- springboot  -->
+<dependency>
+	<groupId>com.sagframe</groupId>
+	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
+	<!-- 5.6.75.jre8 -->
+	<version>5.6.75</version>
+</dependency>
+```
+
+* 基于spring xml的bean定义sqltoy上下文和lightDao
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -51,4 +65,15 @@
 	<bean id="sqlToyCRUDService" name="sqlToyCRUDService"
 		class="org.sagacity.sqltoy.service.impl.SqlToyCRUDServiceImpl" />
 </beans>
+```
+
+* 具体使用
+
+```java
+@Autowired
+private LightDao lightDao; 
+
+public void createOrgan(OrganInfo organInfo){
+	lightDao.save(organInfo);
+}
 ```
