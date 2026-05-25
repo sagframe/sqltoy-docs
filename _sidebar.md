@@ -16,7 +16,7 @@
     * [06 elasticsearch查询支持](api/sqltoy_elasticsearch.md)
     * [07 复杂查询统计](api/sqltoy_complex_query.md)
 * 高级特性
-    * [01 sql函数扩展](api/sqltoy_function.md)
+    * [01 sql数据库方言自适配和函数扩展](api/sqltoy_function.md)
     * [02 多租户支持](api/sqltoy_multitenant.md)
     * [03 分库分表](api/sqltoy_sharding.md)
     * [04 POJO生成表结构DDL](api/sqltoy_ddl.md)

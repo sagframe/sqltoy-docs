@@ -1,5 +1,5 @@
-# sql函数扩展
-* sqltoy提供了数据库函数自动适配功能，即在运行过程中将sql中的函数自动转换为适配当前数据库方言的函数
+#  sql数据库方言自适配和函数扩展
+## 1. sqltoy提供了数据库函数自动适配功能，即在运行过程中将sql中的函数自动转换为适配当前数据库方言的函数
 
 ```properties
 # 开启sqltoy默认的函数自适配转换函数
@@ -91,6 +91,66 @@ public class Trim extends IFunction {
 		}
 		// 其他数据库保持trim(field) 模式
 		return super.IGNORE;
+	}
+}
+```
+
+## 2. 通过sqlId+dialect模式
+* 可针对特定数据库写sql,sqltoy根据数据库类型获取实际执行sql,顺序为: dialect_sqlId->sqlId_dialect->sqlId， 如数据库为mysql,调用sqlId:sqltoy_showcase,则实际执行:sqltoy_showcase_mysql
+
+
+```xml
+<sql id="sqltoy_showcase">
+	<value>
+	<![CDATA[
+	select * from sqltoy_user_log t 
+	where t.user_id=:userId 
+	]]>
+	</value>
+</sql>
+<!-- sqlId_数据库方言(小写) -->
+<sql id="sqltoy_showcase_mysql">
+	<value>
+	<![CDATA[
+	select * from sqltoy_user_log t 
+	where t.user_id=:userId 
+	]]>
+	</value>
+</sql>
+```
+
+## 3. 如何同时测试多种数据库环境
+* sqltoy提供了spring.sqltoy.redoDataSources参数，来设置查询语句重复执行的数据库
+
+```properties
+# 如在mysql场景下同时测试其他类型数据库，验证sql适配不同数据库，主要用于产品化软件
+spring.sqltoy.redoDataSources[0]=pgdb
+```
+
+## 4. 常见问题
+* 1) 为什么我的kingbase、polardb、oceanbase这些数据库使用mysql或postgresql数据库模式，还有大量错误？
+解答: 因为sqltoy获取数据库方言是通过jdbc connection获取当前productName来判断数据库类型，并不能完全准确获取数据库的方言模式，所以要通过2种方式之一来解决
+### 方式一: 单一数据库场景下直接设置当前数据库方言
+
+```properties
+spring.sqltoy.dialect=mysql
+```
+
+### 方式二: 多数据库场景下，将识别不准确的alias到正确的数据库方言上
+* spring.sqltoy.dialectMap 是Map<String,String>类型,当前dialect可用SELECT version()或类似语句查询(具体是什么问AI)
+
+```properties
+spring.sqltoy.dialectMap.kingbase=mysql
+```
+
+* dialectMap 映射原理，帮助你设置正确的Map key,key indexOf productName
+
+```java
+// 针对框架未支持的数据库，通过dialectMap的key进行匹配映射到响应的方言上
+for (Map.Entry<String, String> entry : dialectMap.entrySet()) {
+	if (StringUtil.indexOfIgnoreCase(dbDialect, entry.getKey()) != -1) {
+		dilectName = entry.getValue().toLowerCase();
+		break;
 	}
 }
 ```
