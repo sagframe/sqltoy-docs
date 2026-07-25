@@ -14,24 +14,24 @@
 - sqltoy-solon插件
 
 ```xml
-        <!--sqltoy-solon-->
-        <dependency>
-            <groupId>com.sagframe</groupId>
-            <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-            <version>最新版</version>
-        </dependency>
+<!--sqltoy-solon-->
+<dependency>
+    <groupId>com.sagframe</groupId>
+    <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
+    <version>最新版</version>
+</dependency>
 ```
 
 - MySQL连接器
 
 ```xml
-        <!-- mysql连接器 -->
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>8.4.0</version>
-            <scope>runtime</scope>
-        </dependency>
+<!-- mysql连接器 -->
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>9.7.0</version>
+    <scope>runtime</scope>
+</dependency>
 ```
 
 ## 三、配置数据源
