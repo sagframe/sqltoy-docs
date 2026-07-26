@@ -53,6 +53,8 @@ List result = lightDao
 * sqltoy 定义私钥和公钥，可通过sqltoy框架源码中src/test 路径下面的org.sagacity.sqltoy.utils.SecureUtils生成，默认基于RSA算法
 
 ```properties
+# 可以自定义加解密算法实现，框架提供了默认实现
+# spring.sqltoy.fieldsSecureProvider=org.sagacity.sqltoy.plugins.secure.impl.FieldsRSASecureProvider
 spring.sqltoy.securePrivateKey=classpath:mock/rsa_private.key
 spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 ```
