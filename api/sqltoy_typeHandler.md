@@ -30,6 +30,8 @@ public class MyTypeHandler extends TypeHandler {
 
 ## 3、JSONTypeHandler示例
 
+* 备注:5.6.82版本框架提供了默认的json/jsonb类型支持，quickvo升级1.0.22版本，jdbc-type=2016(json)、2017(jsonb)
+
 ### 3.1 quickvo 生成POJO配置类型映射关系
 
 ```xml
@@ -39,7 +41,7 @@ public class MyTypeHandler extends TypeHandler {
 		<sql-type native-types="BIGINT" jdbc-type="BIGINT" java-type="java.math.BigInteger" />
 
 		<!-- 泛型注意xml转义符号，table-field指定具体表和字段; jdbc-type 可以直接填数字，这里java-type="List<StaffInfoVO>" -->
-		<sql-type table-field="sqltoy_jsontype_showcae.staff_set" native-types="json" jdbc-type="1021" java-type="List&lt;StaffInfoVO&gt;" 
+		<sql-type table-field="sqltoy_jsontype_showcae.staff_set" native-types="json" jdbc-type="2016" java-type="List&lt;StaffInfoVO&gt;" 
 		import-types="com.sqltoy.quickstart.vo.StaffInfoVO" />
 </type-mapping>
 ```
