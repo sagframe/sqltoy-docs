@@ -443,7 +443,7 @@ lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).onlyCascade().m
 
 ```
 
-# 8、updateSaveFetch操作
+# 7、updateSaveFetch操作
 
 * 锁查询，存在则修改、不存在则保存，适用于类似库存台账、资金台账业务场景
 
