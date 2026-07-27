@@ -316,7 +316,7 @@ lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE)
 	.parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);
 ```
 
-* 7、对象加载
+# 7、对象加载
 
 * api规范
 
@@ -443,7 +443,7 @@ lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).onlyCascade().m
 
 ```
 
-# 7、updateSaveFetch操作
+# 8、updateSaveFetch操作
 
 * 锁查询，存在则修改、不存在则保存，适用于类似库存台账、资金台账业务场景
 
