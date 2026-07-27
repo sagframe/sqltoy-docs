@@ -1,52 +1,106 @@
-# 纯java项目如何使用
+# sqltoy使用场景案例
 
-## sqltoy推荐在spring或solon 框架下运行，并未完全构建独立使用的框架体系，可结合AI自行优化扩展，下面提供给一个范例
-
-* 步骤1:引入pom
+## 公共sql片段@include(sqlId)
 
 ```xml
-<dependency>
-	<groupId>com.sagframe</groupId>
-	<artifactId>sagacity-sqltoy</artifactId>
-   <version>5.6.86</version>
-</dependency>
+<sql id="showcase_1">
+    <value><![CDATA[
+        select * from table1 t where t.name like :name
+    ]]></value>
+</sql>
+
+<sql id="showcase_2">
+    <value><![CDATA[
+        @include("showcase_1")
+        #[and t.status=:status]
+    ]]></value>
+</sql>
 ```
 
-* java代码，注册DataSource、构建SqlToyContext、lightDao
+## 动态片段@include(:scriptParam)
+
+* @include(sqlId)的一种变种，通过动态传参形式传入sql片段
 
 ```java
-public void doDB() {
-	try {
-		//构建sqlToyContext
-		SqlToyContext sqlToyContext = new SqlToyContext();
-		sqlToyContext.setSqlResourcesDir("classpath:sqltoy/demo.sql.xml");
-		sqlToyContext.initialize();
-		Map<String, String> map = new HashMap<>();
-		map.put(DruidDataSourceFactory.PROP_URL, "jdbc:mysql://192.168.56.101:3306/java20");
-		// 设置驱动Driver
-		map.put(DruidDataSourceFactory.PROP_DRIVERCLASSNAME, "com.mysql.jdbc.Driver");
-		// 设置用户名
-		map.put(DruidDataSourceFactory.PROP_USERNAME, "root");
-		// 设置密码
-		map.put(DruidDataSourceFactory.PROP_PASSWORD, "123456");
-		// 创建数据源
-		DataSource dataSource = DruidDataSourceFactory.createDataSource(map);
-		sqlToyContext.setDefaultDataSource(dataSource);
-		// 框架默认提供了DefaultLightDaoImpl实现
-		LightDao lightDao = new DefaultLightDaoImpl(sqlToyContext);
-		// 非事务
-		// lightDao.find("select * from staff_info where status=:status",
-		// MapKit.map("status", "1"), StaffInfo.class);
-		// 这里都是示意，请按实际逻辑编写
-		Object result = DBTransUtils.doTrans(lightDao.getDataSource(), () -> {
-			// 这里可以
-			lightDao.updateByQuery(StaffInfo.class,
-					EntityUpdate.create().set("sexType", "F").where("staffId=?").values("S0001"));
-			return lightDao.find("select * from staff_info where status=:status", MapKit.map("status", "1"),
-					StaffInfo.class);
-		});
-	} catch (Exception e) {
-
-	}
-}
+String sql="select * from sqltoy_fruit_order where status=:status @include(:sqlScript)";
+List result = lightDao.find(sql,MapKit.keys("status", "saleCount", "sqlScript").values(1, 12, "and sale_count>:saleCount"));
 ```
+
+## @if()、@elseif()、@else用法
+* Sqltoy针对一些特殊业务场景给sql处理预留一个超级用法:
+
+```java
+@Test
+public void testMultiInnerIfElse1() throws Exception {
+    String sql = """
+        select * from table where 1=1
+        #[@if(:flag==1) and name like :name]
+        #[@elseif(:flag==2)
+            #[@if(:operateType==1) and status=:status]
+            #[@elseif(:operateType==2) and saleType is not :saleType]
+            #[@else and saleType is :saleType]
+        ]
+        #[@else and orderType=:orderType]
+        #[@if(:tenantId==4) and tenant=1]
+        #[@elseif(:tenantId==3) and tenant=3]
+        """;
+
+    SqlToyResult result = SqlConfigParseUtils.processSql(SqlUtil.clearMark(sql),
+        new String[]{"flag", "status", "name", "orderType", "saleType", "operateType", "tenantId"},
+        new Object[]{2, 1, "陈", "SALE", null, 4, 3});
+    System.err.println(JSON.toJSONString(result));
+}
+
+```
+
+* @if的逻辑表达式包含:
++ 单逻辑判断:@if(:paramName>=value)
++ 多逻辑判断:@if(:paramName1>=value1 && :paramName2<=value2)
++ 比较符号支持:>、>=、==、<、<=、!=、<>;逻辑运算符:&& 和 ||、include、in、out
++ 时间比较:@if(:paramName>=now()+x) 或@if(:paramName>=now()-x)
++ 表示时间的:now()、nowtime()、${.now}
++ 表示日期的:day()、sysdate()、${.day}
++ include包含判断：@if(:statusAry include 1),如果statusAry是数组其中包含1返回true，如果statusAry值是一个字符串，返回statusAry. contains(“1”) 的结果。
++ exclude @if(:statusAry exclude 1) ,跟include相反，不包含的意思
++ 取size:@if(size(:statusAry)>1)) ,即通过size(:参数名称)模式取得集合数组的长度
++ In 用法: @if(:status in  ‘1,2,3’) 当status属于1或2或3时返回true 
++ out 用法:@if(:status out ‘1,2,3’) 当status不属于1或2或3时返回true
+
+## @loop()、@secure-loop()、@loop-full()、@secure-loop-full()的用法
+
+* @loop()用于sql动态循环拼接字段、条件，一般针对数组或集合，且不适用于in的场景。
+* @secure-loop():跟@loop的区别在于参数不会直接拼接到sql中，而是采用?形式入参，防止sql注入
+分三种格式
+
+```
+@secure-loop(:loopParam,loopContent)
+@loop(:loopParam,loopContent) 不推荐
+@secure-loop(:loopParam,loopContent,linkSign)
+@loop(:loopParam,loopContent,linkSign) 不推荐
+@secure-loop(:loopParam,loopContent,linkSign,startIndex,endIndex)
+@loop(:loopParam,loopContent,linkSign,startIndex,endIndex) 不推荐
+```
+* 示例
+
+```xml
+<sql id="qstart_loop_sql">
+    <value><![CDATA[
+        select ORDER_ID
+        @loop(:fields,",",:fields[i])
+        from sqltoy_device_order t
+        where #[t.ORDER_ID=:orderId]
+        -- @blank(:param) 目的是迎合sqltoy #[] 中参数为null剔除的功能，当值不为null时@blank()被替代为空白字符串(当然也可以用@if来代替@blank)
+        #[@if(size(:staffIds)>0) and (@secure-loop(:staffIds," t.STAFF_ID=:staffIds[i] "," or ",1,100))]
+        #[@blank(:startDates)
+            and ( @loop(:startDates,
+                " t.TRANS_DATE between STR_TO_DATE(':startDates[i]','%Y-%m-%d')
+                and STR_TO_DATE(':endDates[i]','%Y-%m-%d') ",
+            " or "))]
+    ]]></value>
+</sql>
+
+```
+
+
+
+
