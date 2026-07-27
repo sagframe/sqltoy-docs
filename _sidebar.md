@@ -23,6 +23,8 @@
     * [05 主键策略介绍](api/sqltoy_primarykey.md)
     * [06 数据权限传参和越权校验](api/sqltoy_permission.md)
     * [07 数据脱敏加解密](api/sqltoy_security.md)
+    * [08 超大规模主数据缓存](api/sqltoy_FIFO_translate.md)
 * 常见问题解答
     * [01 传统spring项目配置](advance/traditional_spring.md)
     * [02 纯java项目如何使用](advance/pure_java.md)
+    * [03 常见sql案例](advance/sql_showcase.md)

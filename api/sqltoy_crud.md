@@ -443,3 +443,52 @@ lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).onlyCascade().m
 
 ```
 
+* updateSaveFetch锁查询，存在则修改、不存在则保存，适用于类似库存台账、资金台账业务场景
+
+```xml
+//引入依赖类
+<dependency>
+    <groupId>net.bytebuddy</groupId>
+    <artifactId>byte-buddy</artifactId>
+    <version>1.18.11</version>
+</dependency>
+```
+
+```java
+//api 
+/**
+ * @TODO 适用于库存台账、客户资金账等高并发强事务场景，一次数据库交互实现：
+ *       <p>
+ *       <li>1、锁查询；</li>
+ *       <li>2、记录存在则修改；</li>
+ *       <li>3、记录不存在则执行insert；</li>
+ *       <li>4、返回修改或插入的记录信息</li>
+ *       </p>
+ */
+public <T extends Serializable> T updateSaveFetch(final T entity, final EntityUpdateCallback<T> callback,
+			final String... uniqueProps);
+```
+
+
+```java
+//示例
+@Test
+public void testUpdateSaveFetch() {
+    StaffInfoVO staffInfo = new StaffInfoVO();
+    staffInfo.setStaffId("S0001");
+    staffInfo.setBeginDate(LocalDate.parse("2019-01-01"));
+    staffInfo.setEndDate(LocalDate.now());
+    staffInfo.setStaffName("陈");
+    lightDao.updateSaveFetch(staffInfo, (entity, rowIndex) -> {
+	// 这里entity取值，实际通过代理，走的是rs.getString("tel_no")获取的值
+	String telNo = entity.getTelNo();
+	if (telNo != null) {
+		// 这里set，实际是rs.updateString("tel_no", telNo.substring(0, 3) + "#**#" +
+		// telNo.substring(7));
+		entity.setTelNo(telNo.substring(0, 3) + "#**#" + telNo.substring(7));
+	}
+    });
+}
+```
+
+
