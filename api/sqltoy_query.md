@@ -105,3 +105,53 @@ for (Object item : result) {
 }
 ```
 
+#### 存储过程调用
+
+* api
+```
+/**
+ * @todo 存储过程调用
+ * @param storeSqlOrKey 可以是xml中的sqlId 或者直接{call storeName (?,?)}
+ * @param inParamValues
+ * @return StoreResult 用:getRows()获得查询结果
+ */
+public StoreResult executeStore(final String storeSqlOrKey, final Object[] inParamValues);
+
+/**
+ * @TODO 存储过程调用，outParams可以为null
+ * @param storeSqlOrKey 可以是xml中的sqlId 或者直接{call storeName (?,?)}
+ * @param inParamValues
+ * @param outParamsType 可以为null
+ * @param resultType    可以是VO、Map.class、LinkedHashMap.class、Array.class,null(二维List)
+ * @return StoreResult 用:getRows()获得查询结果
+ */
+public StoreResult executeStore(String storeSqlOrKey, Object[] inParamValues, Integer[] outParamsType,
+		Class resultType);
+```
+
+* 调用示例
+
+```java
+//无结果调用
+lightDao.executeStore("{call storeName(?,?)}", new Object[]{value1,value2});
+
+//存储过程查询
+List result=lightDao.executeStore("{call storeName(:param1,:param2)}",MapKit.keys("param1","param2").values(value1,value2),VO.class).getRows();
+```
+
+* 多集合存储过程
+
+```java
+/**
+ * @TODO 存储过程调用，outParams可以为null
+ * @param storeSqlOrKey 可以是xml中的sqlId 或者直接{call storeName (?,?)}
+ * @param inParamValues
+ * @param outParamsType 可以为null
+ * @param resultTypes   可以是VO、Map.class、LinkedHashMap.class、Array.class,null(二维List)
+ * @return StoreResult 用:getRows()获取主记录、List[] getMoreResults()获取全部结果
+ */
+public StoreResult executeMoreResultStore(String storeSqlOrKey, Object[] inParamValues, Integer[] outParamsType,
+		Class... resultTypes);
+```
+
+
