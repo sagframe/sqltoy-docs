@@ -131,6 +131,26 @@ sqlToyConfig.setId(reportId+"_"+sqlScriptIndex);
 lightDao.getSqlToyContext().putSqlToyConfig(sqlToyConfig);
 ```
 
+## 6. 统计慢查询sql
+* 开启默认配置
+
+```properties
+# 打印sql执行超时时长(毫秒，默认为8000毫秒)
+#spring.sqltoy.printSqlTimeoutMillis=8000
+# 设置默认的超时处理器，会将超时sql做一个归集
+spring.sqltoy.overTimeSqlHandler= org.sagacity.sqltoy.plugins.overtime.DefaultOverTimeHandler
+```
+
+* 通过api获取慢查询
+
+```java
+//size     提取记录数量
+//hasSqlId 是否是xml中定义含id的sql(另外一种就是代码中直接写的sql)
+//public List<OverTimeSql> getSlowestSql(int size, boolean hasSqlId);
+
+List<OverTimeSql> slowSqlList=lightDao.getSqlToyContext().getSlowestSql(10,true);
+```
+
 
 
 
