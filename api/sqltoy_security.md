@@ -59,7 +59,7 @@ spring.sqltoy.securePrivateKey=classpath:mock/rsa_private.key
 spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 ```
 
-* 在pojo对象类上增加注解@SecureConfig,为了便于检索，可以额外增加一个脱敏值
+* 在pojo对象类上增加注解@SecureConfig,为了便于检索，可以额外增加一个脱敏值，注意sourceField的指向作用
 
 ```java
 @Data
@@ -67,7 +67,8 @@ spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 @Entity(tableName="sqltoy_secure_case",comment="安全加解密演示",pk_constraint="PRIMARY")
 @SecureConfig(secures = { @Secure(field = "telNoMask", secureType = SecureType.TEL),
 		@Secure(field = "telNo", secureType = SecureType.ENCRYPT),
-		@Secure(field = "homeAddressMask", secureType = SecureType.ADDRESS),
+		@Secure(field = "telNoMask", secureType = SecureType.TEL,sourceField="telNo"),
+		@Secure(field = "homeAddressMask", secureType = SecureType.DISCRETE_RATE, maskRate = 50, sourceField = "homeAddress"),
 		@Secure(field = "homeAddress", secureType = SecureType.ENCRYPT) })
 public class SecureCaseVO implements Serializable {
 	@Schema(name="staffId",description="工号",nullable=false)
