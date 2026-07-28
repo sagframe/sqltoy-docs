@@ -69,3 +69,39 @@ List<SysLog> list = lightDao.findTop("sys_log_find_list", new SysLog(), SysLog.c
 ```java
 List<SysLog> list = lightDao.findRandom("sys_log_find_list", new SysLog(), SysLog.class, 12);
 ```
+
+#### fetchStream 流式数据获取
+
+* 针对超大量数据，无法直接存放List等集合，提供反调方式由开发者自行将数据逐行写入到特定的文件或其他存储中
+
+```java
+/**
+ * @TODO 流式获取查询结果
+ * @param queryExecutor       可通过queryExecutor.showsql()开关sql输出日志
+ * @param streamResultHandler
+ */
+//public void fetchStream(final QueryExecutor queryExecutor, final StreamResultHandler streamResultHandler);
+
+List result = new ArrayList();
+// sql 可以写在xml中，这里是演示
+String sql = "select * from sqltoy_staff_info";
+lightDao.fetchStream(new QueryExecutor(sql).resultType(StaffInfoVO.class),
+    new StreamResultHandler() {
+        @Override
+        public void consume(Object row, int rowIndex) {
+            result.add(row);
+        }
+
+        // end 一般用于写文件flush等
+        @Override
+        public void end() {
+            System.err.println("完成执行");
+        }
+    }
+);
+
+for (Object item : result) {
+    System.err.println(JSON.toJSONString(item));
+}
+```
+
