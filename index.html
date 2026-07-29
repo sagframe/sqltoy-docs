@@ -8,7 +8,7 @@
   <meta name="description" content="Sqltoy-ORM 参考文档">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <meta name="theme-color" content="#6366f1">
-  <link rel="icon" href="_media/sqltoy.png">
+  <link rel="icon" href="_media/sqltoy_logo.png">
   <!-- 明暗双主题（内置切换按钮） -->
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css">
   <!-- 侧边栏折叠箭头样式 -->
@@ -57,7 +57,31 @@
     }
 
     .app-name img {
-      max-width: 70%;
+      max-height: 56px;
+      width: auto;
+    }
+
+    .app-name-link {
+      display: inline-flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    #sqltoy-version {
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--accent, #6366f1);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-soft);
+      padding: 4px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .sidebar>h1 {
+      margin: 0 auto .6rem;
     }
 
     .sidebar ul li a {
@@ -253,7 +277,7 @@
   <script>
     window.$docsify = {
       name: 'sqltoy-orm',
-      logo: '_media/sqltoy.png',
+      logo: '_media/sqltoy_logo.png',
       repo: 'https://github.com/sagframe/sagacity-sqltoy',
       loadNavbar: true,
       loadSidebar: true,
@@ -329,6 +353,31 @@
           ].join('');
           hook.afterEach(function (html) {
             return html + footer;
+          });
+        },
+        // logo 右侧自动版本号（取自 Maven Central 最新版）
+        function versionBadge(hook) {
+          hook.mounted(function () {
+            var host = document.querySelector('.app-name-link') || document.querySelector('.app-name');
+            if (!host || document.getElementById('sqltoy-version')) return;
+            var tag = document.createElement('span');
+            tag.id = 'sqltoy-version';
+            tag.title = 'sagacity-sqltoy 最新版本';
+            host.appendChild(tag);
+            fetch('https://img.shields.io/maven-central/v/com.sagframe/sagacity-sqltoy.json')
+              .then(function (r) { return r.json(); })
+              .then(function (d) {
+                var v = (d && d.value || '').trim();
+                if (!v) throw new Error('empty');
+                tag.textContent = /^v/i.test(v) ? v : 'v' + v;
+              })
+              .catch(function () {
+                // 降级：直接查 Maven Central 搜索 API
+                fetch('https://search.maven.org/solrsearch/select?q=g:%22com.sagframe%22+AND+a:%22sagacity-sqltoy%22&rows=1&wt=json')
+                  .then(function (r) { return r.json(); })
+                  .then(function (d) { tag.textContent = 'v' + d.response.docs[0].latestVersion; })
+                  .catch(function () { tag.remove(); });
+              });
           });
         },
         // 返回顶部按钮
