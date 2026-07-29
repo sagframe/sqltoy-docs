@@ -1,14 +1,247 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
   <meta charset="UTF-8">
   <title>Sqltoy参考文档</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="Description">
+  <meta name="description" content="Sqltoy-ORM 参考文档">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.css" />
+  <meta name="theme-color" content="#6366f1">
+  <link rel="icon" href="_media/sqltoy.png">
+  <!-- 明暗双主题（内置切换按钮） -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/style.min.css">
+  <!-- 侧边栏折叠箭头样式 -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/sidebar.min.css">
+
+  <style>
+    :root {
+      --accent-soft: rgba(99, 102, 241, .12);
+      --accent-softer: rgba(99, 102, 241, .06);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body,
+    .sidebar,
+    .sidebar-toggle,
+    .markdown-section,
+    .app-nav ul {
+      transition: background-color .3s ease, color .3s ease;
+    }
+
+    /* ===== 精致滚动条 ===== */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(125, 135, 155, .35);
+      border-radius: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(125, 135, 155, .6);
+    }
+
+    /* ===== 侧边栏 ===== */
+    .sidebar {
+      padding-top: 16px;
+    }
+
+    .app-name img {
+      max-width: 70%;
+    }
+
+    .sidebar ul li a {
+      border-radius: 8px;
+      margin: 1px 10px;
+      padding: 5px 12px;
+      transition: background-color .2s ease, color .2s ease;
+    }
+
+    .sidebar ul li a:hover {
+      background: var(--accent-softer);
+      text-decoration: none;
+    }
+
+    .sidebar-nav li.active>a,
+    .sidebar ul li a.active {
+      background: linear-gradient(90deg, var(--accent-soft), var(--accent-softer));
+      color: var(--accent, #6366f1);
+      font-weight: 600;
+      border-right: none;
+    }
+
+    /* ===== 搜索框 ===== */
+    .sidebar .search {
+      padding: 6px 16px 14px;
+      border-bottom: 1px solid var(--borderColor, rgba(0, 0, 0, .07));
+      margin-bottom: 10px;
+    }
+
+    .sidebar .search input {
+      background: var(--codeBackgroundColor, #f6f8fa);
+      border: 1px solid var(--borderColor, rgba(0, 0, 0, .07));
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--textColor, #34495e);
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .sidebar .search input:focus {
+      border-color: var(--accent, #6366f1);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .sidebar .search .matching-post {
+      border-bottom: 1px solid var(--borderColor, rgba(0, 0, 0, .07));
+    }
+
+    /* ===== 顶部导航下拉 ===== */
+    .app-nav li ul {
+      border-radius: 10px;
+      border: 1px solid var(--borderColor, rgba(0, 0, 0, .07));
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .14);
+      overflow: hidden;
+      background: var(--background, #fff);
+    }
+
+    /* ===== 正文排版 ===== */
+    .markdown-section {
+      max-width: 900px;
+    }
+
+    .markdown-section h1,
+    .markdown-section h2,
+    .markdown-section h3 {
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+
+    .markdown-section h2 {
+      border-bottom: 1px solid var(--borderColor, rgba(0, 0, 0, .07));
+      padding-bottom: .35em;
+    }
+
+    .markdown-section a {
+      text-decoration: none;
+      border-bottom: 1px dashed transparent;
+      transition: border-color .2s ease;
+    }
+
+    .markdown-section a:hover {
+      border-bottom-color: var(--accent, #6366f1);
+    }
+
+    /* 引用块 */
+    .markdown-section blockquote {
+      border-left: 4px solid var(--accent, #6366f1);
+      background: var(--accent-softer);
+      border-radius: 0 10px 10px 0;
+      padding: 4px 20px;
+      margin: 1.2em 0;
+    }
+
+    /* 代码 */
+    .markdown-section pre {
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+    }
+
+    .markdown-section pre>code {
+      border-radius: 12px;
+    }
+
+    .markdown-section code {
+      border-radius: 4px;
+    }
+
+    /* 表格 */
+    .markdown-section table {
+      border-radius: 10px;
+      border: 1px solid var(--borderColor, rgba(0, 0, 0, .07));
+    }
+
+    .markdown-section th {
+      background: var(--accent-softer);
+    }
+
+    .markdown-section tr:nth-child(2n) {
+      background: rgba(125, 135, 155, .06);
+    }
+
+    .markdown-section th,
+    .markdown-section td {
+      border: 1px solid var(--borderColor, rgba(0, 0, 0, .07));
+      padding: 8px 14px;
+    }
+
+    /* 图片 */
+    .markdown-section img {
+      border-radius: 10px;
+      max-width: 100%;
+    }
+
+    /* 页脚 */
+    .markdown-section footer {
+      font-size: .85em;
+      opacity: .75;
+      padding: 6px 0 20px;
+    }
+
+    /* ===== 翻页插件微调 ===== */
+    .pagination-item-title {
+      color: var(--accent, #6366f1) !important;
+    }
+
+    .pagination-item {
+      transition: transform .2s ease;
+    }
+
+    .pagination-item:hover {
+      transform: translateY(-2px);
+    }
+
+    /* ===== 返回顶部按钮 ===== */
+    #back-to-top {
+      position: fixed;
+      right: 26px;
+      bottom: 26px;
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      background: var(--accent, #6366f1);
+      color: #fff;
+      font-size: 18px;
+      line-height: 1;
+      box-shadow: 0 6px 18px rgba(99, 102, 241, .45);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: opacity .25s ease, transform .25s ease, visibility .25s;
+      z-index: 100;
+    }
+
+    #back-to-top.show {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+
+    #back-to-top:hover {
+      filter: brightness(1.12);
+    }
+  </style>
 </head>
 
 <body>
@@ -20,18 +253,73 @@
   <script>
     window.$docsify = {
       name: 'sqltoy-orm',
+      logo: '_media/sqltoy.png',
       repo: 'https://github.com/sagframe/sagacity-sqltoy',
       loadNavbar: true,
       loadSidebar: true,
       subMaxLevel: 3,
+      sidebarDisplayLevel: 1,
+      auto2top: true,
+      externalLinkTarget: '_blank',
       search: {
         paths: 'auto',
-        placeholder: '搜索',
+        placeholder: '🔍 搜索文档',
         noData: '找不到结果',
         depth: 3
       },
+      copyCode: {
+        buttonText: '复制',
+        errorText: '复制失败',
+        successText: '已复制 ✓'
+      },
+      pagination: {
+        previousText: '上一篇',
+        nextText: '下一篇',
+        crossChapter: true,
+        crossChapterText: true
+      },
+      progress: {
+        position: 'top',
+        color: '#6366f1',
+        height: '3px'
+      },
+      darklightTheme: {
+        defaultTheme: 'light',
+        siteFont: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif",
+        codeFontFamily: "'Cascadia Code', 'JetBrains Mono', Consolas, Monaco, 'Courier New', monospace",
+        bodyFontSize: '16px',
+        light: {
+          accent: '#6366f1',
+          background: '#ffffff',
+          textColor: '#34495e',
+          codeTextColor: '#476582',
+          codeBackgroundColor: '#f6f8fa',
+          borderColor: 'rgba(0, 0, 0, .07)',
+          blockQuoteColor: '#6b7280',
+          highlightColor: '#d22778',
+          sidebarSublink: '#505d6b',
+          codeTypeColor: '#091a28',
+          toogleBackground: '#091a28',
+          toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/moon.svg)'
+        },
+        dark: {
+          accent: '#818cf8',
+          background: '#0b1220',
+          textColor: '#c3cbd8',
+          codeTextColor: '#e5e7eb',
+          codeBackgroundColor: '#101a2c',
+          borderColor: '#1c2a41',
+          blockQuoteColor: '#8a94a6',
+          highlightColor: '#e46fb6',
+          sidebarSublink: '#9aa6b8',
+          codeTypeColor: '#ffffff',
+          toogleBackground: '#ffffff',
+          toogleImage: 'url(https://cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/icons/sun.svg)'
+        }
+      },
       plugins: [
-        EditOnGithubPlugin.create("https://github.com/sagframe/sqltoy-docs/tree/main/", "", "📝Edit Document"),
+        EditOnGithubPlugin.create("https://github.com/sagframe/sqltoy-docs/tree/main/", "", "📝 编辑此页"),
+        // 页脚
         function pageFooter(hook, vm) {
           var footer = [
             '<hr/>',
@@ -43,15 +331,44 @@
             return html + footer;
           });
         },
+        // 返回顶部按钮
+        function backToTop(hook) {
+          hook.mounted(function () {
+            var btn = document.createElement('button');
+            btn.id = 'back-to-top';
+            btn.title = '返回顶部';
+            btn.setAttribute('aria-label', '返回顶部');
+            btn.innerHTML = '↑';
+            document.body.appendChild(btn);
+            window.addEventListener('scroll', function () {
+              btn.classList.toggle('show', window.pageYOffset > 300);
+            }, { passive: true });
+            btn.addEventListener('click', function () {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+          });
+        }
       ]
     }
   </script>
 
   <!-- Docsify v4 -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <!-- 明暗主题切换 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-darklight-theme@latest/dist/index.min.js"></script>
+  <!-- 全文搜索 -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+  <!-- 代码一键复制 -->
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
-  <!-- prism -->
+  <!-- 图片点击放大 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <!-- 上一篇 / 下一篇 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <!-- 阅读进度条 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-progress@latest/dist/progress.min.js"></script>
+  <!-- 侧边栏折叠 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
+  <!-- prism 语法高亮 -->
   <script src="//cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-sql.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-yaml.min.js"></script>
