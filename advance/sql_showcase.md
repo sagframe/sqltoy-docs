@@ -151,6 +151,22 @@ spring.sqltoy.overTimeSqlHandler= org.sagacity.sqltoy.plugins.overtime.DefaultOv
 List<OverTimeSql> slowSqlList=lightDao.getSqlToyContext().getSlowestSql(10,true);
 ```
 
+## 7. 数据库不在适配清单中，但数据库是基于postgresql/opengaussdb衍生出的，怎么适配？
+* 7.1 如果是单一数据库可以通过dialect指定具体方言
+
+```properties
+#solon.sqltoy.dialect=postgresql
+spring.sqltoy.dialect=postgresql
+```
+
+* 7.2 多数据库场景下方言映射,通过conn.getMetaData().getDatabaseProductName() 获取数据库名称
+																																																																																																																																																																													
+```properties
+#solon.sqltoy.dialectMap.oscar=opengauss
+spring.sqltoy.dialectMap.oscar=opengauss
+```
+
+
 
 
 
