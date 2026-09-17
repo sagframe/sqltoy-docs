@@ -324,3 +324,62 @@ String[] keys = lightDao.cacheMatchKeys(CacheMatchFilter.create()
 		//匹配结果数量
 		.matchSize(2), "新能源研究院");
 ```
+
+## 缓存翻译的附加场景
+
+### 一个字段多次翻译 / 逻辑条件翻译
+
+同一个字段可以配置多个 `<translate>` 按不同缓存翻译；配合 `where` 属性可做**逻辑条件翻译**（条件成立才翻译），支持四种逻辑：`==`、`!=`、`in`、`out`：
+
+```xml
+<!-- 仅当订单类型为 PO 时才翻译 -->
+<translate cache="orderTypeCache" columns="orderTypeName" where="order_type==PO" />
+<!-- 不等于 / in / out 同理 -->
+<!-- <translate ... where="status!=0" /> -->
+<!-- <translate ... where="order_type in (PO,SPO)" /> -->
+<!-- <translate ... where="order_type out (SALES)" /> -->
+```
+
+### 多值拆分翻译（split-sign / link-sign）
+
+字段值为 `F,M` 这类**多代码拼接**时，通过 `split-sign` 指定分隔符逐个翻译，再用 `link-sign` 重新拼接：
+
+```xml
+<!-- "F,M" → 翻译后 "女,男" -->
+<translate cache="sexCache" columns="sexName" split-sign="," link-sign="、" />
+```
+
+### 租户隔离翻译
+
+多租户场景下，`cache-type` 可结合公共字段扩展动态传入当前用户所属租户 ID（形如 `${user_tenant_id}`），实现**按租户隔离的缓存**（复用数据字典缓存的分类机制）：
+
+```xml
+<translate cache="tenantConfigCache" cache-type="${user_tenant_id}" columns="configName" />
+```
+
+### i18n 国际化翻译
+
+在 `sqltoy-translate.xml` 的缓存定义上增加 **`i18n`** 属性（格式 `语言:列序号`，逗号或分号分隔，如 `zh_cn:1,en_us:2`），即可让翻译按当前语言取对应列的值：
+
+```xml
+<!-- 缓存 sql 需同时查出各语言的名称列，i18n 声明语言与列的对应 -->
+<sql-translate cache="dictCache" datasource="dataSource" i18n="zh_cn:1,en_us:2">
+    <sql><![CDATA[
+        select t.DICT_KEY, t.DICT_NAME, t.DICT_NAME_EN
+        from SQLTOY_DICT_DETAIL t
+        where t.DICT_TYPE=:dictType
+    ]]></sql>
+</sql-translate>
+```
+
+代码中通过 `I18nThreadHolder` 设置当前线程语言（实际项目一般通过 filter 统一注入用户的 locale，请求结束时 `remove()`）：
+
+```java
+I18nThreadHolder.put("en_us");
+try {
+    // 此次查询的缓存翻译将取 en_us 对应列(DICT_NAME_EN)的值
+    List result = lightDao.find("sqltoy_dict_find", paramsMap, DictInfoVO.class);
+} finally {
+    I18nThreadHolder.remove();
+}
+```

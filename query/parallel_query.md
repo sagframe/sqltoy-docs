@@ -1,4 +1,4 @@
-# 并行查询（parallQuery）
+# 并行查询（parallelQuery）
 
 ## 一、适用场景
 
@@ -8,31 +8,31 @@
 
 - **不要用于事务操作过程中**。
 - 多个 SQL **共用相同的参数条件**（几个查询参数的合集），sqltoy 会自动为每个 SQL 提取出它实际需要的参数。
-- 支持分页、非分页、分页+非分页混合：通过 `ParallQuery` 设置 `Page` 即表示该查询为分页查询。
+- 支持分页、非分页、分页+非分页混合：通过 `ParallelQuery` 设置 `Page` 即表示该查询为分页查询。
 
 ## 二、API
 
 ```java
-// 返回每个查询对应的 QueryResult，顺序与传入的 ParallQuery 列表一致
-public <T> List<QueryResult<T>> parallQuery(List<ParallQuery> parallelQueryList, Map<String, Object> paramsMap);
+// 返回每个查询对应的 QueryResult，顺序与传入的 ParallelQuery 列表一致
+public <T> List<QueryResult<T>> parallelQuery(List<ParallelQuery> parallelQueryList, Map<String, Object> paramsMap);
 ```
 
-`ParallQuery` 链式构建：`create()`、`sql()`、`page()`、`topSize()`、`randomSize()`、`names()`、`values()`、`paramsMap()`、`dataSource()`、`showSql()`、`contextData()`。
+`ParallelQuery` 链式构建：`create()`、`sql()`、`page()`、`topSize()`、`randomSize()`、`names()`、`values()`、`paramsMap()`、`dataSource()`、`showSql()`、`contextData()`。
 
 ## 三、使用范例
 
 ```java
-List<ParallQuery> queries = new ArrayList<>();
+List<ParallelQuery> queries = new ArrayList<>();
 // 普通查询
-queries.add(ParallQuery.create().sql("sys_staff_find").resultType(StaffInfoVO.class));
+queries.add(ParallelQuery.create().sql("sys_staff_find").resultType(StaffInfoVO.class));
 // 分页查询（设置 page 即为分页）
-queries.add(ParallQuery.create().sql("sys_order_find").page(new Page(10, 1)));
+queries.add(ParallelQuery.create().sql("sys_order_find").page(new Page(10, 1)));
 // 取 Top
-queries.add(ParallQuery.create().sql("sys_sale_top").topSize(10));
+queries.add(ParallelQuery.create().sql("sys_sale_top").topSize(10));
 
 // 共用参数条件，sqltoy 自动为每个 sql 提取所需参数
 Map<String, Object> paramsMap = MapKit.keys("status", "organId").values(1, "T001");
-List<QueryResult> results = lightDao.parallQuery(queries, paramsMap);
+List<QueryResult> results = lightDao.parallelQuery(queries, paramsMap);
 
 List<StaffInfoVO> staff = results.get(0).getRows();
 Page orderPage = results.get(1).getPageResult();
@@ -42,9 +42,11 @@ List saleTop = results.get(2).getRows();
 每个查询也可以**单独设置自己的参数**（覆盖/补充共用参数）：
 
 ```java
-queries.add(ParallQuery.create().sql("sys_order_find")
+queries.add(ParallelQuery.create().sql("sys_order_find")
         .names("status").values(1)
         .page(new Page(10, 1)));
 ```
 
 > `QueryResult` 常用方法：`getRows()`（结果集）、`getPageResult()`（分页结果）、`getExecuteTime()`（执行时长）。
+
+> **6.0.0 更名**：`parallQuery` / `ParallQuery` 更名为 `parallelQuery` / `ParallelQuery`，5.6.x 版本请使用旧名称。

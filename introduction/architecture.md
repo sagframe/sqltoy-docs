@@ -23,14 +23,14 @@ sqltoy 的核心思路：
 | `support.SqlToyDaoSupport` | 所有数据库交互操作的**基类实现**（框架真正的"干活"类） |
 | `service.SqlToyCRUDService` | 通用 CRUD Service，简单增删改查无需自己写 Service |
 | `link` | **链式 API**：`Query`/`Save`/`Update`/`Delete`/`Load`/`Store`/`Unique`/`Execute`/`Batch`/`Elastic`/`Mongo`/`TreeTable`/`TableApi`，均继承 `BaseLink` |
-| `model` | 数据模型：`Page`、`QueryExecutor`、`EntityQuery`/`EntityUpdate`、`ParallQuery`、`QueryResult`、`StoreResult`、`TreeTableModel`、`Summary`、`ColsChainRatio`/`RowsChainRatio`、`CacheArg`、`TableMeta`/`ColumnMeta`、`LockMode`/`SaveMode`/`MaskType` 等 |
+| `model` | 数据模型：`Page`、`QueryExecutor`、`EntityQuery`/`EntityUpdate`、`ParallelQuery`、`QueryResult`、`StoreResult`、`TreeTableModel`、`Summary`、`ColsChainRatio`/`RowsChainRatio`、`CacheArg`、`TableMeta`/`ColumnMeta`、`LockMode`/`SaveMode`/`MaskType` 等 |
 | `config` | SQL/实体加载与解析：`EntityManager`、`EntityScanner`、`SqlScriptLoader`（解析 `*.sql.xml`）、`SqlXMLConfigParse`、`SqlFileModifyWatcher`（debug 热加载）；`config.annotation`（各类注解）、`config.model`（解析后的配置模型） |
-| `dialect` | 数据库方言：`Dialect` 接口 + `DialectFactory`；`impl` 下 23 种方言实现；`executor`（含并行查询执行器）、`utils`（含 `PageOptimizeUtils` 分页/count 优化引擎） |
+| `dialect` | 数据库方言：`Dialect` 接口 + `DialectFactory`；`impl` 下 24 种方言实现（6.0.0 新增 SAP HANA）；`executor`（并行查询执行器、`ParallelUtils`）；根级 `PageOptimizeUtils`（分页/count 优化引擎）、`QueryExecutorBuilder`、`CrossDbAdapter` |
 | `plugins` | 扩展点：`calculator`（汇总/同环比/树排序/列转行等内存算法）、`datasource`（动态数据源选择）、`ddl`（POJO→DDL）、`function`（16 个跨库函数适配）、`id`（主键策略）、`interceptors`（多租户过滤）、`nosql`（ES）、`overtime`（慢 SQL）、`secure`（加解密/脱敏）、`sharding`（分库分表）；根级还有 `SqlInterceptor`、`TypeHandler`、`CrossDbAdapter`、`IUnifyFieldsHandler` |
 | `translate` | 缓存翻译子系统：`TranslateManager`、`TranslateFactory`、`TranslateConfigParse`（解析 `sqltoy-translate.xml`）、`CacheUpdateWatcher`、`DynamicCacheFetch`；`cache`（ehcache/caffeine/FIFO 动态缓存实现） |
 | `callback` | 22 个 SPI 回调接口：`RowCallbackHandler`、`StreamResultHandler`、`TransactionHandler`、`UpdateRowHandler`、`EntityUpdateCallback`、`DecryptHandler` 等 |
 | `integration` | 框架无关 SPI：`AppContext`、`ConnectionFactory`、`DistributeIdGenerator`、`MongoQuery` |
-| `utils` | 约 32 个工具类：`SqlUtil`、`BeanUtil`、`CollectionUtil`、`DateUtil`、`ParallelUtils`、`ResultUtils`、`TranslateUtils`、`DBTransUtils`、几何类型工具等 |
+| `utils` | 工具类：`SqlUtil`、`BeanUtil`、`CollectionUtil`、`DateUtil`、`ResultUtils`、`DBTransUtils`、几何类型工具等（`ParallelUtils`/`TranslateUtils`/`ParamFilterProcessor` 等已按职责迁移至 `dialect`/`translate`/`config` 包） |
 
 ## 三、集成模块
 

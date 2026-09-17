@@ -7,8 +7,8 @@
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
-	<!-- 5.6.94.jre8 -->
-	<version>5.6.94</version>
+	<!-- JDK8 请使用 5.6.x 的 jre8 版本 -->
+	<version>6.0.0</version>
 </dependency>
 ```
 

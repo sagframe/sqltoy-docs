@@ -11,13 +11,13 @@
     * [01 helloworld 项目](quickstart/helloworld.md)
     * [02 helloworld-solon 案例](quickstart/helloworld_solon.md)
     * [03 增加公共字段处理](quickstart/helloworld_improve.md)
-    * [04 缓存翻译入门](quickstart/translates.md)
 * 核心配置
     * [sqltoy 配置参数](config/sqltoy_config.md)
     * [传统 Spring 项目配置](config/traditional_spring.md)
     * [纯 Java 项目如何使用](config/pure_java.md)
 * 对象操作
     * [对象化 CRUD](crud/sqltoy_crud.md)
+    * [树形表节点路径构造](crud/tree_table.md)
 * SQL 查询
     * [动态 SQL 编写规范](query/dynamic_sql.md)
     * [常规查询 API](query/sqltoy_query.md)
@@ -27,7 +27,9 @@
     * [并行查询](query/parallel_query.md)
     * [存储过程调用](query/store_procedure.md)
     * [常见 SQL 案例](query/sql_showcase.md)
+    * [标签与表达式参考](appendix/tags.md)
 * 缓存翻译
+    * [缓存翻译使用](quickstart/translates.md)
     * [超大规模主数据缓存(FIFO)](translate/sqltoy_FIFO_translate.md)
     * [动态控制缓存](translate/dynamic_cache.md)
 * 跨库与方言
@@ -52,9 +54,8 @@
     * [工具类:DTO 与 POJO 互转](tools/utils.md)
     * [表元数据操作 TableApi](tools/table_api.md)
     * [扩展集成(报表/低代码)](tools/integration.md)
+    * [其他特性](tools/other_features.md)
 * 必杀集锦
     * [必杀集锦](best/best_practices.md)
-* 补充说明
-    * [标签与表达式参考](appendix/tags.md)
 * 常见问题
     * [常见问题解答 FAQ](faq/faq.md)

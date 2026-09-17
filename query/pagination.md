@@ -141,4 +141,4 @@ Page result = lightDao.findPage(page, "sys_log_find", paramsMap, SysLog.class);
 
 ---
 
-> 分页相关源码可参考 `org.sagacity.sqltoy.dialect.utils.PageOptimizeUtils`（count 优化与快速分页引擎）与各数据库 `Dialect` 实现。
+> 分页相关源码可参考 `org.sagacity.sqltoy.dialect.PageOptimizeUtils`（count 优化与快速分页引擎）与各数据库 `Dialect` 实现。

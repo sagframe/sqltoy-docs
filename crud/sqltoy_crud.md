@@ -6,7 +6,7 @@
    lightDao.update().dataSource(xxx).forceUpdateProps("status").batchSize(500).many(entities);  
 4) 没有逻辑删除的概念,在sqltoy中就是状态更新  
 5) 相比较于JPA，sqltoy主要优化了update(提供了弹性修改)，新增了updateFetch和updateSaveFetch  
-6) sqltoy支持:OneToOne 和 OneToMany 两种形式的级联(有部分改进,如:加载支持过滤等)，但只支持一级级联  
+6) sqltoy支持:OneToOne 和 OneToMany 两种形式的级联(有部分改进,如:加载支持过滤等)，但只支持一级级联；查询结果依据注解自动分层封装(hiberarchy)见[常规查询 API](../query/sqltoy_query.md)  
 7) sqltoy在级联加载和级联删除等操作上底层做了优化,采用了id in (:ids)形式的查询和删除,用算法组织最终数据，减少数据库IO提升效率  
 8) 详细请参见:org.sagacity.sqltoy.dao.LightDao接口,其有详细备注
 
@@ -213,7 +213,102 @@ lightDao.update().dataSource(crmDataSource).forceUpdateProps("status")
       .many(entities);
 ```
 
-# 5、删除操作
+# 5、基于查询条件修改（updateByQuery）
+
+* 说明：无需先加载实体对象，直接基于单表查询条件批量修改字段，一次数据库交互即可完成。适用于"把符合条件的记录的某些字段统一更新"的场景（逻辑删除本质也是状态更新，可用它实现）。
+
+* api规范
+
+```java
+/**
+ * @TODO 基于单表查询完成数据修改
+ * @param entityClass 实体类
+ * @param entityUpdate 通过 EntityUpdate 组织 set 修改字段与 where 条件
+ * @return Long 数据库发生变更的记录量
+ */
+public Long updateByQuery(Class entityClass, EntityUpdate entityUpdate);
+```
+
+* 使用范例
+
+```java
+// 将工号 S0001 的员工性别改为 F（set 用对象属性名，where 用 ? 占位、values 按序传值）
+lightDao.updateByQuery(StaffInfo.class,
+        EntityUpdate.create().set("sexType", "F").where("staffId=?").values("S0001"));
+
+// 多字段更新 + 多条件
+lightDao.updateByQuery(OrderInfo.class,
+        EntityUpdate.create()
+            .set("status", 2)
+            .set("updateTime", LocalDateTime.now())
+            .where("organId=? and createTime<?")
+            .values("T001", LocalDateTime.now().minusMonths(3)));
+
+// 指定数据源；skipNotExistColumn() 表示 set 的字段在表中不存在时自动跳过
+lightDao.updateByQuery(StaffInfo.class,
+        EntityUpdate.create().dataSource(crmDataSource)
+            .set("status", 0).where("staffId=?").values("S0001")
+            .skipNotExistColumn());
+```
+
+> `EntityUpdate` 链式方法：`set(属性, 值)`（可多次调用设置多个字段）、`where(条件)`、`values(值...)`、`blankToNull(Boolean)`、`skipNotExistColumn()`、`dataSource(...)`、`showSql(Boolean)`。`where` 中使用 `?` 占位、由 `values(...)` 按顺序传值。与 `deleteByQuery`（见下节）相对应，一个按条件改、一个按条件删。
+
+* 列自增 / 表达式更新（`set 字段=字段+?`）
+
+`set` 的 key 除了写普通字段名，还可以写成 **`字段=表达式`** 形式，实现基于字段当前值的计算更新（自增、扣减等）。表达式中的 `?` 由 `set` 的 value 绑定；字段名（如 `totalAmt`）会自动转换为数据库列名（`total_amt`）。
+
+```java
+// 自更新：total_amt = total_amt + 10
+// 等价 SQL：update sqltoy_staff_info set total_amt=total_amt+10 where staff_name like '张'
+lightDao.updateByQuery(StaffInfo.class,
+        EntityUpdate.create()
+            .set("totalAmt=totalAmt+?", 10)
+            .where("staffName like ?").values("张"));
+
+// 库存扣减：quantity = quantity - 5，可同时叠加普通字段更新
+lightDao.updateByQuery(OrderInfo.class,
+        EntityUpdate.create()
+            .set("quantity=quantity-?", 5)     // 表达式更新（基于字段当前值计算）
+            .set("status", 2)                  // 普通字段更新（可并存）
+            .where("orderId=?").values("10001"));
+```
+
+> 要点：表达式务必用 `?` 占位、并由 `set` 的 value 传值（如 `set("totalAmt=totalAmt+?", 10)`）；`set` 的 key 左侧是字段名、右侧是 SQL 表达式，可包含 `+ - * /` 等运算。表达式更新可与普通 `set(字段, 值)` 混用，框架会自动按"先 set 后 where"的顺序绑定参数。
+
+* 实战：逻辑删除（状态更新）
+
+sqltoy 没有独立的"逻辑删除"概念——逻辑删除本质就是把状态/标记字段更新一下（参见下节"删除操作"说明）。单条用弹性更新即可，按条件批量则用 `updateByQuery`，一次数据库交互完成。
+
+```java
+// 方式一：单条逻辑删除——弹性更新，只改 status（为 null 的字段不参与更新）
+lightDao.update(new OrderInfo("10001").setStatus(0));
+
+// 方式二：按条件批量逻辑删除——updateByQuery
+// 把某部门 3 个月前、状态为 1 的订单标记为已删除(0)，并记录操作人/时间
+lightDao.updateByQuery(OrderInfo.class,
+        EntityUpdate.create()
+            .set("status", 0)
+            .set("updateBy", "S0001")
+            .set("updateTime", LocalDateTime.now())
+            .where("organId=? and status=? and createTime<?")
+            .values("T001", 1, LocalDateTime.now().minusMonths(3)));
+```
+
+查询时排除已逻辑删除的记录（在 sql 中加状态条件即可）：
+
+```xml
+<sql id="find_order">
+    <value><![CDATA[
+        select * from sqltoy_order_info t
+        where t.status<>0          -- 排除已逻辑删除
+        #[and t.organ_id=:organId]
+    ]]></value>
+</sql>
+```
+
+> 提示：若配置了[统一字段处理器](../quickstart/helloworld_improve.md)（`unifyFieldsHandler`），对象化 `update` 会自动补漏 `updateBy`/`updateTime`；用 `updateByQuery` 时建议如上显式 `set` 审计字段。
+
+# 6、删除操作
 * sqltoy没有逻辑删除的概念  
   (逻辑删除本质就是更新状态或更新标记字段，请用更新操作代替)
 
@@ -272,7 +367,7 @@ lightDao.deleteByIds(OrderInfo.class,"10001"，"10002");
 lightDao.deleteByQuery(DictDetail.class,EntityQuery.create().dataSource(xxxx).where("status=?").values(0));
 ```
 
-# 6、saveOrUpdate操作
+# 7、saveOrUpdate操作
 * 说明  
   1) saveOrUpdate的逻辑是记录存在就做修改操作，如果不存在则新建(主键值为null则必然是新建)  
   2) 类mysql数据库采用先update后insert ignore方式，其他采用merge into 模式
@@ -316,7 +411,7 @@ lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE)
 	.parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);
 ```
 
-# 7、对象加载
+# 8、对象加载
 
 * api规范
 
@@ -443,7 +538,53 @@ lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).onlyCascade().m
 
 ```
 
-# 8、updateSaveFetch操作
+# 9、updateFetch操作（锁查询→校验修改→返回结果，一次交互）
+
+* 说明  
+  1) sqltoy 独有（JPA 没有）：**一次数据库交互**完成 查询+锁定+逻辑校验+修改+返回修改后结果  
+  2) 适用场景：秒杀、库存台账、资金台账等高并发强事务环节——查询的目的是**锁住记录做逻辑校验**（如扣减后不能小于 0），校验通过才修改  
+  3) ⚠️ 官方警示：updateFetch 的核心目的是**数据逻辑校验**，页面展示性查询不要用此方法
+
+* api
+
+```java
+/**
+ * 获取并锁定数据并进行修改（一般为简单查询，锁住记录进行逻辑校验后修改）
+ * @param queryExecutor    查询执行器，定义查询的sql、条件参数和锁策略
+ * @param updateRowHandler 行数据修改回调处理器，校验并修改行数据后提交更新
+ * @return 修改后的行记录集合
+ */
+public List updateFetch(final QueryExecutor queryExecutor, final UpdateRowHandler updateRowHandler);
+```
+
+* 使用范例（库存扣减：锁定 → 校验库存充足 → 扣减 → 返回最新数据）
+
+```java
+List result = lightDao.updateFetch(
+        // 简单查询 + 悲观锁策略
+        new QueryExecutor("sqltoy_stock_find")
+                .names("productId").values("P0001")
+                .lock(LockMode.UPGRADE),
+        // 注意：UpdateRowHandler 的方法均为 default，不是函数式接口，需用匿名类覆写
+        new UpdateRowHandler() {
+            @Override
+            public void updateRow(ResultSet rs, int index, BiConsumer<String, Object> setVal) throws Exception {
+                double quantity = rs.getDouble("quantity");
+                if (quantity < 1) {
+                    // 逻辑校验不通过直接抛异常，本次修改整体回滚
+                    throw new IllegalArgumentException("库存不足!");
+                }
+                // 通过反调设置修改后的值：<属性名, 新值>
+                setVal.accept("quantity", quantity - 1);
+            }
+        });
+```
+
+> `UpdateRowHandler` 提供三个可覆写方法：`updateRow(rs,index)`、`updateRow(rs,index,BiConsumer<属性,值>)`、`updateRow(rs,index,ThreeBiConsumer<属性,强制更新字段[],值>)`（第三个可指定强制更新字段）。
+>
+> 与下节 `updateSaveFetch` 互补：`updateFetch` 修改**已存在**的记录；`updateSaveFetch` 锁查询后**不存在则执行 insert**。
+
+# 10、updateSaveFetch操作
 
 * 锁查询，存在则修改、不存在则保存，适用于类似库存台账、资金台账业务场景
 

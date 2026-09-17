@@ -60,3 +60,52 @@ StoreResult more = lightDao.executeMoreResultStore("{call storeName(?,?,?)}",
 List[] allResults = more.getMoreResults();
 Object[] outValues = more.getOutResult();
 ```
+
+## 五、多结果集存储过程完整范例
+
+当一个存储过程返回**多个结果集**（如主表 + 明细表，或多组统计结果）时，用 `executeMoreResultStore` 或链式 `store().moreResult(true)`，并通过 `getMoreResults()` 获取全部结果集。
+
+假设存储过程 `proc_order_report`：入参 `organId`、`beginDate`，返回两个结果集（订单列表、订单明细），并有一个 out 参数 `totalCount` 返回总记录数。
+
+```java
+// 调用 {call proc_order_report(?,?,?)}：前两个为 in 参数，最后一个为 out 参数
+StoreResult storeResult = lightDao.executeMoreResultStore(
+        "{call proc_order_report(?,?,?)}",
+        new Object[]{ "T001", LocalDate.parse("2026-01-01") },  // in 参数（按 ? 顺序）
+        new Integer[]{ java.sql.Types.INTEGER },                 // out 参数类型
+        OrderInfoVO.class,        // 第 1 个结果集的映射类型
+        OrderItemVO.class);       // 第 2 个结果集的映射类型
+
+// 1) 获取全部结果集：List[]，每个元素对应一个结果集
+List[] allResults = storeResult.getMoreResults();
+List<OrderInfoVO> orders = allResults[0];        // 第一个结果集（订单）
+List<OrderItemVO> orderItems = allResults[1];    // 第二个结果集（明细）
+
+// 2) 获取 out 参数值
+Object[] outValues = storeResult.getOutResult();
+Integer totalCount = (Integer) outValues[0];
+
+// 3) getRows() 返回主结果集（即第一个结果集）
+List<OrderInfoVO> mainRows = storeResult.getRows();
+
+System.out.println("订单数=" + orders.size()
+        + "，明细数=" + orderItems.size()
+        + "，总记录数=" + totalCount);
+```
+
+等价的链式写法：
+
+```java
+StoreResult result = lightDao.store()
+        .sql("{call proc_order_report(?,?,?)}")
+        .inParams("T001", LocalDate.parse("2026-01-01"))
+        .outTypes(java.sql.Types.INTEGER)
+        .moreResult(true)
+        .resultTypes(OrderInfoVO.class, OrderItemVO.class)
+        .submit();
+
+List[] all = result.getMoreResults();              // all[0]=订单, all[1]=明细
+Integer total = (Integer) result.getOutResult()[0]; // out 参数
+```
+
+> 说明：`resultTypes` 按结果集出现顺序依次指定各结果集的映射类型（可为 VO、`Map.class`、`LinkedHashMap.class`、`Array.class`，或 `null` 表示二维 List）；`getMoreResults()` 返回 `List[]`（全部结果集），`getRows()` 返回主（第一个）结果集，`getOutResult()` 返回 out 参数值数组。

@@ -1,6 +1,6 @@
 # 支持的数据库
 
-sqltoy 内置 20 余种数据库方言（`dialect`），并通过 `DialectFactory` 自动识别数据库类型、适配分页与函数。只要数据库提供 JDBC 驱动，sqltoy 即可对其进行查询。
+sqltoy 内置 24 种数据库方言（`dialect`，6.0.0 新增 SAP HANA），并通过 `DialectFactory` 自动识别数据库类型、适配分页与函数。只要数据库提供 JDBC 驱动，sqltoy 即可对其进行查询。
 
 ## 主流关系型数据库
 
