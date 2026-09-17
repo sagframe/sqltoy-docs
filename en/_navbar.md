@@ -1,10 +1,10 @@
-* [首页](/)
+* [Home](/en/)
 
-* [English](/en/)
+* [中文](/)
 
-* [案例](/awesome.md)
+* [Showcase](/en/awesome.md)
 
-* 源码&资料
+* Source & Resources
   * [SqlToy Github](https://github.com/sagframe/sagacity-sqltoy)
   * [SqlToy Gitee](https://gitee.com/sagacity/sagacity-sqltoy)
   * [SqlToy QuickVO](https://gitee.com/sagacity/maven-quickvo-plugin)

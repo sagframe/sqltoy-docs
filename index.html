@@ -271,10 +271,55 @@
 <body>
   <div id="app"></div>
 
+  <!-- 首访语言自动检测：英文浏览器首次访问跳转到英文版（选择会被记住，手动切换优先） -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('sqltoy-lang');
+        var h = location.hash || '';
+        if (!saved && /^en/i.test(navigator.language || '') && (!h || h === '#' || h === '#/')) {
+          location.replace(location.pathname + location.search + '#/en/');
+        }
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+
   <!-- Edit on github -->
   <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
 
   <script>
+    // ===== 语言感知 UI：/en/ 路由前缀切换英文界面文案，并记录语言选择 =====
+    function i18nUi(hook, vm) {
+      var TEXTS = {
+        zh: { lang: 'zh-CN', title: 'Sqltoy参考文档', searchPh: '🔍 搜索文档', prev: '上一篇', next: '下一篇', edit: '📝 编辑此页', backTop: '返回顶部', copy: '复制', badgeTip: 'sagacity-sqltoy 最新版本', footerHtml: '发现错误？ 您可以在 <a href="https://gitee.com/sagacity/sagacity-sqltoy" target="_blank">Gitee</a> 或 <a href="https://github.com/sagframe/sagacity-sqltoy" target="_blank">GitHub</a> 帮助我们完善此页文档！或 加入讨论群 交流反馈' },
+        en: { lang: 'en', title: 'SqlToy ORM Documentation', searchPh: '🔍 Search docs', prev: 'Previous', next: 'Next', edit: '📝 Edit this page', backTop: 'Back to top', copy: 'Copy', badgeTip: 'Latest version of sagacity-sqltoy', footerHtml: 'Found an issue? Help us improve on <a href="https://github.com/sagframe/sagacity-sqltoy" target="_blank">GitHub</a> or <a href="https://gitee.com/sagacity/sagacity-sqltoy" target="_blank">Gitee</a>!' }
+      };
+      function apply() {
+        var path = (vm.route && vm.route.path) ? vm.route.path : '/';
+        var lang = path.indexOf('/en/') === 0 ? 'en' : 'zh';
+        var t = TEXTS[lang];
+        try { localStorage.setItem('sqltoy-lang', lang); } catch (e) { /* ignore */ }
+        document.documentElement.lang = t.lang;
+        if (document.title !== t.title) document.title = t.title;
+        var si = document.querySelector('.sidebar .search input');
+        if (si) si.placeholder = t.searchPh;
+        var subs = document.querySelectorAll('.pagination-item-subtitle');
+        for (var i = 0; i < subs.length; i++) subs[i].textContent = (i === 0) ? t.prev : t.next;
+        var btn = document.getElementById('back-to-top');
+        if (btn) { btn.title = t.backTop; btn.setAttribute('aria-label', t.backTop); }
+        var badge = document.getElementById('sqltoy-version');
+        if (badge) badge.title = t.badgeTip;
+        var ftr = document.querySelector('.markdown-section footer');
+        if (ftr) ftr.innerHTML = t.footerHtml;
+        var links = document.querySelectorAll('.markdown-section a[href*="sqltoy-docs/tree"]');
+        for (var j = 0; j < links.length; j++) links[j].textContent = t.edit;
+        var cbs = document.querySelectorAll('.docsify-copy-code-button .label');
+        for (var k = 0; k < cbs.length; k++) cbs[k].textContent = t.copy;
+      }
+      hook.mounted(apply);
+      hook.doneEach(apply);
+    }
+
     window.$docsify = {
       name: 'sqltoy-orm',
       logo: '_media/sqltoy_logo.png',
@@ -344,6 +389,7 @@
         }
       },
       plugins: [
+        i18nUi,
         EditOnGithubPlugin.create("https://github.com/sagframe/sqltoy-docs/tree/main/", "", "📝 编辑此页"),
         // 页脚
         function pageFooter(hook, vm) {
