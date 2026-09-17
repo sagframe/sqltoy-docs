@@ -59,8 +59,8 @@ spring:
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
-	<!-- jdk1.8则使用5.6.88.jre8 -->
-	<version>5.6.88</version>
+	<!-- jdk1.8则使用5.6.94.jre8 -->
+	<version>5.6.94</version>
 </dependency>
 ```
 * solon场景
@@ -69,8 +69,8 @@ spring:
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-	<!-- jdk1.8则使用5.6.88.jre8 -->
-	<version>5.6.88</version>
+	<!-- jdk1.8则使用5.6.94.jre8 -->
+	<version>5.6.94</version>
 </dependency>
 ```
 ## 3、创建表:sqltoy_order_info

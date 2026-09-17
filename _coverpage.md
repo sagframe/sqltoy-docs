@@ -1,14 +1,15 @@
 <!-- _coverpage.md -->
 
-[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-qZ6dXl8H-1637505148577)(_media/sqltoy.png)]
+<img src="_media/sqltoy_logo.png" alt="sqltoy" style="height:120px;" />
 
-# docsify <small>3.5</small>
+# sqltoy-orm
 
-> 一个神奇的文档网站生成器。
+> 一个真正智慧的 Java ORM 框架
 
-- 简单、轻便 (压缩后 ~21kB)
-- 无需生成 html 文件
-- 众多主题
+- 最佳的动态 SQL 编写模式，SQL 整洁、可直接在客户端运行
+- 缓存翻译 · 分页优化 · 快速分页 · 跨库函数自适配
+- 行列转换 · 同比环比 · 树形汇总 · 分库分表 · 多租户 · 数据脱敏
 
-[GitHub](https://github.com/docsifyjs/docsify/)
-[Get Started](#docsify)
+[GitHub](https://github.com/sagframe/sagacity-sqltoy)
+[Gitee](https://gitee.com/sagacity/sagacity-sqltoy)
+[快速开始](quickstart/helloworld.md)

@@ -7,8 +7,8 @@
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
-	<!-- 5.6.88.jre8 -->
-	<version>5.6.88</version>
+	<!-- 5.6.94.jre8 -->
+	<version>5.6.94</version>
 </dependency>
 ```
 
@@ -57,9 +57,7 @@
 		</property>
 	</bean>
 	
-	<!-- 定义lazyDao和lightDao,可以根据实际使用选择性定义  -->
-	<bean id="sqlToyLazyDao" name="sqlToyLazyDao"
-		class="org.sagacity.sqltoy.dao.impl.SqlToyLazyDaoImpl" />
+	<!-- 定义 lightDao：推荐统一使用 LightDao 作为对象操作入口 -->
 	<bean id="lightDao" name="lightDao"
 		class="org.sagacity.sqltoy.dao.impl.LightDaoImpl" />
 	<bean id="sqlToyCRUDService" name="sqlToyCRUDService"
