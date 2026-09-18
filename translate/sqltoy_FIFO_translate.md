@@ -35,7 +35,7 @@ flowchart TD
 <sagacity xmlns="https://www.sagframe.com/schema/sqltoy-translate"
     xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="https://www.sagframe.com/schema/sqltoy-translate
-    https://www.sagframe.com/schema/sqltoy/sqltoy-translate.xsd">
+    https://sagframe.github.io/schema/sqltoy-translate.xsd">
     <cache-translates>
         <!-- 动态缓存:不做全量加载,未命中的key通过DynamicCacheFetch按需批量获取 -->
         <local-translate cache="skuDict" sid="SKU_CACHE" properties="id,name,brand"

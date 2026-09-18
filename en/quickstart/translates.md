@@ -34,7 +34,7 @@ spring:
 <sagacity
 	xmlns="https://www.sagframe.com/schema/sqltoy-translate"
 	xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="https://www.sagframe.com/schema/sqltoy-translate https://www.sagframe.com/schema/sqltoy/sqltoy-translate.xsd">
+	xsi:schemaLocation="https://www.sagframe.com/schema/sqltoy-translate https://sagframe.github.io/schema/sqltoy-translate.xsd">
 	<!-- caches expire by default after 1 hour, so only frequently-changing caches need timely checkers -->
 	<cache-translates>
 		<!-- cache loaded directly by a sql query -->
@@ -205,7 +205,7 @@ public class TranslateTest {
 <sagacity
 	xmlns="http://www.sagframe.com/schema/sqltoy-translate"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy-translate http://www.sagframe.com/schema/sqltoy/sqltoy-translate.xsd">
+	xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy-translate https://sagframe.github.io/schema/sqltoy-translate.xsd">
 	<!-- caches expire by default after 1 hour, so only frequently-changing caches need timely checkers -->
 	<cache-translates>
 		<!-- cache loaded directly by a sql query -->

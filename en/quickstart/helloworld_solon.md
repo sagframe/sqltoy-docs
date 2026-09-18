@@ -102,7 +102,7 @@ public class TestController {
 <?xml version="1.0" encoding="utf-8"?>
 <sqltoy xmlns="http://www.sagframe.com/schema/sqltoy"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy http://www.sagframe.com/schema/sqltoy/sqltoy.xsd">
+        xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy https://sagframe.github.io/schema/sqltoy.xsd">
 
     <sql id="sqltoy_order_info_find">
         <value>

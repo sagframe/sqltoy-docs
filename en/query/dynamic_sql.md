@@ -138,7 +138,7 @@ Below is a `<sql>` element listing **all available child tags** (validated again
 <?xml version="1.0" encoding="utf-8"?>
 <sqltoy xmlns="http://www.sagframe.com/schema/sqltoy"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy http://www.sagframe.com/schema/sqltoy/sqltoy.xsd">
+        xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy https://sagframe.github.io/schema/sqltoy.xsd">
 <!--
   id: recommended to name as moduleName+functionName to avoid duplicates across modules
   type: search/insert/update/delete (select is a legacy-compatible alias, same as search)

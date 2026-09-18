@@ -138,7 +138,7 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 <?xml version="1.0" encoding="utf-8"?>
 <sqltoy xmlns="http://www.sagframe.com/schema/sqltoy"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy http://www.sagframe.com/schema/sqltoy/sqltoy.xsd">
+        xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy https://sagframe.github.io/schema/sqltoy.xsd">
 <!--
   id: 建议 moduleName+functionName 命名，避免不同模块重复
   type: search/insert/update/delete（select 为历史兼容写法，等同 search）

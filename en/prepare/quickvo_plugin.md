@@ -34,7 +34,7 @@ Create `quickvo.xml` under `src/main/resources`. It can directly reuse the datas
 <?xml version="1.0" encoding="UTF-8"?>
 <quickvo xmlns="http://www.sagframe.com/schema/quickvo"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.sagframe.com/schema/quickvo http://www.sagframe.com/schema/sqltoy/quickvo.xsd">
+    xsi:schemaLocation="http://www.sagframe.com/schema/quickvo https://sagframe.github.io/schema/quickvo.xsd">
     <!-- import the db config file; its values can be referenced later via ${} -->
     <property file="src/main/resources/application.yml" />
     <property name="project.version" value="1.0.0" />
