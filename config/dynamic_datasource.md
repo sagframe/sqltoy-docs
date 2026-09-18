@@ -2,12 +2,12 @@
 
 sqltoy 本身不绑定数据源，多数据源可直接复用社区成熟的 **dynamic-datasource**（baomidou）方案：`@DS` 注解切换数据源、`@Transactional` 处理单库事务、`@DSTransactional` 把多个数据源的操作纳入同一事务。
 
-> 本文整理自官方演示项目：<https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource>
+> 本文整理自官方演示项目：<https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource>（演示项目已升级至 **sqltoy 6.0.1 + Spring Boot 4.0.1**，本文示例与之一致）
 
 ## 一、引入依赖
 
 ```xml
-<!-- dynamic-datasource（spring-boot3 对应 starter） -->
+<!-- dynamic-datasource（spring-boot3 对应 starter，在 Spring Boot 4.0.1 下可用） -->
 <dependency>
     <groupId>com.baomidou</groupId>
     <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
@@ -67,18 +67,18 @@ spring:
 @Service
 public class OrderInfoServiceImpl implements OrderInfoService {
 	@Autowired
-	private SqlToyLazyDao sqlToyLazyDao;
+	private LightDao lightDao;
 
 	@Override
 	@DS("datasourceA")     // 切换到 A 库
 	public long saveLocalAOrders(List<OrderInfoVO> orderInfoVOs) {
-		return sqlToyLazyDao.saveAll(orderInfoVOs);
+		return lightDao.saveAll(orderInfoVOs);
 	}
 
 	@Override
 	@DS("datasourceB")     // 切换到 B 库
 	public long saveLocalBOrders(List<OrderInfoVO> orderInfoVOs) {
-		return sqlToyLazyDao.saveAll(orderInfoVOs);
+		return lightDao.saveAll(orderInfoVOs);
 	}
 }
 ```
@@ -93,7 +93,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 ```java
 @Transactional
 public void executeSql(String sql) {
-	sqlToyLazyDao.executeSql(sql, MapKit.map());
+	lightDao.executeSql(sql, MapKit.map());
 }
 ```
 
