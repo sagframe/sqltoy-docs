@@ -6,7 +6,7 @@
 - Open your IDE (IntelliJ IDEA or Eclipse) and create a Maven project. Here the IDEA Solon plugin is used.
 - Demo project: [sqltoy-solon-demo](https://github.com/CoCoTeaNet/sqltoy-solon-demo)
 
-![create_solon_project](../../_media/create_solon_project.png)
+![create_solon_project](../_media/create_solon_project.png)
 
 
 ## 2. Add dependencies

@@ -84,7 +84,7 @@ spring:
 ```
 
 > [!TIP]
-> The caches above are all **full-load** mode. If your data reaches millions of rows (e.g. marketplace SKUs, phone-number regions), use the [Large-Scale Master-Data Cache (FIFO)（中文）](../../translate/sqltoy_FIFO_translate.md): the cache is not fully loaded; missing keys are fetched in batches on demand, and the local cache keeps only the hottest data.
+> The caches above are all **full-load** mode. If your data reaches millions of rows (e.g. marketplace SKUs, phone-number regions), use the [Large-Scale Master-Data Cache (FIFO)](../translate/sqltoy_FIFO_translate.md): the cache is not fully loaded; missing keys are fetched in batches on demand, and the local cache keeps only the hottest data.
 
 ## Test it
 ### Add 2 properties to OrderInfoVO
@@ -321,11 +321,11 @@ String[] keys = lightDao.cacheMatchKeys(CacheMatchFilter.create()
 		.matchIndexs(1)
 		// return column 0
 		.cacheKeyIndex(0)
-		// prefer exact matching (e.g. given "上海新能源" against "上海新能源..." and "中国上海新能源发展公司",
+		// prefer exact matching (e.g. given "Shanghai New Energy" against "Shanghai New Energy..." and "China Shanghai New Energy Development Co.",
 		// the first organ's code is returned; otherwise a LIKE-style match applies)
 		.priorMatchEqual(true)
 		// max number of matches
-		.matchSize(2), "新能源研究院");
+		.matchSize(2), "New Energy Research Institute");
 ```
 
 ## Advanced cache-translate scenarios

@@ -324,7 +324,7 @@
         if (badge) badge.title = t.badgeTip;
         var ftr = document.querySelector('.markdown-section footer');
         if (ftr) ftr.innerHTML = t.footerHtml;
-        var links = document.querySelectorAll('.markdown-section a[href*="sqltoy-docs/tree"]');
+        var links = document.querySelectorAll('.markdown-section a[href*="sqltoy-docs/tree"], .markdown-section a[onclick*="EditOnGithubPlugin"]');
         for (var j = 0; j < links.length; j++) links[j].textContent = t.edit;
         var cbs = document.querySelectorAll('.docsify-copy-code-button .label');
         for (var k = 0; k < cbs.length; k++) cbs[k].textContent = t.copy;
@@ -437,8 +437,7 @@
         }
       },
       plugins: [
-        i18nUi,
-        mermaidRender,
+        // 编辑链接与页脚插件须先于 i18nUi 注册:其 doneEach 先生成 DOM,i18nUi 的 apply 才能按语言改写文案
         EditOnGithubPlugin.create("https://github.com/sagframe/sqltoy-docs/tree/main/", "", "📝 编辑此页"),
         // 页脚
         function pageFooter(hook, vm) {
@@ -452,6 +451,8 @@
             return html + footer;
           });
         },
+        i18nUi,
+        mermaidRender,
         // logo 右侧自动版本号（取自 Maven Central 最新版）
         function versionBadge(hook) {
           hook.mounted(function () {
