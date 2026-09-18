@@ -15,6 +15,7 @@
     * [04 Cache Translate in Action](quickstart/translates.md)
 * Configuration
     * [sqltoy Configuration（中文）](../config/sqltoy_config.md)
+    * [Multi-Datasource & Transactions（中文）](../config/dynamic_datasource.md)
     * [Traditional Spring Setup（中文）](../config/traditional_spring.md)
     * [Pure Java Usage（中文）](../config/pure_java.md)
 * Object Operations

@@ -14,6 +14,7 @@
     * [03 增加公共字段处理](quickstart/helloworld_improve.md)
 * 核心配置
     * [sqltoy 配置参数](config/sqltoy_config.md)
+    * [多数据源与事务](config/dynamic_datasource.md)
     * [传统 Spring 项目配置](config/traditional_spring.md)
     * [纯 Java 项目如何使用](config/pure_java.md)
 * 对象操作

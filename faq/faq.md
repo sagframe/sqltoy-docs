@@ -39,6 +39,8 @@ select `maxvalue`,name from table
 
 ## 四、多数据源怎么弄？
 
+完整的 dynamic-datasource 配置、`@DS` 切换与 `@DSTransactional` 跨库事务范例，见[多数据源与事务](../config/dynamic_datasource.md)。
+
 sqltoy 可以配置默认数据源：
 
 ```properties
