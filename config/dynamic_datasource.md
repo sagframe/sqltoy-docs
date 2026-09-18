@@ -128,3 +128,6 @@ public class DynamicServiceImpl implements DynamicService {
 | 多库事务(JTA) | 结合 JTA 实现，参见 sqltoy-sharding 演示 |
 
 > 更多常见问题（如分库分表为什么不支持跨库 join 分页、与其他 ORM 组合使用等）见 [FAQ](../faq/faq.md)。
+
+> 🎬 完整示例源码：演示项目 `sqltoy-showcase` 的 `DynamicServiceImpl.java`（@DSTransactional 跨库事务）与 `OrderInfoServiceImpl.java`（@DS 切换数据源）。
+

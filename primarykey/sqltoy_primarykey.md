@@ -82,6 +82,8 @@ String bizId = lightDao.generateBizId("sqltoy_order_info",
 long id = lightDao.generateBizId("ORDER", 1);
 ```
 
+> 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `BusinessIdAndDataVersionTest.java`（含 @BusinessId 注解用法；运行依赖 redis，已标注 @Disabled 作为参考实现）。
+
 ## 使用自定义主键策略
 
 1. 自定义主键策略：实现IdGenarator类

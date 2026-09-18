@@ -59,6 +59,15 @@ spring.sqltoy.securePrivateKey=classpath:mock/rsa_private.key
 spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 ```
 
+传统 Spring XML 模式在 `SqlToyContext` bean 上配置同名属性（演示项目 `sqltoy-showcase` 的 `spring-sqltoy.xml` 即此写法）：
+
+```xml
+<property name="securePrivateKey" value="classpath:mock/rsa_private.key" />
+<property name="securePublicKey" value="classpath:mock/rsa_public.key" />
+```
+
+> 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `SecureTest.java`（测试资源已内置 `mock/rsa_private.key`、`rsa_public.key` 演示密钥，可直接复用）。
+
 * 在pojo对象类上增加注解@SecureConfig,为了便于检索，可以额外增加一个脱敏值，注意sourceField的指向作用
 
 ```java

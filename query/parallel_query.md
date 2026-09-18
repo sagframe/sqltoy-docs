@@ -50,3 +50,6 @@ queries.add(ParallelQuery.create().sql("sys_order_find")
 > `QueryResult` 常用方法：`getRows()`（结果集）、`getPageResult()`（分页结果）、`getExecuteTime()`（执行时长）。
 
 > **6.0 起更名**：`parallQuery` / `ParallQuery` 更名为 `parallelQuery` / `ParallelQuery`，5.6.x 版本请使用旧名称。
+
+> 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `ParallelQueryTest.java`（基本并行、ParallelConfig 线程配置、混合分页三种形态）。
+

@@ -141,6 +141,8 @@ for (Object item : result) {
 }
 ```
 
+> 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `FetchStreamTest.java`。
+
 #### findByQuery 层次结构封装（主子表一次查询返回父子对象）
 
 **场景**：主子表通过 join 一次性查出（如数据字典类型 + 字典明细），框架依据结果 VO 上的 `@OneToMany`/`@OneToOne` 注解，自动把平面结果集**分组分层封装**成父子对象（1..n 层级）——无需二次查询、无需手工组装。
@@ -207,6 +209,8 @@ public void testOneToMany() {
 > - `hiberarchyFieldsMap` 会**自动开启**层次封装并登记涉及的类，因此设置了它就无需再调 `hiberarchy(true)`。
 > - `hiberarchyFieldsMap` 只针对**父子对象存在同名属性**的场景；无同名属性时仅需 `hiberarchy(true)`。
 > - 层次封装是"一条 join sql 直接打包"，与[对象化 CRUD](../crud/sqltoy_crud.md) 中的级联 load（按主键批量二次查询组装）是两种互补机制。
+
+> 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `HierarchyPackagingTest.java`（其 `AbstractDictTypeVO` 的 @OneToMany 已配置 `notNullField = "dictKey"`）。
 
 #### 存储过程调用
 
