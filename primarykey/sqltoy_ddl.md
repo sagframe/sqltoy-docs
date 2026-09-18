@@ -35,3 +35,31 @@ public void testCreateSqlFile() {
 	}
 }
 ```
+
+## 实体外键与分区字段标记
+
+DDL 生成支持两个实体注解：
+
+| 注解 | 说明 |
+| --- | --- |
+| `@Foreign(table, field, constraintName)` | **外键标记**（6.0/2023.07 新增）：声明字段关联的表与字段，生成 DDL 时创建外键约束 |
+| `@PartitionKey` | **分区字段标记**：MPP 数据库（如 StarRocks）建表时的分区键 |
+
+```java
+@Accessors(chain = true)
+@Entity(tableName = "sqltoy_order_info", pk_constraint = "PRIMARY")
+public class OrderInfo implements Serializable {
+
+    @Column(name = "ORGAN_ID")
+    // 外键：关联 sqltoy_organ_info 表的 ORGAN_ID 字段
+    @Foreign(table = "sqltoy_organ_info", field = "ORGAN_ID", constraintName = "FK_ORDER_ORGAN")
+    private String organId;
+
+    @Column(name = "BIZ_DATE")
+    // MPP（如 StarRocks）建表时的分区字段
+    @PartitionKey
+    private LocalDate bizDate;
+}
+```
+
+> 这两个注解只影响 DDL 生成（autoDDL / DDLFactory），不改变运行时行为。

@@ -103,6 +103,8 @@ boolean unique = lightDao.isUnique(staffInfo, "staffCode");
 ```
 
 > 单条记录也可用 `loadByQuery(new QueryExecutor(sql).names(...).values(...)...)`（返回 Object）；常规场景建议直接用 `findOne`。
+> Top / 随机查询也有 QueryExecutor 形态：`findTopByQuery(queryExecutor, topSize)` 与 `findRandomByQuery(queryExecutor, randomSize)`，详见上文 findTop / findRandom 章节。
+
 
 #### fetchStream 流式数据获取
 

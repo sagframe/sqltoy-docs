@@ -42,6 +42,46 @@ org.sagacity.sqltoy.plugins.id.impl.DefaultIdGenerator
 
 <img width="806" height="222" alt="image" src="https://github.com/user-attachments/assets/7aa1da10-8e26-445d-a951-57f8ab7b48b0" />
 
+
+## redis 业务主键：@BusinessId 注解与 generateBizId
+
+redis 策略属于**业务主键**范畴（如订单号：年月日+几位流水）。除通过 quickvo / `@Id` 配置单个业务主键外，当一个表涉及**多个业务主键**时（配置层面只支持单个），可用 `@BusinessId` 注解 + `generateBizId` API 自行生成后赋值。
+
+* 1、在 POJO 字段上用 `@BusinessId` 声明业务主键策略
+
+```java
+/** 订单编号（业务主键） */
+@BusinessId(signature = "HW@case(orderType,SALE,SC,BUY,PO)@day(yyMMdd)",
+        generator = "org.sagacity.sqltoy.plugins.id.impl.RedisIdGenerator",
+        length = 20, sequenceSize = 5, relatedColumns = {"orderType"})
+private String orderId;
+```
+
+`@BusinessId` 属性：
+
+| 属性 | 说明 |
+| --- | --- |
+| `signature` | 识别区分符号表达式，支持 `@case(name,v1,then1,v2,then2)`、`@day(yyMMdd)`、`@substr(name,start,length)` 等宏 |
+| `generator` | 主键生成策略实现类（如 redis 策略 `RedisIdGenerator`） |
+| `length` / `sequenceSize` | 业务主键总长度 / 尾部流水位数（默认 -1 取全局配置） |
+| `relatedColumns` | 参与主键生成的关联字段 |
+| `start` | 流水初始值，默认 1 |
+
+* 2、通过 LightDao 的 generateBizId 生成
+
+```java
+// 1) 基于实体对象配置的 @BusinessId 策略，提取属性值生成业务主键
+String orderId = lightDao.generateBizId(orderInfo);
+
+// 2) 动态传参生成（业务主键按表维度隔离管理；signature 支持 @case/@day/@substr 宏）
+String bizId = lightDao.generateBizId("sqltoy_order_info",
+        "HW@case(orderType,SALE,SC,BUY,PO)@day(yyMMdd)",
+        MapKit.map("orderType", "SALE"), null, 20, 5);
+
+// 3) 简单形态：唯一标识符号 + 增量
+long id = lightDao.generateBizId("ORDER", 1);
+```
+
 ## 使用自定义主键策略
 
 1. 自定义主键策略：实现IdGenarator类
