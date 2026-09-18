@@ -49,7 +49,26 @@ spring:
        sqlResourcesDir: classpath:com/sqltoy/helloworld
        # 默认为false，debug模式将打印执行sql,并自动检测sql文件更新并重新加载
        debug: true
-  
+ 
+```
+
+> **工程实践：推荐把 `*.sql.xml` 放在代码目录（而非 resources）**，与 VO 同模块存放。好处：① 开发者在自己模块下就能完成 sql 编写与维护，减少目录切换；② 便于整个模块连同 sql 一起剥离复用，向产品化模块演进。这需要在 pom.xml 中把 java 目录下的 xml 纳入资源打包：
+
+```xml
+<resources>
+	<resource>
+		<directory>src/main/java</directory>
+		<excludes>
+			<exclude>**/*.java</exclude>
+		</excludes>
+		<includes>
+			<include>**/*.xml</include>
+		</includes>
+	</resource>
+	<resource>
+		<directory>src/main/resources</directory>
+	</resource>
+</resources>
 ```
 
 ## 2、在pom.xml中引入sqltoy-orm-spring-starter

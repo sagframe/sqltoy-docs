@@ -79,6 +79,8 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 
 `<filters>` 用于在 SQL 执行前对条件参数做规整（转 null、类型转换、格式化、缓存反向匹配等），是 sqltoy 动态 SQL 的核心。Java 中对应 `ParamsFilter`，通过 `.filters(...)` 传入。
 
+> **设计哲学——前置规整**：sqltoy 简洁之道的原理就在这里——通过 filters 在进入 SQL 前把条件参数修整到位，**保持对 SQL 内容体最小的干扰**。`#[]` 只保留"参数有值就拼进去"这一种本征形态，其余条件逻辑（置 null、格式化、拆分合并）全部前置到 filters 完成，SQL 因此能始终维持直观、简洁的原生结构。
+
 ### 4.1 转 null 类（满足条件则把参数置 null，从而剔除对应 `#[]` 片段）
 
 | 标签 | 属性 | 说明 |

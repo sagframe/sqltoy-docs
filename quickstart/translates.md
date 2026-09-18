@@ -80,6 +80,10 @@ spring:
 	</cache-update-checkers>
 </sagacity>
 ```
+
+> [!TIP]
+> 上面的缓存都是**全量加载**模式。如果数据量达到百万级以上（如平台型电商 SKU、号码归属地），请使用[超大规模主数据缓存（FIFO）](../translate/sqltoy_FIFO_translate.md)：缓存不做全量加载，翻译时未命中的 key 动态批量获取，本地仅保留最常用的数据。
+
 ## 测试验证
 ### 类OrderInfoVO增加2个属性
 

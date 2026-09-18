@@ -61,7 +61,7 @@ sqltoy 的核心思路：
 flowchart LR
     A[LightDao 接口] --> B[SqlToyDaoSupport<br/>操作实现]
     B --> C[SqlToyConfig<br/>sqlId 预解析]
-    C --> D[filters 参数规整<br/>#[] 动态片段裁剪]
+    C --> D[filters 参数规整<br/>动态 SQL 片段裁剪]
     D --> E[DialectFactory<br/>方言路由]
     E --> F[分页 SQL + count 优化<br/>PageOptimizeUtils]
     F --> G[拦截与增强<br/>sharding · tenant · translate · secure]

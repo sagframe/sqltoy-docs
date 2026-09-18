@@ -6,6 +6,7 @@
   因此在数据库表设计时，往往需要统一设计4个字段:create_by\create_time\update_by\update_time  
   在代码层面每次手工给这些字段赋值就带来大量重复工作，且容易产生遗漏！  
   这就需要在框架层面提供统一的处理!
+  另一个关键价值：修改时自动维护修改人、修改时间（必要时强制覆盖最后修改时间），**为数据留痕和基于更新时间的增量 ETL 同步打好基础**——只要坚持统一赋值，增量抽取程序就可以直接依赖 update_time 做增量识别，无需额外埋点。
   
 ## sqltoy自定义公共字段赋值接口实现
 * 1、sqltoy提供了标准接口:org.sagacity.sqltoy.plugins.IUnifyFieldsHandler  

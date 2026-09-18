@@ -350,8 +350,12 @@
       var id = 0;
       hook.afterEach(function (html) {
         return html.replace(/<code[^>]*class="[^"]*(?:language-|lang-)mermaid[^"]*"[^>]*>([\s\S]*?)<\/code>/g, function (m, code) {
-          return '<div class="mermaid" id="mmd-' + (id++) + '">'
-            + code.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>') + '</div>';
+          // 用 textContent 剥离 prism 高亮的 span 标记,再转义回纯文本交给 mermaid
+          // (保持<br/>等符号为文本,由 mermaid 自行转换为换行)
+          var sink = document.createElement('div');
+          sink.innerHTML = code;
+          var text = sink.textContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          return '<div class="mermaid" id="mmd-' + (id++) + '">' + text + '</div>';
         });
       });
       hook.doneEach(function () {
