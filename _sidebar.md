@@ -3,6 +3,7 @@
     * [sqltoy 主要特性](introduction/feature.md)
     * [支持的数据库](introduction/db_list.md)
     * [技术架构](introduction/architecture.md)
+    * [6.0 升级指南](introduction/upgrade_6.0.md)
 * 环境准备
     * [开发环境与依赖](prepare/environment.md)
     * [quickvo 代码生成工具](prepare/quickvo.md)

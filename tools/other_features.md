@@ -90,4 +90,4 @@ public class MySpecialDao extends SpringDaoSupport {
 | `DBProfile` | 提供 `getDbType()`/`getDialect()`/`getUrl()`/`getProductName()`/`getMajorVersion()`，及 `isMysqlFamily()`/`isOracleFamily()`/`isOceanBase()`/`isBackslashEscape()` 等便捷判断 |
 | `setResult(...)` / `getResult()` | 在回调中暂存结果 / 外部获取结果 |
 
-> **版本说明**：6.0.0 起回调签名由 `doConnection(Connection conn, Integer dbType, String dialect)` 调整为 `doConnection(Connection conn, DBProfile profile)`（`org.sagacity.sqltoy.model.DBProfile`），5.6.x 版本请按旧签名使用。
+> **版本说明**：6.0 起回调签名由 `doConnection(Connection conn, Integer dbType, String dialect)` 调整为 `doConnection(Connection conn, DBProfile profile)`（`org.sagacity.sqltoy.model.DBProfile`），5.6.x 版本请按旧签名使用。

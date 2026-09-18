@@ -59,8 +59,8 @@ spring:
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
-	<!-- For JDK 8 use the 5.6.x jre8 variant -->
-	<version>6.0.0</version>
+	<!-- For JDK 8 use 5.6.95.jre8 (final) -->
+	<version>6.0.1</version>
 </dependency>
 ```
 * Solon
@@ -69,8 +69,8 @@ spring:
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-	<!-- For JDK 8 use the 5.6.x jre8 variant -->
-	<version>6.0.0</version>
+	<!-- For JDK 8 use 5.6.95.jre8 (final) -->
+	<version>6.0.1</version>
 </dependency>
 ```
 ## 3. Create the table: sqltoy_order_info
@@ -104,7 +104,7 @@ CREATE TABLE SQLTOY_ORDER_INFO(
 <plugin>
 	<groupId>com.sagframe</groupId>
 	<artifactId>quickvo-maven-plugin</artifactId>
-	<version>1.0.22</version>
+	<version>1.0.24</version>
 	<configuration>
 		<configFile>./src/main/resources/quickvo.xml</configFile>
 		<baseDir>${project.basedir}</baseDir>

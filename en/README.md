@@ -22,6 +22,18 @@ SqlToy starts from the cleanest dynamic-SQL authoring model and pioneers high-va
 
 SqlToy provides efficient ORM operations including object CRUD, cascade loading and automatic DDL generation. For data modification it offers elastic (null-skipping) updates and strong transactional capabilities, with sharding, various primary-key strategies and field encryption built in. For querying it supports intuitive SQL authoring, cache-translate optimization and cross-database adaptation, delivering the industry's strongest pagination mechanism (automatic count optimization, cached pagination, fast pagination and parallel pagination). It also covers analytics (pivot/unpivot, YoY & MoM, tree processing), hierarchical data structures, multi-tenancy isolation, data masking and more enterprise-grade features.
 
+| Category | Highlights | Docs |
+| --- | --- | --- |
+| [Object operations](../crud/sqltoy_crud.md) | JPA-style CRUD, elastic update, updateFetch / updateSaveFetch, cascades, query hierarchy packaging, tree-table routes | [Object CRUD（中文）](../crud/sqltoy_crud.md) |
+| [SQL query](../query/dynamic_sql.md) | Dynamic SQL (`#[]` + filters), cache translate, strongest pagination (count optimize / cached / fast / parallel), parallel query, stored procedures, stream query | [Dynamic SQL（中文）](../query/dynamic_sql.md) / [Pagination（中文）](../query/pagination.md) |
+| [Analytics](../query/sqltoy_complex_query.md) | Pivot / unpivot, group summary, YoY & MoM, tree sort & rollup, group concatenation, formatting | [Analytics（中文）](../query/sqltoy_complex_query.md) |
+| [Cross-database](./introduction/db_list.md) | 24 dialects (incl. SAP HANA), function auto-replacement, dialect sqlId, multi-DB verification | [Dialects（中文）](../dialect/sqltoy_function.md) / [DB list](./introduction/db_list.md) |
+| [Enterprise](../enterprise/sqltoy_sharding.md) | Sharding, multi-tenancy, data permission, masking & encryption, data versioning, SQL interceptors, slow SQL | [Sharding（中文）](../enterprise/sqltoy_sharding.md) / [Security（中文）](../enterprise/sqltoy_security.md) |
+| [NoSQL](../nosql/sqltoy_mongo.md) | Elasticsearch (SQL / JSON modes), MongoDB (query / aggregation + cache translate) | [Mongo（中文）](../nosql/sqltoy_mongo.md) / [ES（中文）](../nosql/sqltoy_elasticsearch.md) |
+| [Engineering](../config/sqltoy_config.md) | quickvo code generation, autoDDL, debug hot-reload, GraalVM AOT, Spring Boot / Spring / Solon / plain Java | [Config（中文）](../config/sqltoy_config.md) / [quickvo（中文）](../prepare/quickvo.md) |
+
+> Full catalog: [SqlToy Feature List](./introduction/feature.md)
+
 - [Quick Start](./quickstart/helloworld.md)
 - [Online Docs](https://sagframe.github.io/sqltoy-docs)
 

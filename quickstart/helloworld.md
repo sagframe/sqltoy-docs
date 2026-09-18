@@ -59,8 +59,8 @@ spring:
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
-	<!-- JDK8 请使用 5.6.x 的 jre8 版本 -->
-	<version>6.0.0</version>
+	<!-- JDK8 请使用 5.6.95.jre8（最终版本） -->
+	<version>6.0.1</version>
 </dependency>
 ```
 * solon场景
@@ -69,8 +69,8 @@ spring:
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-	<!-- JDK8 请使用 5.6.x 的 jre8 版本 -->
-	<version>6.0.0</version>
+	<!-- JDK8 请使用 5.6.95.jre8（最终版本） -->
+	<version>6.0.1</version>
 </dependency>
 ```
 ## 3、创建表:sqltoy_order_info
@@ -104,7 +104,7 @@ CREATE TABLE SQLTOY_ORDER_INFO(
 <plugin>
 	<groupId>com.sagframe</groupId>
 	<artifactId>quickvo-maven-plugin</artifactId>
-	<version>1.0.22</version>
+	<version>1.0.24</version>
 	<configuration>
 		<configFile>./src/main/resources/quickvo.xml</configFile>
 		<baseDir>${project.basedir}</baseDir>

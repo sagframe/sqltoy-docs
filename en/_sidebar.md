@@ -3,6 +3,7 @@
     * [Key Features](introduction/feature.md)
     * [Supported Databases](introduction/db_list.md)
     * [Technical Architecture](introduction/architecture.md)
+    * [Upgrade to 6.0.x（中文）](../introduction/upgrade_6.0.md)
 * Environment Setup
     * [Environment & Dependencies（中文）](../prepare/environment.md)
     * [quickvo Code Generator（中文）](../prepare/quickvo.md)

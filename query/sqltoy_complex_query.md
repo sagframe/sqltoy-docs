@@ -105,7 +105,8 @@ sqltoy 提供一组**在内存中对结果集做二次计算**的分析能力：
 
 `<pivot>` 属性：`group-columns`（必填）、`category-columns`（必填）、`start-column`（必填）、`end-column`（必填）、`category-sql`（用 SQL 动态产生分类列）、`default-value`、`default-type`。
 
-> **💡 提示**：符合默认规整标准的纯集合行转列，可直接简写 `<pivot/>`，无需冗长属性。
+> [!TIP]
+> 符合默认规整标准的纯集合行转列，可直接简写 `<pivot/>`，无需冗长属性。
 
 ### 2.3 效果
 

@@ -2,6 +2,22 @@
 
 sqltoy 提供业界最完善的分页机制：**智能 count 优化、缓存分页、快速分页、并行分页**，并支持自定义 count SQL 与跳过 count。开发者无需关心各数据库的分页方言差异，sqltoy 自动适配。
 
+整体流程示意：
+
+```mermaid
+flowchart TD
+    A[分页请求 findPage] --> B[智能改写 count SQL<br/>剔除 order by · 简化 select]
+    B --> C{配置 page-optimize?}
+    C -->|是| D{缓存命中?}
+    D -->|命中| F[复用缓存的 count 结果]
+    D -->|未命中| G[执行 count 并写入缓存]
+    C -->|否| H[直接执行优化后的 count]
+    F --> I[并行执行单页数据查询]
+    G --> I
+    H --> I
+    I --> J[组装 Page 返回<br/>rows + recordCount]
+```
+
 ## 一、基本分页 API
 
 ```java

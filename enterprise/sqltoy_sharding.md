@@ -51,6 +51,9 @@ org.sagacity.sqltoy.plugins.sharding.impl.DefaultShardingStrategy;
 # 按hash取模分库分表
 org.sagacity.sqltoy.plugins.sharding.impl.HashShardingStrategy;
 
+> [!NOTE]
+> 6.0 起 `DefaultShardingStrategy`（按日期周期分表）位于 **spring / spring-starter 模块**（包名不变：`org.sagacity.sqltoy.plugins.sharding.impl`），core 仅保留 `HashShardingStrategy`；Spring 环境下 import 不受影响，纯 Java 环境需引入 spring 模块或自行实现该策略。
+
 # 实现接口
 
 public interface ShardingStrategy {

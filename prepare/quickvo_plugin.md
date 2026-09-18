@@ -10,7 +10,7 @@
 <plugin>
     <groupId>com.sagframe</groupId>
     <artifactId>quickvo-maven-plugin</artifactId>
-    <version>1.0.22</version>
+    <version>1.0.24</version>
     <configuration>
         <configFile>./src/main/resources/quickvo.xml</configFile>
         <baseDir>${project.basedir}</baseDir>
@@ -104,6 +104,7 @@ public class OrderInfo implements Serializable {
 }
 ```
 
-> **⚠️** `begin-auto-generate` 与 `end-auto-generate` 之间的内容由 quickvo 自动生成，**请勿手工修改**（重新生成会覆盖）；扩展属性/方法请写在区间之外。
+> [!WARNING]
+> `begin-auto-generate` 与 `end-auto-generate` 之间的内容由 quickvo 自动生成，**请勿手工修改**（重新生成会覆盖）；扩展属性/方法请写在区间之外。
 
 完整建项目→生成→查询流程见 [helloworld 快速上手](../quickstart/helloworld.md)。

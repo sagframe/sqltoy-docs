@@ -200,7 +200,7 @@ public void testOneToMany() {
 { "comments": "设备类型", "dictDetailVOs": [ { "dictKey": "NET", "dictName": "网络设备", "dictType": "DEVICE_TYPE", "showIndex": 2, "status": 1 } ] }
 ```
 
-> **注意**：
+> [!NOTE]
 > - 方法名是 `hiberarchy` / `hiberarchyFieldsMap`（框架历史拼写，不是 hierarchy）。
 > - `hiberarchyFieldsMap` 会**自动开启**层次封装并登记涉及的类，因此设置了它就无需再调 `hiberarchy(true)`。
 > - `hiberarchyFieldsMap` 只针对**父子对象存在同名属性**的场景；无同名属性时仅需 `hiberarchy(true)`。

@@ -72,7 +72,8 @@ java -cp ./libs/* org.sagacity.quickvo.QuickVOStart quickvo.xml
 
 quickvo 会把数据库表/字段注释一并写入 VO，便于阅读维护。
 
-> **⚠️ 请勿修改 VO 中"标记区间"内的内容**（重新生成会覆盖）。如需扩展属性或 get/set 方法，请在该区间**之外**添加。
+> [!WARNING]
+> 请勿修改 VO 中"标记区间"内的内容（重新生成会覆盖）。如需扩展属性或 get/set 方法，请在该区间**之外**添加。
 
 ## 四、关键注意事项
 
