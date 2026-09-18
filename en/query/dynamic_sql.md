@@ -22,6 +22,9 @@ sqltoy uses `#[ ... ]` to mark a **dynamic condition fragment**. The core rules:
 
 ## 2. The XML Form
 
+> [!TIP]
+> For the XSD schema location of `*.sql.xml` files and IDE completion setup, see the [XML Schema Guide](../config/xml_schemas.md).
+
 ```xml
 <!-- blank-to-null="true" is the default; equivalent to <sql id="show_case" blank-to-null="true"> -->
 <sql id="show_case">

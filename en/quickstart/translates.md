@@ -29,6 +29,9 @@ spring:
         translateConfig: classpath:sqltoy-translate.xml
 ```
 ### The sqltoy-translate.xml file
+
+> For the schema location of `sqltoy-translate.xml` and IDE completion setup, see the [XML Schema Guide](../config/xml_schemas.md).
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <sagacity

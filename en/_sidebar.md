@@ -18,6 +18,7 @@
     * [Multi-Datasource & Transactions](config/dynamic_datasource.md)
     * [Traditional Spring Setup](config/traditional_spring.md)
     * [Pure Java Usage](config/pure_java.md)
+    * [XML Schema Guide](config/xml_schemas.md)
 * Object Operations
     * [Object CRUD](crud/sqltoy_crud.md)
     * [Tree-Table Route Builder](crud/tree_table.md)

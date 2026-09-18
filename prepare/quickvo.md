@@ -20,6 +20,8 @@ java -cp ./libs/* org.sagacity.quickvo.QuickVOStart quickvo.xml
 
 ## 二、quickvo.xml 配置要点
 
+> `quickvo.xml` 的 schema 指向与 IDE 补全配置见 [XML Schema 配置指引](../config/xml_schemas.md)。
+
 `quickvo.xml` 主要由 `property`（参数）、`datasource`（数据库）、`tasks/task`（生成任务）等部分组成。下面为独立运行时的结构示意（Maven 插件方式的完整配置见 [quickvo-maven-plugin](quickvo_plugin.md)）：
 
 ```xml

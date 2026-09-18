@@ -27,6 +27,9 @@ spring:
         translateConfig: classpath:sqltoy-translate.xml
 ```
 ### sqltoy-translate.xml配置
+
+> `sqltoy-translate.xml` 的 schema 指向与 IDE 补全配置见 [XML Schema 配置指引](../config/xml_schemas.md)。
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <sagacity

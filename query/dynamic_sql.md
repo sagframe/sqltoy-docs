@@ -22,6 +22,9 @@ sqltoy 用 `#[ ... ]` 标记一段**动态条件片段**，核心规则：
 
 ## 二、XML 形态
 
+> [!TIP]
+> `*.sql.xml` 的 XSD schema 指向与 IDE 补全配置见 [XML Schema 配置指引](../config/xml_schemas.md)。
+
 ```xml
 <!-- 默认即 blank-to-null="true"，等价于 <sql id="show_case" blank-to-null="true"> -->
 <sql id="show_case">

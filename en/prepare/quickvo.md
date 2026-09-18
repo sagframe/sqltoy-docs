@@ -20,6 +20,8 @@ java -cp ./libs/* org.sagacity.quickvo.QuickVOStart quickvo.xml
 
 ## 2. Key quickvo.xml Configuration
 
+> For the schema location of `quickvo.xml` and IDE completion setup, see the [XML Schema Guide](../config/xml_schemas.md).
+
 `quickvo.xml` mainly consists of `property` (parameters), `datasource` (database connection), and `tasks/task` (generation tasks). The structure below is for standalone execution (for the full configuration when using the Maven plugin, see [quickvo-maven-plugin](quickvo_plugin.md)):
 
 ```xml
