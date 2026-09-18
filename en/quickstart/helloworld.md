@@ -52,6 +52,25 @@ spring:
   
 ```
 
+> **Best practice: keep `*.sql.xml` files in the code directory (not resources)**, next to the VOs of the same module. Benefits: ① developers write and maintain SQL inside their own module without jumping between directories; ② the whole module can be extracted and reused as a unit, evolving toward productized modules. This requires a `resources` section in pom.xml so XML files under the java source directory get packaged:
+
+```xml
+<resources>
+	<resource>
+		<directory>src/main/java</directory>
+		<excludes>
+			<exclude>**/*.java</exclude>
+		</excludes>
+		<includes>
+			<include>**/*.xml</include>
+		</includes>
+	</resource>
+	<resource>
+		<directory>src/main/resources</directory>
+	</resource>
+</resources>
+```
+
 ## 2. Add sqltoy-orm-spring-starter in pom.xml
 * Spring Boot
 

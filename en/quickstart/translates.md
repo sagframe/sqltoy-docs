@@ -82,6 +82,10 @@ spring:
 	</cache-update-checkers>
 </sagacity>
 ```
+
+> [!TIP]
+> The caches above are all **full-load** mode. If your data reaches millions of rows (e.g. marketplace SKUs, phone-number regions), use the [Large-Scale Master-Data Cache (FIFO)（中文）](../../translate/sqltoy_FIFO_translate.md): the cache is not fully loaded; missing keys are fetched in batches on demand, and the local cache keeps only the hottest data.
+
 ## Test it
 ### Add 2 properties to OrderInfoVO
 

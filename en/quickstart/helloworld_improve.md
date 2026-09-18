@@ -7,6 +7,7 @@
   Therefore tables are usually designed with 4 standard columns: create_by / create_time / update_by / update_time.
   Assigning them by hand in code is repetitive and error-prone —
   the framework should handle it uniformly!
+  Another key value: when updating, updated-by / update-time are maintained automatically (with forced overwrite of last-update-time where needed), **laying the groundwork for data auditing and update-time-based incremental ETL** — as long as unified assignment is in place, incremental extraction can rely on update_time directly, with no extra bookkeeping.
 
 ## Implementing the sqltoy common-field handler
 

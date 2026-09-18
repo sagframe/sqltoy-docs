@@ -36,6 +36,14 @@ SqlToy aims to **fill JPA's query gaps while solving MyBatis's daily pain points
 
 > Key differences only — see the feature list below and the [full catalog](./introduction/feature.md); side-by-side writing examples (SqlToy vs MyBatis) live in [Best Picks（中文）](../best/best_practices.md).
 
+### On jOOQ / Fluent-Mybatis and other "SQL-fluent API" frameworks
+
+These frameworks model SQL with Java objects and fail compilation when a column changes. SqlToy's take: **they shine for single-table simple queries, but multi-table complex querying becomes over-wrapping**. The yardstick is whether **debug-time authoring, project integration and later maintenance stay the same experience**:
+
+- **Two-way conversion cost**: SQL is debugged in a database client, then "translated" into Java; when requirements change you edit Java and translate back to the client to verify — the more complex the SQL and the more frequent the changes, the more this tax compounds. SqlToy SQL keeps its native shape: **copy it to the client to run, paste it back when done**;
+- **Expressiveness**: SQL has a huge function library plus `/*+ hint */` optimizer hints — can a Java fluent API cover them all? For multi-table joins and nested analytics, Java-assembled SQL is far less readable than the native form;
+- **Benefit vs. cost**: "compile error on column rename" buys little — how often do projects rename tables or columns? And once the fluent API hits a gap, you fall back to raw strings anyway.
+
 ## Key Features
 
 SqlToy provides efficient ORM operations including object CRUD, cascade loading and automatic DDL generation. For data modification it offers elastic (null-skipping) updates and strong transactional capabilities, with sharding, various primary-key strategies and field encryption built in. For querying it supports intuitive SQL authoring, cache-translate optimization and cross-database adaptation, delivering the industry's strongest pagination mechanism (automatic count optimization, cached pagination, fast pagination and parallel pagination). It also covers analytics (pivot/unpivot, YoY & MoM, tree processing), hierarchical data structures, multi-tenancy isolation, data masking and more enterprise-grade features.
