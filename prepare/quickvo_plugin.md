@@ -2,6 +2,9 @@
 
 除了独立运行 quickvo（见 [quickvo 代码生成工具](quickvo.md)），更推荐用 **quickvo-maven-plugin** 把代码生成集成进 Maven 构建，一条命令即可根据数据库表生成/更新 POJO 与 VO。
 
+> [!NOTE]
+> 当前版本 **2.0.0** 对之前的版本进行了大幅重构，并针对 19 种数据库（oracle、db2、sqlserver、mysql、postgresql、hana、kingbase、dm、opengauss、oceanbase、doris、tidb、starrocks、clickhouse 等）进行了测试验证。完整功能清单与配置说明见插件仓库 README。
+
 - 项目地址：https://gitee.com/sagacity/maven-quickvo-plugin （完整配置参见其 README）
 
 ## 一、在 pom.xml 中配置插件
@@ -10,7 +13,7 @@
 <plugin>
     <groupId>com.sagframe</groupId>
     <artifactId>quickvo-maven-plugin</artifactId>
-    <version>1.0.24</version>
+    <version>2.0.0</version>
     <configuration>
         <configFile>./src/main/resources/quickvo.xml</configFile>
         <baseDir>${project.basedir}</baseDir>

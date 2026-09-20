@@ -2,7 +2,7 @@
 
 sqltoy itself is not bound to any datasource. For multiple datasources you can directly reuse the mature community **dynamic-datasource** (baomidou) solution: the `@DS` annotation for datasource switching, `@Transactional` for single-database transactions, and `@DSTransactional` to bring operations across multiple datasources into the same transaction.
 
-> This article is adapted from the official demo project: <https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource> (the demo project has been upgraded to **sqltoy 6.0.1 + Spring Boot 4.0.1**, and the examples in this article are consistent with it)
+> This article is adapted from the official demo project: <https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource> (the demo project has been upgraded to **sqltoy 6.0.2 + Spring Boot 4.0.1**, and the examples in this article are consistent with it)
 
 ## 1. Add Dependencies
 

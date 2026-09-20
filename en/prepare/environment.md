@@ -4,13 +4,13 @@
 
 | Item | Requirement |
 | --- | --- |
-| JDK | **17+** (6.0.1 targets JDK17 / Spring Boot 3/4); for JDK8 projects use `5.6.95.jre8` (the final jre8 version) |
+| JDK | **17+** (6.0.2 targets JDK17 / Spring Boot 3/4); for JDK8 projects use `5.6.95.jre8` (the final jre8 version) |
 | Build tool | Maven 3.6+ or Gradle |
 | Database | Any JDBC database (MySQL/Oracle/PostgreSQL/Dameng/GaussDB/SQL Server/DB2, etc.; see [Supported Databases](../introduction/db_list.md)) |
 | Connection pool | Druid, HikariCP or any other connection pool (sqltoy is not bound to a connection pool) |
 
 > [!NOTE]
-> For version numbers, refer to the latest release on [Maven Central](https://mvnrepository.com/artifact/com.sagframe/sagacity-sqltoy); this article uses `6.0.1` as an example.
+> For version numbers, refer to the latest release on [Maven Central](https://mvnrepository.com/artifact/com.sagframe/sagacity-sqltoy); this article uses `6.0.2` as an example.
 
 ## 2. Add Dependencies
 
@@ -22,7 +22,7 @@ Choose the corresponding artifact according to the framework you use (the groupI
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring-starter</artifactId>
-    <version>6.0.1</version>
+    <version>6.0.2</version>
 </dependency>
 ```
 
@@ -32,7 +32,7 @@ Choose the corresponding artifact according to the framework you use (the groupI
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring</artifactId>
-    <version>6.0.1</version>
+    <version>6.0.2</version>
 </dependency>
 ```
 
@@ -42,7 +42,7 @@ Choose the corresponding artifact according to the framework you use (the groupI
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-    <version>6.0.1</version>
+    <version>6.0.2</version>
 </dependency>
 ```
 

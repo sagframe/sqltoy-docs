@@ -8,7 +8,7 @@
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
 	<!-- For JDK8, use 5.6.95.jre8 (final version) -->
-	<version>6.0.1</version>
+	<version>6.0.2</version>
 </dependency>
 ```
 

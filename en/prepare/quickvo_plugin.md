@@ -2,6 +2,9 @@
 
 Besides running quickvo standalone (see [quickvo Code Generator](quickvo.md)), the recommended approach is **quickvo-maven-plugin**, which integrates code generation into the Maven build — a single command generates/updates the POJO and VO classes from database tables.
 
+> [!NOTE]
+> Version **2.0.0** was a major refactoring of previous releases and has been tested against 19 databases (Oracle, DB2, SQL Server, MySQL, PostgreSQL, HANA, Kingbase, DM, openGauss, OceanBase, Doris, TiDB, StarRocks, ClickHouse, etc.). See the plugin repository README for the full feature list and configuration.
+
 - Project home: https://gitee.com/sagacity/maven-quickvo-plugin (see its README for the full configuration)
 
 ## 1. Configure the Plugin in pom.xml
@@ -10,7 +13,7 @@ Besides running quickvo standalone (see [quickvo Code Generator](quickvo.md)), t
 <plugin>
     <groupId>com.sagframe</groupId>
     <artifactId>quickvo-maven-plugin</artifactId>
-    <version>1.0.24</version>
+    <version>2.0.0</version>
     <configuration>
         <configFile>./src/main/resources/quickvo.xml</configFile>
         <baseDir>${project.basedir}</baseDir>
