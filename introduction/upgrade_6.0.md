@@ -6,7 +6,7 @@
 
 | 项 | 要求 |
 | --- | --- |
-| JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.95.jre8`（最终 jre8 版本） |
+| JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.96.jre8`（最终 jre8 版本，支持 quickvo-maven-plugin 插件） |
 | 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.2 |
 | 配置参数 | `spring.sqltoy.*` 全部 58 个参数**无增减**，配置文件无需调整 |
 

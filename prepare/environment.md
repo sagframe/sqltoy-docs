@@ -4,7 +4,7 @@
 
 | 项 | 要求 |
 | --- | --- |
-| JDK | **17+**（6.0.2 面向 JDK17 / Spring Boot 3/4）；JDK8 项目请使用 `5.6.95.jre8`（最终 jre8 版本） |
+| JDK | **17+**（6.0.2 面向 JDK17 / Spring Boot 3/4）；JDK8 项目请使用 `5.6.96.jre8`（最终 jre8 版本，支持 quickvo-maven-plugin 插件） |
 | 构建工具 | Maven 3.6+ 或 Gradle |
 | 数据库 | 任意 JDBC 数据库（MySQL/Oracle/PostgreSQL/达梦/高斯/SQL Server/DB2 等，详见[支持的数据库](../introduction/db_list.md)） |
 | 连接池 | Druid、HikariCP 等任意连接池（sqltoy 不绑定连接池） |

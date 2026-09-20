@@ -6,7 +6,7 @@ Changes and notes for upgrading from 5.6.x to 6.0.2 (the 6.0 line). All changes 
 
 | Item | Requirement |
 | --- | --- |
-| JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.95.jre8` (the final jre8 version) |
+| JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
 | Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.2 |
 | Configuration parameters | All 58 `spring.sqltoy.*` parameters are **unchanged**; no configuration file adjustments are needed |
 

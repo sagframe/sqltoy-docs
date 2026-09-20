@@ -78,7 +78,7 @@ spring:
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
-	<!-- For JDK 8 use 5.6.95.jre8 (final) -->
+	<!-- For JDK 8 use 5.6.96.jre8 (final) -->
 	<version>6.0.2</version>
 </dependency>
 ```
@@ -88,7 +88,7 @@ spring:
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-	<!-- For JDK 8 use 5.6.95.jre8 (final) -->
+	<!-- For JDK 8 use 5.6.96.jre8 (final) -->
 	<version>6.0.2</version>
 </dependency>
 ```

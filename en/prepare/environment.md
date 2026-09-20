@@ -4,7 +4,7 @@
 
 | Item | Requirement |
 | --- | --- |
-| JDK | **17+** (6.0.2 targets JDK17 / Spring Boot 3/4); for JDK8 projects use `5.6.95.jre8` (the final jre8 version) |
+| JDK | **17+** (6.0.2 targets JDK17 / Spring Boot 3/4); for JDK8 projects use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
 | Build tool | Maven 3.6+ or Gradle |
 | Database | Any JDBC database (MySQL/Oracle/PostgreSQL/Dameng/GaussDB/SQL Server/DB2, etc.; see [Supported Databases](../introduction/db_list.md)) |
 | Connection pool | Druid, HikariCP or any other connection pool (sqltoy is not bound to a connection pool) |
