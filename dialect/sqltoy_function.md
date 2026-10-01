@@ -119,6 +119,42 @@ public class Trim extends IFunction {
 </sql>
 ```
 
+### 2.1 `<sql>` 元素的 dialect 属性（6.0.3 新增）
+
+单条 sql 可以通过 `dialect` 属性**声明按指定方言形态解析固化**（此前该属性不被解析而静默忽略）：
+
+```xml
+<!-- 声明本条 sql 按 kingbase 方言形态固化：加载时即按 kingbase 做函数/保留字转换 -->
+<sql id="sqltoy_showcase_kingbase" dialect="kingbase">
+	<value>
+	<![CDATA[
+	select ifnull(max(t.amount),0) from sqltoy_user_log t where t.user_id=:userId
+	]]>
+	</value>
+</sql>
+```
+
+工作机制：
+
+* **加载时**：按声明方言对 sql 做一次函数/保留字转换并固化解析标签（如上面的 `ifnull` 在 kingbase 固化为 `coalesce` 形态）；`count-sql` 与主 sql 使用同一生效方言；
+* **执行时**：当前数据库方言与声明一致时，走"查询方言==解析标签"早退机制，**跳过函数替换**（零开销）；不一致时按既有惰性转换 + 缓存机制反向适配；
+* **优先级**：`mql/eql 强制 mongo/es` > `元素 dialect 属性` > `全局方言`；`mql`/`eql` 不支持该属性；
+* 属性值会经方言清单校验，未识别的方言 warn 提示并回退全局方言；
+* 与 `realDialectFirst` 协同：`<sql id="x_kingbase" dialect="kingbase">` 被变体匹配命中时，加载已固化 kingbase 形态且标签相等，执行时连惰性转换都省略。
+
+### 2.2 realDialectFirst：按真实方言优先匹配变体（6.0.3 新增）
+
+sqltoy 判断方言依赖 JDBC 连接的 `productName`，部分场景（OceanBase 按 mysql 配置、代理数据库等）**配置方言与真实方言不一致**。开启本开关后，sqlId 方言变体的查找优先按连接探测的真实方言（`DBProfile.realDialect`）进行：
+
+```properties
+# 默认 false；真实方言变体不存在时回退原有配置方言查找链，真实方言与配置方言一致时行为不变
+spring.sqltoy.realDialectFirst=true
+```
+
+* 例如全局 `dialect=mysql`、真实库为 kingbase：开启后调用 `sqlId` 会优先找 `sqlId_kingbase`，不存在再回退 `sqlId_mysql` → `sqlId`；
+* 经真实方言变体匹配选中的 sql，其函数/保留字替换方言也跟随真实方言（未命中变体回退 base 的 sql 保持配置方言行为）；
+* 仅作用于 sql 形态转换层（函数与保留字），分页等执行策略的数据库分派不受影响。
+
 ## 3. 如何同时测试多种数据库环境
 * sqltoy提供了spring.sqltoy.redoDataSources参数，来设置查询语句重复执行的数据库
 
@@ -154,3 +190,6 @@ for (Map.Entry<String, String> entry : dialectMap.entrySet()) {
 	}
 }
 ```
+
+* 2) 全局 dialect 固化后，为真实数据库写的方言变体 sql 没有生效？
+解答: 方言变体（`sqlId_dialect` / `dialect_sqlId`）默认按**配置方言**查找。若配置方言与连接的真实方言不一致（如 OB 按 mysql 配置而真实库为 oceanbase），6.0.3 起可开启 `spring.sqltoy.realDialectFirst=true`，变体查找与函数替换将优先跟随真实方言，参见 [2.2 realDialectFirst](#22-realdialectfirst按真实方言优先匹配变体603-新增)。

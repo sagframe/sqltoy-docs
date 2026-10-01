@@ -174,3 +174,8 @@ public class SqlToyTransInfo implements Serializable
 }
 
 ```
+
+## Parallel Execution and Exceptions (enhanced in 6.0.3)
+
+* The `maxConcurrents` attribute of the `@Sharding` annotation (default 10) controls the number of threads for parallel shard execution: **0 means unlimited, 1 means serial** (6.0.3 fixed 1 not taking effect);
+* With `globalRollback` (global rollback) enabled, a failure on any shard throws an exception that rolls back all operations; since 6.0.3 that exception (`DataAccessException`) **carries the original exception of the failed shard**, making the root cause easier to locate; the shard execution result model `ShardingResult` also gains a `cause` field preserving the original exception stack.

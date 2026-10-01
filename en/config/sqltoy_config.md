@@ -44,6 +44,11 @@ spring.sqltoy.defaultDataSource=crmDataSource
 #spring.sqltoy.connectionFactory=org.sagacity.sqltoy.integration.impl.SimpleConnectionFactory
 # Database dialect; generally no need to set it (auto-detected by the framework)
 #spring.sqltoy.dialect=mysql
+# Whether sqlId dialect-variant lookup prefers the real dialect detected from the connection (new in 6.0.3, default false)
+# Typical cases: OceanBase configured with the mysql dialect while the real database is oceanbase, proxied databases, etc.;
+# when enabled, if the real-dialect variant does not exist the original configured-dialect lookup chain is used as fallback,
+# and behavior is unchanged when the real dialect equals the configured one
+#spring.sqltoy.realDialectFirst=false
 # Database dialect parameter configuration (Map), used to override/supplement dialect behavior
 #spring.sqltoy.dialectConfig.xxx=yyy
 # Dialect mapping for different databases (Map), e.g. treat a non-built-in database as a certain dialect: OSCAR-->oracle
@@ -143,7 +148,7 @@ spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 ```properties
 # Whether to automatically create/update table structures from POJOs, default false; requires packagesToScan
 spring.sqltoy.autoDDL=true
-# Whether table/column names in generated DDL are converted to lowercase or uppercase
+# Whether table/column names in generated DDL are converted to lowercase or uppercase (configurable via the spring.sqltoy prefix since 6.0.3)
 #spring.sqltoy.ddlLowerOrUpper=lower
 # Custom database DDL generator (implements DialectDDLGenerator)
 #spring.sqltoy.dialectDDLGenerator=com.yourproject.MyDDLGenerator

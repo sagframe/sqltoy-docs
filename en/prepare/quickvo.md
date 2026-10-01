@@ -70,7 +70,8 @@ Each table generates **two classes, AbstractVO + VO**, where the VO extends Abst
 
 - `@Entity(tableName="sqltoy_dict_detail", pk_constraint="PRIMARY")`: corresponds to the concrete table (`org.sagacity.sqltoy.config.annotation.Entity`);
 - `@SqlToyEntity`: marks the precise anchor when resolving a VO — after finding `@SqlToyEntity`, sqltoy looks at its parent class to locate the class that actually maps to the table, then collects `@Id` and `@Column` to build the complete object-to-table mapping;
-- `@Id`, `@Column`: primary key and column mapping.
+- `@Id`, `@Column`: primary key and column mapping;
+- `@PartitionKey`: partition column marker (the partition key hint for MPP table creation and DML); partitioned tables additionally get `@Partition`/`@PartitionDef` (partition strategy and partition details) on the entity, and ClickHouse/Doris/StarRocks tables get `@MppTable` (table engine metadata) — these three work with sqltoy 6.0.3's POJO-to-DDL feature (see [POJO to DDL](../primarykey/sqltoy_ddl.md)); with older quickvo versions you can annotate them by hand.
 
 quickvo also writes the database table/column comments into the VO, which makes it easier to read and maintain.
 

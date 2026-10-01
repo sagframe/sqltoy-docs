@@ -52,7 +52,7 @@ sqltoy uses `#[ ... ]` to mark a **dynamic condition fragment**. The core rules:
 </sql>
 ```
 
-Common attributes of the `<sql>` tag: `id` (required), `type` (`search`/`insert`/`update`/`delete`; `select` is a legacy-compatible alias), `blank-to-null` (default `true`), `debug` (whether to output execution logs), `query-timeout` (query timeout in seconds), `dataSource` (specifies a data source name).
+Common attributes of the `<sql>` tag: `id` (required), `type` (`search`/`insert`/`update`/`delete`; `select` is a legacy-compatible alias), `blank-to-null` (default `true`), `debug` (whether to output execution logs), `query-timeout` (query timeout in seconds), `dataSource` (specifies a data source name), `dialect` (new in 6.0.3 — declares that this sql is parsed and solidified in the specified dialect form; see [Dialect Self-Adaption & Function Extension](../dialect/sqltoy_function.md)).
 
 ---
 

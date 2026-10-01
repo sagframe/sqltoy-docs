@@ -175,3 +175,8 @@ public class SqlToyTransInfo implements Serializable
 
 ```
 
+## 并行执行与异常（6.0.3 增强）
+
+* `@Sharding` 注解的 `maxConcurrents`（默认 10）控制分片并行执行的线程数：**0 表示不限制，1 表示串行**（6.0.3 修正了 1 不生效的缺陷）；
+* 开启 `globalRollback`（全局回滚）时，任一分片失败即抛出异常回滚全部操作；6.0.3 起该异常（`DataAccessException`）**携带失败分片的原始异常**，便于定位根因；分片执行结果模型 `ShardingResult` 也新增了 `cause` 字段保留原始异常堆栈。
+

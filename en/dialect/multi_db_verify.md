@@ -7,7 +7,7 @@ Since the project was initiated in 2008, sqltoy has advocated **productization**
 1. **Primary-key strategy**: minimize the use of `identity` and `sequence`, which are strongly database-dependent, and prefer sqltoy's programmatic primary keys (22-digit/26-digit/snowflake/UUID, etc., see [Primary Key Strategies](../primarykey/sqltoy_primarykey.md)).
 2. **Inserts/updates/deletes**: use sqltoy's object-based operations (save/update/delete/load) and let the framework handle dialect differences.
 3. **Queries**: enable `spring.sqltoy.functionConverts=default` so that functions in SQL are automatically adapted and replaced per database (see [Dialect Adaptation & Functions](sqltoy_function.md)).
-4. When necessary, use `sqlId_dialect` / `dialect_sqlId` to provide dedicated SQL for specific databases.
+4. When necessary, use `sqlId_dialect` / `dialect_sqlId` to provide dedicated SQL for specific databases; since 6.0.3 you can also declare a `dialect` attribute on the `<sql>` element to solidify parsing in a specified dialect, and enable `spring.sqltoy.realDialectFirst` so variant lookup prefers the real dialect detected from the connection — see [Dialect Adaptation & Functions](sqltoy_function.md).
 
 ## 2. Enable Cross-Database Adaptation Testing (redoDataSources)
 

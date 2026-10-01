@@ -44,6 +44,10 @@ spring.sqltoy.defaultDataSource=crmDataSource
 #spring.sqltoy.connectionFactory=org.sagacity.sqltoy.integration.impl.SimpleConnectionFactory
 # 数据库方言，一般无需设置(框架自动识别)
 #spring.sqltoy.dialect=mysql
+# sqlId 方言变体查找优先按连接探测的真实方言(6.0.3 新增，默认 false)
+# 典型场景：OceanBase 按 mysql 方言配置而真实库为 oceanbase、代理库等；开启后真实方言变体
+# 不存在时回退原有配置方言查找链，真实方言与配置方言一致时行为不变
+#spring.sqltoy.realDialectFirst=false
 # 数据库方言参数配置(Map)，用于覆盖/补充方言行为
 #spring.sqltoy.dialectConfig.xxx=yyy
 # 不同数据库方言的映射(Map)，如把未内置的库按某方言处理：OSCAR-->oracle
@@ -143,7 +147,7 @@ spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 ```properties
 # 是否自动通过 POJO 创建/更新表结构，默认 false，需配合 packagesToScan
 spring.sqltoy.autoDDL=true
-# 生成 DDL 时表名/字段名转小写还是大写
+# 生成 DDL 时表名/字段名转小写还是大写(6.0.3 起可通过 spring.sqltoy 前缀配置)
 #spring.sqltoy.ddlLowerOrUpper=lower
 # 自定义数据库 DDL 产生器(实现 DialectDDLGenerator)
 #spring.sqltoy.dialectDDLGenerator=com.yourproject.MyDDLGenerator

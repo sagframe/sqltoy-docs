@@ -119,6 +119,43 @@ public class Trim extends IFunction {
 </sql>
 ```
 
+### 2.1 The `dialect` attribute of the `<sql>` element (new in 6.0.3)
+
+A single sql can declare — via the `dialect` attribute — that it is **parsed and solidified in a specified dialect form** (previously this attribute was silently ignored):
+
+```xml
+<!-- Declare that this sql is solidified in the kingbase dialect form: at load time function/reserved-word conversion is done once against kingbase -->
+<sql id="sqltoy_showcase_kingbase" dialect="kingbase">
+	<value>
+	<![CDATA[
+	select ifnull(max(t.amount),0) from sqltoy_user_log t where t.user_id=:userId
+	]]>
+	</value>
+</sql>
+```
+
+How it works:
+
+* **At load time**: function/reserved-word conversion is performed once against the declared dialect and the parse label is solidified (e.g. `ifnull` above is solidified into its `coalesce` form for kingbase); `count-sql` uses the same effective dialect as the main sql;
+* **At execution time**: when the current database dialect equals the declaration, the "query dialect == parse label" early-exit path is taken and **function replacement is skipped** (zero overhead); otherwise lazy conversion + caching adapts it as before;
+* **Priority**: `mql/eql forced to mongo/es` > `element dialect attribute` > `global dialect`; `mql`/`eql` do not support the attribute;
+* The attribute value is validated against the dialect list; an unrecognized dialect triggers a warning and falls back to the global dialect;
+* Working with `realDialectFirst`: when `<sql id="x_kingbase" dialect="kingbase">` is matched via variant lookup, the kingbase form is already solidified and the labels are equal — even the lazy conversion is skipped at execution time.
+
+### 2.2 realDialectFirst: prefer the real dialect for variant lookup (new in 6.0.3)
+
+sqltoy determines the dialect from the JDBC connection's `productName`; in some scenarios (OceanBase configured as mysql, proxied databases, etc.) the **configured dialect differs from the real one**. With this switch enabled, sqlId dialect-variant lookup first follows the real dialect detected from the connection (`DBProfile.realDialect`):
+
+```properties
+# default false; when the real-dialect variant does not exist, the original configured-dialect lookup chain is used as fallback;
+# behavior is unchanged when the real dialect equals the configured one
+spring.sqltoy.realDialectFirst=true
+```
+
+* Example: global `dialect=mysql` while the real database is kingbase — when enabled, calling `sqlId` first looks for `sqlId_kingbase`, then falls back to `sqlId_mysql` → `sqlId`;
+* For sqls selected via real-dialect variant matching, function/reserved-word replacement also follows the real dialect (sqls that fall back to the base keep the configured-dialect behavior);
+* Only the sql form-conversion layer (functions and reserved words) is affected; execution-strategy dispatch such as pagination is not.
+
 ## 3. How to test against multiple database environments at the same time
 * sqltoy provides the spring.sqltoy.redoDataSources parameter to set the databases on which queries are repeatedly executed
 
@@ -154,3 +191,6 @@ for (Map.Entry<String, String> entry : dialectMap.entrySet()) {
 	}
 }
 ```
+
+* 2) After solidifying the global dialect, my dialect-variant sql written for the real database does not take effect?
+Answer: dialect variants (`sqlId_dialect` / `dialect_sqlId`) are looked up by the **configured dialect** by default. If the configured dialect differs from the connection's real dialect (e.g. OceanBase configured as mysql while the real database is oceanbase), since 6.0.3 you can enable `spring.sqltoy.realDialectFirst=true` — variant lookup and function replacement will then follow the real dialect first; see [2.2 realDialectFirst](#22-realdialectfirst-prefer-the-real-dialect-for-variant-lookup-new-in-603).

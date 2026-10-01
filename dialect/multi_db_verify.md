@@ -7,7 +7,7 @@ sqltoy 自 2008 年立项起就提倡**产品化**：一套软件产品适配多
 1. **主键策略**：少用与数据库强相关的 `identity`、`sequence`，优先用 sqltoy 的程序化主键（22 位/26 位/雪花/UUID 等，见[主键策略](../primarykey/sqltoy_primarykey.md)）。
 2. **增删改**：使用 sqltoy 对象化操作（save/update/delete/load），由框架处理方言差异。
 3. **查询**：开启 `spring.sqltoy.functionConverts=default`，实现 SQL 中函数按数据库自动适配替换（见[方言自适配与函数扩展](sqltoy_function.md)）。
-4. 必要时用 `sqlId_dialect` / `dialect_sqlId` 为特定数据库提供专属 SQL。
+4. 必要时用 `sqlId_dialect` / `dialect_sqlId` 为特定数据库提供专属 SQL；6.0.3 起还支持在 `<sql>` 元素上声明 `dialect` 属性按指定方言固化解析，以及开启 `spring.sqltoy.realDialectFirst` 让变体查找优先跟随连接探测的真实方言，详见[方言自适配与函数扩展](sqltoy_function.md)。
 
 ## 二、开启跨数据库适配测试（redoDataSources）
 
