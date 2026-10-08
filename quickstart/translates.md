@@ -84,6 +84,46 @@ spring:
 </sagacity>
 ```
 
+### rest 模式认证（basic / jwt）
+
+rest 模式的缓存获取（`rest-translate`）与 rest 形式的更新检测（`rest-checker`）支持两种认证模式，**6.0.4 版本起支持 jwt**：
+
+```xml
+<!-- basic 模式(默认,兼容既有配置):用户名密码基础认证 -->
+<rest-translate cache="restCache" url="https://xxx/cache/list"
+    auth-type="basic" username="admin" password="xxx" />
+
+<!-- jwt 模式一:登录获取 token(表单提交 username/password,响应json按 token-path 提取并缓存) -->
+<rest-translate cache="restCache" url="https://xxx/cache/list"
+    auth-type="jwt" username="admin" password="xxx"
+    token-url="https://xxx/login" token-path="data.token" />
+
+<!-- jwt 模式二:本地自签名(无需登录接口,服务端以同密钥或公钥验签) -->
+<rest-translate cache="restCache" url="https://xxx/cache/list"
+    auth-type="jwt" username="admin" token-secure-key="xxxx"
+    sign-algorithm="HS256" />
+
+<!-- jwt 模式三:直接配置静态长效 token -->
+<rest-translate cache="restCache" url="https://xxx/cache/list"
+    auth-type="jwt" authorization="xxxxx" />
+```
+
+jwt 取 token 的三种方式 **token-url / token-secure-key / authorization 三选一**（同时配置时按此顺序优先）：
+
+| 属性 | 说明 | 默认值 |
+| --- | --- | --- |
+| `auth-type` | 认证模式：`basic`（默认）/ `jwt` | basic |
+| `token-url` | 获取 token 的登录地址（表单提交 username/password） | - |
+| `token-path` | 登录响应 json 中 token 字段路径，支持点路径（如 `data.token`） | access_token |
+| `token-prefix` | 请求头值前缀；设为 `none` 时仅发送裸 token | Bearer |
+| `token-header` | 携带 token 的请求头名称 | Authorization |
+| `token-expire` | token 有效期（秒），登录响应含 `expires_in` 时以响应为准 | 1800 |
+| `token-secure-key` | 自签名密钥（HS 系列为共享密钥；RS 系列为 PKCS#8 私钥） | - |
+| `sign-algorithm` | 自签名算法：HS256 / HS384 / HS512 / RS256 / RS384 / RS512 | HS256 |
+| `authorization` | 直接配置的静态 token（长效 token 场景） | - |
+
+运行机制：token 获取后缓存并在临近过期时自动刷新；请求遇 401 时自动失效并重登（或重新签名）重试一次。自签名模式在本地生成 jwt（claims 含 sub=username、iat、exp），HS 系列为共享密钥、RS 系列为 PKCS#8 私钥（可由 `openssl pkcs8 -topk8 -nocrypt` 转换）。
+
 > [!TIP]
 > 上面的缓存都是**全量加载**模式。如果数据量达到百万级以上（如平台型电商 SKU、号码归属地），请使用[超大规模主数据缓存（FIFO）](../translate/sqltoy_FIFO_translate.md)：缓存不做全量加载，翻译时未命中的 key 动态批量获取，本地仅保留最常用的数据。
 

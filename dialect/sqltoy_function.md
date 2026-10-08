@@ -95,6 +95,15 @@ public class Trim extends IFunction {
 }
 ```
 
+### 1.1 函数适配的源形态覆盖（6.0.4 完善）
+
+default 函数转换持续完善对**源函数形态**的识别与跨库转换，6.0.4 版本新增：
+
+* `nvl2(a, b, c)`：oracle 源函数，非 oracle 系数据库自动转换为 `case when a is not null then b else c` 判空逻辑
+* `sys_timestamp`：oracle 源当前时间形态（可带精度参数），oracle 系原生透传，其他数据库转换为对应的当前时间函数
+* `strpos(str, sub)`：pg 系 / clickhouse 原生写法直接透传（参数序与 instr 一致），其余数据库转换为对应的 instr 实现
+* `substr(s, -n)`：负起点取末尾 N 位写法的跨库统一处理
+
 ## 2. 通过sqlId+dialect模式
 * 可针对特定数据库写sql,sqltoy根据数据库类型获取实际执行sql,顺序为: dialect_sqlId->sqlId_dialect->sqlId， 如数据库为mysql,调用sqlId:sqltoy_showcase,则实际执行:sqltoy_showcase_mysql
 

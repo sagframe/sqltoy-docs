@@ -86,6 +86,47 @@ spring:
 </sagacity>
 ```
 
+### REST authentication (basic / jwt)
+
+REST-mode cache fetching (`rest-translate`) and REST-form update checking (`rest-checker`) support two authentication modes — **jwt is supported since 6.0.4**:
+
+```xml
+<!-- basic mode (default, backward compatible): username/password basic auth -->
+<rest-translate cache="restCache" url="https://xxx/cache/list"
+    auth-type="basic" username="admin" password="xxx" />
+
+<!-- jwt mode 1: fetch the token by login (username/password submitted as a form,
+     the token is extracted from the json response via token-path and cached) -->
+<rest-translate cache="restCache" url="https://xxx/cache/list"
+    auth-type="jwt" username="admin" password="xxx"
+    token-url="https://xxx/login" token-path="data.token" />
+
+<!-- jwt mode 2: self-signed locally (no login endpoint; the server verifies with the same secret or the public key) -->
+<rest-translate cache="restCache" url="https://xxx/cache/list"
+    auth-type="jwt" username="admin" token-secure-key="xxxx"
+    sign-algorithm="HS256" />
+
+<!-- jwt mode 3: static long-lived token configured directly -->
+<rest-translate cache="restCache" url="https://xxx/cache/list"
+    auth-type="jwt" authorization="xxxxx" />
+```
+
+The three ways of obtaining the jwt token — **token-url / token-secure-key / authorization — are mutually exclusive** (when several are configured, priority follows this order):
+
+| Attribute | Description | Default |
+| --- | --- | --- |
+| `auth-type` | Authentication mode: `basic` (default) / `jwt` | basic |
+| `token-url` | Login url to fetch the token (username/password submitted as a form) | - |
+| `token-path` | Token field path in the login response json, dot path supported (e.g. `data.token`) | access_token |
+| `token-prefix` | Header value prefix; set to `none` to send the bare token | Bearer |
+| `token-header` | Header name carrying the token | Authorization |
+| `token-expire` | Token validity in seconds; `expires_in` in the login response takes precedence | 1800 |
+| `token-secure-key` | Self-signing key (HS family: shared secret; RS family: PKCS#8 private key) | - |
+| `sign-algorithm` | Self-signing algorithm: HS256 / HS384 / HS512 / RS256 / RS384 / RS512 | HS256 |
+| `authorization` | Static token configured directly (long-lived token scenario) | - |
+
+Runtime behavior: the token is cached and refreshed automatically when nearly expired; on a 401 the token is invalidated and re-fetched (or re-signed) with one retry. The self-signing mode generates the jwt locally (claims include sub=username, iat, exp); HS keys are shared secrets, RS keys are PKCS#8 PEM private keys (convertible via `openssl pkcs8 -topk8 -nocrypt`).
+
 > [!TIP]
 > The caches above are all **full-load** mode. If your data reaches millions of rows (e.g. marketplace SKUs, phone-number regions), use the [Large-Scale Master-Data Cache (FIFO)](../translate/sqltoy_FIFO_translate.md): the cache is not fully loaded; missing keys are fetched in batches on demand, and the local cache keeps only the hottest data.
 

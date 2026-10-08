@@ -95,6 +95,15 @@ public class Trim extends IFunction {
 }
 ```
 
+### 1.1 Source-form coverage of function adaptation (improved in 6.0.4)
+
+The default function conversion keeps improving its recognition of **source function forms** and cross-database conversion. New in 6.0.4:
+
+* `nvl2(a, b, c)`: an Oracle source function; non-Oracle databases automatically convert it to `case when a is not null then b else c` null-check logic
+* `sys_timestamp`: the Oracle source form of current time (precision argument supported); passed through natively on the Oracle family and converted for other databases
+* `strpos(str, sub)`: native on the PostgreSQL family / ClickHouse and passed through directly (argument order matches instr); converted to the corresponding instr implementation on other databases
+* `substr(s, -n)`: unified cross-database handling of the negative-offset form (last N characters)
+
 ## 2. The sqlId+dialect pattern
 * You can write SQL for specific databases; sqltoy picks the SQL that is actually executed based on the database type, in the order: dialect_sqlId->sqlId_dialect->sqlId. For example, if the database is mysql and sqlId: sqltoy_showcase is called, the SQL actually executed is: sqltoy_showcase_mysql
 
