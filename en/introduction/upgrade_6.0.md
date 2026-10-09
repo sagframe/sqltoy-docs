@@ -1,13 +1,13 @@
 # Upgrade to 6.0.x
 
-Changes and notes for upgrading from 5.6.x to 6.0.3 (the 6.0 line). All changes have been verified against the 6.0 source code.
+Changes and notes for upgrading from 5.6.x to 6.0.4 (the 6.0 line). All changes have been verified against the 6.0 source code.
 
 ## 1. Environment Requirements
 
 | Item | Requirement |
 | --- | --- |
 | JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
-| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.3 |
+| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.4 |
 | Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged, and existing configuration files need no adjustment |
 
 ## 2. API Changes (Code Changes Required)
@@ -69,7 +69,7 @@ Changes and notes for upgrading from 5.6.x to 6.0.3 (the 6.0 line). All changes 
 
 ## 6. Recommended Upgrade Steps
 
-1. Upgrade the dependency version numbers uniformly to 6.0.3 (starter / spring / solon-plugin use the same version as core);
+1. Upgrade the dependency version numbers uniformly to 6.0.4 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);
 3. If you have custom `DataSourceCallbackHandler` implementations, adjust the `doConnection` signature to take a `DBProfile` parameter;
 4. If you reference the framework internal utility classes listed in the table above, adjust the imports to their new package locations;

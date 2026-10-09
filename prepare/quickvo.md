@@ -71,7 +71,7 @@ java -cp ./libs/* org.sagacity.quickvo.QuickVOStart quickvo.xml
 - `@Entity(tableName="sqltoy_dict_detail", pk_constraint="PRIMARY")`：对应具体表（`org.sagacity.sqltoy.config.annotation.Entity`）；
 - `@SqlToyEntity`：标注 VO 检索时的精确定位——找到 `@SqlToyEntity` 后再找其父类，从而定位到真正与表对应的类，并检索 `@Id`、`@Column` 形成对象与表的完整映射；
 - `@Id`、`@Column`：主键与字段映射；
-- `@PartitionKey`：分区字段标记（MPP 库建表与 DML 的分区键提示）；分区表还会在实体上生成 `@Partition`/`@PartitionDef`（分区策略与分区明细），ClickHouse/Doris/StarRocks 表生成 `@MppTable`（表引擎元数据）——这三者配合 sqltoy 6.0.3 的 POJO 生成 DDL 功能（见[POJO生成表结构DDL](../primarykey/sqltoy_ddl.md)），旧版 quickvo 可手工标注。
+- `@PartitionKey`：分区字段标记（MPP 库建表与 DML 的分区键提示）；分区表还会在实体上生成 `@Partition`/`@PartitionDef`（分区策略与分区明细），ClickHouse/Doris/StarRocks 表生成 `@MppTable`（表引擎元数据）——这三者配合 sqltoy 6.0.4 的 POJO 生成 DDL 功能（见[POJO生成表结构DDL](../primarykey/sqltoy_ddl.md)），旧版 quickvo 可手工标注。
 
 quickvo 会把数据库表/字段注释一并写入 VO，便于阅读维护。
 

@@ -1,13 +1,13 @@
 # 6.0 升级指南
 
-从 5.6.x 升级到 6.0.3（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
+从 5.6.x 升级到 6.0.4（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
 
 ## 一、环境要求
 
 | 项 | 要求 |
 | --- | --- |
 | JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.96.jre8`（最终 jre8 版本，支持 quickvo-maven-plugin 插件） |
-| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.3 |
+| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.4 |
 | 配置参数 | `spring.sqltoy.*` 在 6.0.2 的 58 个参数基础上新增 2 个：`realDialectFirst`（6.0.3 新增）、`ddlLowerOrUpper`（6.0.3 起暴露为 starter 属性），其余参数无增减，存量配置无需调整 |
 
 ## 二、API 变更（需要改代码）
@@ -69,7 +69,7 @@
 
 ## 六、升级步骤建议
 
-1. 依赖版本号统一升级为 6.0.3（starter / spring / solon-plugin 与 core 同版本）；
+1. 依赖版本号统一升级为 6.0.4（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；

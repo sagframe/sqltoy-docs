@@ -2,7 +2,7 @@
 
 sqltoy 本身不绑定数据源，多数据源可直接复用社区成熟的 **dynamic-datasource**（baomidou）方案：`@DS` 注解切换数据源、`@Transactional` 处理单库事务、`@DSTransactional` 把多个数据源的操作纳入同一事务。
 
-> 本文整理自官方演示项目：<https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource>（演示项目基于 **sqltoy 6.0.x + Spring Boot 4.x**，本文示例以 **sqltoy 6.0.3** 为准）
+> 本文整理自官方演示项目：<https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource>（演示项目基于 **sqltoy 6.0.x + Spring Boot 4.x**，本文示例以 **sqltoy 6.0.4** 为准）
 
 ## 一、引入依赖
 
