@@ -95,14 +95,23 @@ public class Trim extends IFunction {
 }
 ```
 
-### 1.1 函数适配的源形态覆盖（6.0.4 完善）
+### 1.1 函数适配完善（6.0.4）
 
-default 函数转换持续完善对**源函数形态**的识别与跨库转换，6.0.4 版本新增：
+**新增源函数 / 源形态识别：**
 
-* `nvl2(a, b, c)`：oracle 源函数，非 oracle 系数据库自动转换为 `case when a is not null then b else c` 判空逻辑
-* `sys_timestamp`：oracle 源当前时间形态（可带精度参数），oracle 系原生透传，其他数据库转换为对应的当前时间函数
-* `strpos(str, sub)`：pg 系 / clickhouse 原生写法直接透传（参数序与 instr 一致），其余数据库转换为对应的 instr 实现
-* `substr(s, -n)`：负起点取末尾 N 位写法的跨库统一处理
+* `nvl2(a, b, c)`：oracle 源函数，非 oracle 系数据库自动转换为 `case when a is not null then b else c` 判空逻辑（oracle 系原生透传；参数个数不对时保留响亮报错）；
+* `isnull(x)` 单参判空：mysql 的 isnull 返回 0/1 判空语义，此前被错转为要求 ≥2 参数的 nvl/coalesce/ifnull 导致目标库报参数个数错误，现已正确处理；
+* `sys_timestamp`：oracle 源当前时间形态（可带精度参数），oracle 系原生透传，其余数据库转换为对应的当前时间函数（mysql 系保留 fsp 精度参数，sqlserver 精度形态用 `sysdatetime()`）；
+* `strpos(str, sub)`：pg 系 / clickhouse 原生写法直接透传（参数序与 instr 一致），其余数据库转换为对应的 instr 实现；
+* `substr(s, -n)` 负起点：两参负起点字面量转 `RIGHT(s, n)`（兼容 db2 等起点从 1 计的库）；三参负起点走 case 守卫形态（`start = 串长-n+1`，串长不足 n 时取 1，mysql 语义）；表达式起点无法判断时原样保留交目标库判定；hana 的负起点为 pg 语义会静默错值，同样收敛；
+* `curdate()` / `CURRENT_DATE`：新增当前日期（零点）函数类——oracle 系统一转 `TRUNC(CURRENT_DATE)`（保留会话时区）、db2 关键字体 `CURRENT DATE`、sqlite 取本地时钟（其原生 CURRENT_DATE 为 UTC 墙钟，与业务时区不一致）。
+
+**既有函数转换修正与增强：**
+
+* `group_concat` / `listagg` / `string_agg` 转换增强：支持 `within group (order by …)` 尾部子句、参数内嵌 `order by`（如 pg 源 `string_agg(a, '-' order by b)`）、`DISTINCT` 前缀识别（clickhouse 的 groupArray 不支持 DISTINCT 与排序时显式响亮保留）；分隔符字面量内含 "order by" 文本不再被误判为排序子句；
+* `datediff(month, …)` 跨库月差口径统一：MONTHS_BETWEEN 的 oracle 小数口径（日差按 1/31 天月折算）与各库语义分歧，不再作为源函数注册转换，统一按年月分量差计算；
+* `to_char` → sqlserver 目标：以 FORMAT（2012+）承担，修复大写格式形态（如 `'YYYY-MM-DD HH24:MI:SS'`）与 .NET token 大小写敏感导致的错值，并归一带引号格式串的字面量保护；
+* sqlite 目标的 now() / CURRENT_DATE / CURRENT_TIMESTAMP：统一取本地时钟（原生为 UTC 墙钟，东八区业务差 8 小时）。
 
 ## 2. 通过sqlId+dialect模式
 * 可针对特定数据库写sql,sqltoy根据数据库类型获取实际执行sql,顺序为: dialect_sqlId->sqlId_dialect->sqlId， 如数据库为mysql,调用sqlId:sqltoy_showcase,则实际执行:sqltoy_showcase_mysql
