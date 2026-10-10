@@ -84,9 +84,40 @@ spring:
 </sagacity>
 ```
 
+### 缓存定义与更新检测类型总览
+
+`sqltoy-translate.xml` 支持 **4 种缓存定义**（`<cache-translates>` 下）与 **6 种更新检测**（`<cache-update-checkers>` 下），可按数据来源自由组合：
+
+| 类型 | 适用场景 | 关键属性 |
+| --- | --- | --- |
+| `<sql-translate>` | 最常用：一条 sql 查出 key/name 全量缓存 | `cache`、`datasource`、`sql`（属性或子元素） |
+| `<service-translate>` | 缓存数据需经 service 加工（如多来源聚合、脱敏、解密后再入缓存） | `service`（spring bean 名）、`method` |
+| `<rest-translate>` | 缓存数据来自 rest 服务（配合 basic/jwt 认证，见下节） | `url`、`username`、`password`、`auth-type` 等 |
+| `<local-translate>` | 本地静态/动态数据源：properties 文件，或配合 FIFO 动态缓存 | `properties`、`sid`、`dynamic-cache` 系列（详见 [FIFO 缓存](../translate/sqltoy_FIFO_translate.md)） |
+
+4 种缓存定义共用一组容量与生命周期属性：`cache`（必填）、`keep-alive`（存活秒数，默认 3600）、`heap`（堆内条数上限，默认 10000）、`off-heap`（堆外 MB，默认 0）、`disk-size`（磁盘 MB，默认 0）、`i18n`（如 `zh_cn:1,en_us:2`）、`desc`。
+
+`service-translate` 的方法签名约定：`service` 先按 spring bean 名查找，找不到且名称含 `.` 时按全限定类名取 bean；方法接收**单个 String 参数**（即缓存分类 cacheType，未配置 cache-type 时传空），返回值须为 `List<List>` / `List<Object[]>`（或 `Map<String,Object[]>`）：
+
+```xml
+<!-- 示例:dictService.getDictByType(String cacheType) -->
+<service-translate cache="dictKeyNameCache" service="dictService" method="getDictByType" keep-alive="30" />
+```
+
+更新检测分为**全量检测**（返回完整数据，框架比对后刷新）与**增量检测**（只查 `lastUpdateTime` 之后的变化，首选）两类，`check-frequency` 为检测周期（秒）：
+
+| 检测器 | 说明 |
+| --- | --- |
+| `<sql-increment-checker>` | 最常用：增量 sql，`has-inside-group="true"` 表示结果第一列为内部分类 |
+| `<sql-checker>` | 全量检测：每次拉取完整数据比对 |
+| `<service-increment-checker>` / `<service-checker>` | 经 service 方法检测更新（签名约定同 service-translate） |
+| `<rest-checker>` / `<rest-increment-checker>` | 经 rest 服务检测更新（认证同 rest-translate） |
+
+> 全部 6 种检测器均可叠加 `cluster-time-deviation`（容器属性，默认 1 秒）容忍集群间时钟偏差。
+
 ### rest 模式认证（basic / jwt）
 
-rest 模式的缓存获取（`rest-translate`）与 rest 形式的更新检测（`rest-checker`）支持两种认证模式，**6.0.4 版本起支持 jwt**：
+rest 模式的缓存获取（`rest-translate`）与 rest 形式的更新检测（`rest-checker`/`rest-increment-checker`）支持 **basic（默认）与 jwt 两种认证模式**（**6.0.4 版本起支持 jwt**），jwt 模式下 token 的获取方式有三种、三选一：
 
 ```xml
 <!-- basic 模式(默认,兼容既有配置):用户名密码基础认证 -->

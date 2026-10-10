@@ -86,9 +86,40 @@ spring:
 </sagacity>
 ```
 
+### Overview of cache definition and update-checker types
+
+`sqltoy-translate.xml` supports **4 cache definition types** (under `<cache-translates>`) and **6 update checkers** (under `<cache-update-checkers>`), freely combinable by data source:
+
+| Type | Use case | Key attributes |
+| --- | --- | --- |
+| `<sql-translate>` | The most common: one sql query loads the full key/name cache | `cache`, `datasource`, `sql` (attribute or child element) |
+| `<service-translate>` | Cache data must be post-processed by a service (multi-source aggregation, decryption before caching, etc.) | `service` (spring bean name), `method` |
+| `<rest-translate>` | Cache data comes from a REST service (with basic/jwt auth, see next section) | `url`, `username`, `password`, `auth-type`, etc. |
+| `<local-translate>` | Local static/dynamic data: a properties file, or combined with the FIFO dynamic cache | `properties`, `sid`, `dynamic-cache` series (see [FIFO cache](../translate/sqltoy_FIFO_translate.md)) |
+
+All 4 cache definitions share a set of capacity/lifecycle attributes: `cache` (required), `keep-alive` (seconds alive, default 3600), `heap` (max in-heap entries, default 10000), `off-heap` (off-heap MB, default 0), `disk-size` (disk MB, default 0), `i18n` (e.g. `zh_cn:1,en_us:2`), `desc`.
+
+Method-signature contract of `service-translate`: `service` is first resolved as a spring bean name; if not found and the name contains `.`, it is resolved as a fully-qualified class name. The method takes a **single String argument** (the cache category cacheType; empty when no cache-type is configured) and returns `List<List>` / `List<Object[]>` (or `Map<String,Object[]>`):
+
+```xml
+<!-- Example: dictService.getDictByType(String cacheType) -->
+<service-translate cache="dictKeyNameCache" service="dictService" method="getDictByType" keep-alive="30" />
+```
+
+Update checkers come in two flavors — **full check** (fetches the complete data and compares) and **incremental check** (queries only changes after `lastUpdateTime`; preferred) — with `check-frequency` being the check interval in seconds:
+
+| Checker | Description |
+| --- | --- |
+| `<sql-increment-checker>` | The most common: incremental sql; `has-inside-group="true"` means the first result column is the inside category |
+| `<sql-checker>` | Full check: fetches the complete data for comparison each time |
+| `<service-increment-checker>` / `<service-checker>` | Update detection via a service method (same signature contract as service-translate) |
+| `<rest-checker>` / `<rest-increment-checker>` | Update detection via a REST service (same auth as rest-translate) |
+
+> All 6 checkers accept the container attribute `cluster-time-deviation` (default 1 second) to tolerate clock drift across a cluster.
+
 ### REST authentication (basic / jwt)
 
-REST-mode cache fetching (`rest-translate`) and REST-form update checking (`rest-checker`) support two authentication modes — **jwt is supported since 6.0.4**:
+REST-mode cache fetching (`rest-translate`) and REST-form update checking (`rest-checker`/`rest-increment-checker`) support **two authentication modes — basic (default) and jwt** (**jwt since 6.0.4**); under jwt the token can be obtained in one of three ways, mutually exclusive:
 
 ```xml
 <!-- basic mode (default, backward compatible): username/password basic auth -->

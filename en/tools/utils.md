@@ -38,6 +38,9 @@ public void createOrderInfo(OrderInfoVO orderInfoVO) {
 }
 ```
 
+> [!TIP]
+> **Thousands-separator stripping** (since 6.0.3): when numeric strings with grouping commas produced by `number-format` (e.g. `"8,888.0000"`) are mapped to numeric properties such as `BigDecimal`/`Integer`/`Long`/`Double`, convertType strips the grouping commas automatically. Stripping happens only when the whole string strictly matches the grouping format (`"1,23"` and other invalid forms are left untouched and keep raising the original parse error).
+
 ## 2. MapperUtils (since 5.6.x)
 
 From version 5.6.x onward you can also use the `MapperUtils` utility class for mapping, which suits object mapping outside of a DAO context.

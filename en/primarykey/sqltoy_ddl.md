@@ -43,6 +43,8 @@ DDL generation supports the following entity annotations (`@Partition`/`@Partiti
 | Annotation | Description |
 | --- | --- |
 | `@Foreign(table, field, constraintName)` | **Foreign key marker** (new in 6.0/2023.07): declares the table and field a column references; a foreign key constraint is created when the DDL is generated |
+| `@Index(name, columns, ...)` | **Index definition**: declares a single- or multi-column index (optionally unique); the index is created when the DDL is generated — see section 4 below |
+| `@Indexes({ @Index, ... })` | **Index collection**: declare multiple indexes on one entity |
 | `@PartitionKey` | **Partition key marker**: the partition key when creating tables on MPP databases (such as StarRocks) |
 | `@Partition` | **Partition strategy marker** (new in 6.0.3): describes the partitioning method and partition key; renders the `PARTITION BY` clause |
 | `@PartitionDef` | **Partition detail** (new in 6.0.3): used with `@Partition` to describe each partition's name and bound |
@@ -137,7 +139,26 @@ PARTITION BY EVENT_TIME
 SETTINGS index_granularity = 8192
 ```
 
-### 4. DDL generator support per database (6.0.3)
+### 4. Index definitions (@Index / @Indexes)
+
+Declare indexes on the entity class so autoDDL creates them together with the table; quickvo 2.x also generates this annotation automatically from the database's existing index definitions (hand-written whitelist annotations are not overwritten):
+
+```java
+@Indexes(indexes = {
+    // Regular index: name (required), columns (required), isUnique (default false), sortTypes (asc/desc, ascending by default)
+    @Index(name = "idx_staff_name", columns = { "staffName" }, sortTypes = { "asc" }),
+    // Unique index
+    @Index(name = "uniq_staff_code", isUnique = true, columns = { "staffCode" })
+})
+@Entity(tableName = "SQLTOY_STAFF_INFO")
+public class StaffInfo implements Serializable {
+    //......
+}
+```
+
+Rendering rules: on MySQL-family databases the index is merged into the create-table statement as an in-table `[UNIQUE] KEY indexName (col asc/desc,...)`; on all other databases a standalone `CREATE [UNIQUE] INDEX indexName ON tableName (...);` statement is emitted.
+
+### 5. DDL generator support per database (6.0.3)
 
 | Database | Generator | Notes |
 | --- | --- | --- |

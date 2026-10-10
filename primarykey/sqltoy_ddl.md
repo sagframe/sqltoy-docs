@@ -43,6 +43,8 @@ DDL 生成支持以下实体注解（`@Partition`/`@PartitionDef`/`@MppTable` �
 | 注解 | 说明 |
 | --- | --- |
 | `@Foreign(table, field, constraintName)` | **外键标记**（6.0/2023.07 新增）：声明字段关联的表与字段，生成 DDL 时创建外键约束 |
+| `@Index(name, columns, ...)` | **索引定义**：声明单列或多列索引（可唯一），生成 DDL 时创建索引，见下方第 4 节 |
+| `@Indexes({ @Index, ... })` | **索引集合**：一个实体声明多个索引 |
 | `@PartitionKey` | **分区字段标记**：MPP 数据库（如 StarRocks）建表时的分区键 |
 | `@Partition` | **分区策略标记**（6.0.3 新增）：描述分区方式与分区键，生成 `PARTITION BY` 子句 |
 | `@PartitionDef` | **分区明细**（6.0.3 新增）：配合 `@Partition` 描述每个分区的名称和边界 |
@@ -137,7 +139,26 @@ PARTITION BY EVENT_TIME
 SETTINGS index_granularity = 8192
 ```
 
-### 4、各数据库 DDL 生成器支持（6.0.3）
+### 4、索引定义（@Index / @Indexes）
+
+在实体类上声明索引，autoDDL 建表时同步创建索引；quickvo 2.x 也会依据数据库已有索引定义自动生成该注解（手工白名单注解不会被覆盖）：
+
+```java
+@Indexes(indexes = {
+    // 常规索引：name(必填)、columns(必填)、isUnique(默认false)、sortTypes(asc/desc，默认升序)
+    @Index(name = "idx_staff_name", columns = { "staffName" }, sortTypes = { "asc" }),
+    // 唯一索引
+    @Index(name = "uniq_staff_code", isUnique = true, columns = { "staffCode" })
+})
+@Entity(tableName = "SQLTOY_STAFF_INFO")
+public class StaffInfo implements Serializable {
+    //......
+}
+```
+
+渲染规则：MySQL 系以表内 `[UNIQUE] KEY indexName (col asc/desc,...)` 形态并入建表语句，其余数据库输出独立的 `CREATE [UNIQUE] INDEX indexName ON tableName (...);` 语句。
+
+### 5、各数据库 DDL 生成器支持（6.0.3）
 
 | 数据库 | 生成器 | 说明 |
 | --- | --- | --- |

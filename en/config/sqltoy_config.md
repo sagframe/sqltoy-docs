@@ -143,6 +143,16 @@ spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 #spring.sqltoy.desensitizeProvider=com.yourproject.DesensitizeProvider
 ```
 
+**SQL injection validation regexes (`sqlInjectionRegexes`)**
+
+```properties
+# Custom regexes (array) for SQL injection detection, replacing the built-in default function/comment/condition/keyword patterns
+# Mainly used by the <valid-sqlInjection> parameter validation in <filters>; can also be used with custom interceptors
+#spring.sqltoy.sqlInjectionRegexes[0]=^(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE)\\b
+```
+
+> Note: when not configured, the framework's built-in defaults apply (four pattern groups: function calls, comments, always-true conditions, and SQL keywords). The configuration takes effect in the **first initialized SqlToyContext within the JVM** and cannot be weakened by later contexts (security-related). The solon-plugin supports the same property.
+
 ## 8. Automatic DDL Table Creation
 
 ```properties

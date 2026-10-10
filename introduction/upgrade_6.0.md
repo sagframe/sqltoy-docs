@@ -67,7 +67,32 @@
 - 查询结果映射：`number-format` 格式化后的带千分位逗号数值（如 `8,888.0000`）再映射到数值属性时自动剥离分组逗号；
 - sqlserver 分页 WITH 部分剥离置前、union 派生表包装拼接顺序修复。
 
-## 六、升级步骤建议
+## 六、6.0.4 更新说明
+
+6.0.4 在 6.0.3 基础上进一步增强，同样为**增量能力，无需改动既有代码**：
+
+**缓存翻译 rest 模式认证增强（详见[缓存翻译使用](../quickstart/translates.md)）**
+
+- `rest-translate` / `rest-checker` / `rest-increment-checker` 新增 `auth-type` 认证模式：`basic`（默认，兼容既有 `username`/`password`）与 `jwt`；
+- jwt 获取 token 三种方式三选一（同配按优先级生效）：`token-url` 登录接口表单提交 username/password 获取 token（响应 json 按 `token-path` 提取，支持 `data.token` 点路径）并缓存、`token-secure-key` 本地自签名 jwt（支持 HS256/384/512 共享密钥与 RS256/384/512 的 PKCS#8 私钥，无需登录接口）、`authorization` 直接配置静态长效 token；
+- 配套 `token-header`（默认 `Authorization`）、`token-prefix`（默认 `Bearer`，设为 `none` 发裸 token）、`token-expire`（默认 1800 秒，响应含 `expires_in` 时以响应为准）；token 缓存复用、临近过期自动刷新、请求遇 401 自动失效重登（或重新签名）并重试一次。
+
+**跨数据库函数适配完善（详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）**
+
+- 新增源函数识别：`nvl2(a,b,c)`（非 oracle 系转 case when 判空）、单参 `isnull(x)`（mysql 返回 0/1 语义）、`sys_timestamp`（oracle 系透传、mysql 系保留小数秒精度、sqlserver 用 sysdatetime）、`strpos(str,sub)`（pg 系/clickhouse 透传，其余转 instr）、`substr(s,-n)` 负起点、`curdate()`/`CURRENT_DATE` 新函数类（oracle 系转 `TRUNC(CURRENT_DATE)`，db2 用 CURRENT DATE 关键字体，sqlite 取本地时钟）；
+- `group_concat`/`listagg`/`string_agg` 支持 `within group (order by ...)` 尾部子句、参数内嵌 order by 与 DISTINCT 前缀识别；
+- `datediff(month,...)` 月差口径统一为年月分量差（不再按 oracle MONTHS_BETWEEN 小数口径注册）；`to_char` 转 sqlserver 改以 FORMAT 承担，修复大写格式 token（如 `YYYY-MM-DD HH24:MI:SS`）的错值；sqlite 目标 `now()`/`CURRENT_DATE`/`CURRENT_TIMESTAMP` 统一取本地时钟。
+
+**修复**
+
+- 修复 SubStr 负起点与 mysql 契约偏离的静默错值（pg 系/sqlserver/h2/db2/hana 四处：起点算出小于 1 时统一返回空串）；
+- 修复无分钟格式（如 `yyyy-MM-dd HH`）的独立 HH 时间 token 在 pg/oracle 系按 12 小时制解释导致分桶边界错乱的问题。
+
+**配套工具**
+
+- 配套的 quickvo-maven-plugin 升级至 **2.0.2**。
+
+## 七、升级步骤建议
 
 1. 依赖版本号统一升级为 6.0.4（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；

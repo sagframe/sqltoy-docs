@@ -17,6 +17,7 @@
     * [多数据源与事务](config/dynamic_datasource.md)
     * [传统 Spring 项目配置](config/traditional_spring.md)
     * [纯 Java 项目如何使用](config/pure_java.md)
+    * [Solon 集成参考](config/solon.md)
     * [XML Schema 配置指引](config/xml_schemas.md)
 * 对象操作
     * [对象化 CRUD](crud/sqltoy_crud.md)

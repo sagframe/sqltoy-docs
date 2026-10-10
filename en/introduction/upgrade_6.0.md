@@ -67,7 +67,32 @@ Changes and notes for upgrading from 5.6.x to 6.0.4 (the 6.0 line). All changes 
 - Result mapping: numeric strings with thousands separators produced by `number-format` (e.g. `8,888.0000`) have the grouping commas stripped automatically when mapped back to numeric properties;
 - SqlServer pagination: the WITH section is now stripped and placed first, and the union derived-table wrapping order is fixed.
 
-## 6. Recommended Upgrade Steps
+## 6. What's New in 6.0.4
+
+6.0.4 builds on 6.0.3 with further enhancements — likewise **incremental, requiring no changes to existing code**:
+
+**Cache translate REST authentication enhancement (see [Cache Translate](../quickstart/translates.md))**
+
+- `rest-translate` / `rest-checker` / `rest-increment-checker` gain the `auth-type` authentication mode: `basic` (default, backward-compatible with the existing `username`/`password`) and `jwt`;
+- For jwt, the token is obtained in one of three ways (priority order applies when multiple are configured): `token-url` login endpoint that posts username/password as a form and extracts the token from the JSON response via `token-path` (dot paths like `data.token` supported), then caches it; `token-secure-key` local self-signed jwt (HS256/384/512 shared secrets and RS256/384/512 PKCS#8 private keys, no login endpoint needed); or `authorization` with a directly configured long-lived static token;
+- Companion attributes: `token-header` (default `Authorization`), `token-prefix` (default `Bearer`, set to `none` to send the bare token), `token-expire` (default 1800 seconds; when the response contains `expires_in` the response value wins). Tokens are cached and reused, refreshed proactively when close to expiry, and on a 401 the token is invalidated and re-login (or re-signing) plus one retry happens automatically.
+
+**Cross-database function adaptation improvements (see [Dialect Self-Adaption & Function Extension](../dialect/sqltoy_function.md))**
+
+- New source-function recognition: `nvl2(a,b,c)` (non-oracle databases convert to a case-when null-check), single-argument `isnull(x)` (mysql returns 0/1 semantics), `sys_timestamp` (passthrough on oracle-family, fractional-second precision kept on mysql-family, sysdatetime on sqlserver), `strpos(str,sub)` (passthrough on pg-family/clickhouse, converted to instr elsewhere), `substr(s,-n)` with a negative start, and the `curdate()`/`CURRENT_DATE` function class (oracle-family converts to `TRUNC(CURRENT_DATE)`, db2 uses the CURRENT DATE keyword form, sqlite uses the local clock);
+- `group_concat`/`listagg`/`string_agg` now support the trailing `within group (order by ...)` clause, an order by embedded in the arguments, and DISTINCT prefix recognition;
+- `datediff(month,...)` is unified to the year/month component difference (no longer registered with the oracle MONTHS_BETWEEN decimal semantics); `to_char` conversion to sqlserver is now based on FORMAT, fixing wrong output for uppercase format tokens (e.g. `YYYY-MM-DD HH24:MI:SS`); on sqlite targets `now()`/`CURRENT_DATE`/`CURRENT_TIMESTAMP` uniformly use the local clock.
+
+**Fixes**
+
+- Fixed silent wrong results of `SubStr` with a negative start that deviated from the mysql contract (pg-family/sqlserver/h2/db2/hana: when the computed start is less than 1 an empty string is now returned uniformly);
+- Fixed standalone HH hour tokens in minute-less formats (e.g. `yyyy-MM-dd HH`) being interpreted as 12-hour clock on pg/oracle-family targets, which skewed hour-bucket boundaries.
+
+**Companion tooling**
+
+- The companion quickvo-maven-plugin is upgraded to **2.0.2**.
+
+## 7. Recommended Upgrade Steps
 
 1. Upgrade the dependency version numbers uniformly to 6.0.4 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);

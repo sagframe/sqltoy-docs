@@ -38,6 +38,9 @@ public void createOrderInfo(OrderInfoVO orderInfoVO) {
 }
 ```
 
+> [!TIP]
+> **千分位数值自动剥离**（6.0.3 起）：查询结果经 `number-format` 格式化后的带千分位逗号数值（如 `"8,888.0000"`）再映射到 `BigDecimal`/`Integer`/`Long`/`Double` 等数值属性时，convertType 会自动剥离分组逗号。仅当整个字符串严格匹配千分位分组形态时才剥离（`"1,23"` 等非法形态不处理、保持原解析报错）。
+
 ## 二、MapperUtils（5.6.x 起）
 
 5.6.x 版本开始也可直接使用 `MapperUtils` 工具类进行映射处理，适合在非 DAO 上下文中做对象映射。

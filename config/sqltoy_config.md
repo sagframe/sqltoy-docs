@@ -142,6 +142,16 @@ spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 #spring.sqltoy.desensitizeProvider=com.yourproject.DesensitizeProvider
 ```
 
+**SQL 注入校验正则（`sqlInjectionRegexes`）**
+
+```properties
+# 自定义 SQL 注入检测的正则表达式(数组)，替换内置默认的关键词/函数/注释/条件形态 Pattern
+# 主要作用于 <filters> 中的 <valid-sqlInjection> 参数校验，也可配合自定义拦截器使用
+#spring.sqltoy.sqlInjectionRegexes[0]=^(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE)\\b
+```
+
+> 说明：不配置时使用框架内置默认（函数调用、注释、永真条件、SQL 关键词四类 Pattern）。该配置在 JVM 内**首个初始化的 SqlToyContext 生效**，后续 context 不可削弱（安全攸关）。solon-plugin 同样支持该属性。
+
 ## 八、DDL 自动建表
 
 ```properties
