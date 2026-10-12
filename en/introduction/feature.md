@@ -48,8 +48,8 @@ SqlToy starts from the cleanest dynamic-SQL authoring model, combining JPA-style
 
 | Feature | Description | Details |
 | --- | --- | --- |
-| 24 dialects | MySQL, Oracle, PostgreSQL, SQL Server, DB2, SAP HANA, DM, Kingbase, OceanBase, TiDB, ClickHouse, Doris, StarRocks, TDengine, etc. | [Supported Databases](db_list.md) |
-| Function replacement | `functionConverts=default` adapts nvl/concat/to_char/datediff and 16+ functions per database; custom extensions supported | [Dialects & Functions](../dialect/sqltoy_function.md) |
+| 26 dialects | MySQL, Oracle, PostgreSQL, SQL Server, DB2, SAP HANA, DM, Kingbase, HighGo, GBase 8s, OceanBase, TiDB, ClickHouse, Doris, StarRocks, TDengine, etc. | [Supported Databases](db_list.md) |
+| Function replacement | `functionConverts=default` adapts nvl/concat/to_char/datediff/uuid/date_add and 28 functions per database; custom extensions supported | [Dialects & Functions](../dialect/sqltoy_function.md) |
 | Dialect sqlId | `sqlId_dialect` / `dialect_sqlId` naming lets the framework pick database-specific SQL automatically | [Dialects & Functions](../dialect/sqltoy_function.md) |
 | Multi-DB verification | redoDataSources replays any query against other databases — a productization testing booster | [Multi-DB Verify](../dialect/multi_db_verify.md) |
 | Reserved words | Declare reservedWords once; object operations and cross-DB SQL are adapted automatically | [Dialects & Functions](../dialect/sqltoy_function.md) |

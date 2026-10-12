@@ -1,6 +1,6 @@
 # Upgrade to 6.0.x
 
-Changes and notes for upgrading from 5.6.x to 6.0.4 (the 6.0 line). All changes have been verified against the 6.0 source code.
+Changes and notes for upgrading from 5.6.x to 6.0.5 (the 6.0 line). All changes have been verified against the 6.0 source code.
 
 ## 1. Environment Requirements
 
@@ -92,7 +92,32 @@ Changes and notes for upgrading from 5.6.x to 6.0.4 (the 6.0 line). All changes 
 
 - The companion quickvo-maven-plugin is upgraded to **2.0.2**.
 
-## 7. Recommended Upgrade Steps
+## 7. What's New in 6.0.5
+
+6.0.5 builds on 6.0.4 with further enhancements — likewise **incremental, requiring no changes to existing code** (the current release is 6.0.5.RC2):
+
+**New database support (dialect total 24 → 26; see [Supported Databases](db_list.md))**
+
+- **HighGo**: PG12 kernel + Oracle compatibility layer; the SQL-generation layer reuses the PostgreSQL family (`HighgoDialect extends PostgreSqlDialect`), with differences concentrated on the function side (no `uuid()`/`gen_random_uuid()` but has `sys_guid()`; `last_day`/`add_months`/`trunc` native; no `listagg` but `string_agg` native), carried by the HIGHGO branch of the function adapters; supports both the official driver URL `jdbc:highgo://` and the vanilla pg driver (distinguished via `version()` kernel probing);
+- **GBase 8s (Nanda General)**: Informix 12.10 kernel; CRUD/update bodies reuse the Oracle family (`GBase8sDialect extends OracleDialect`), with key differences overridden — pagination uses `limit ? offset ?`, `saveOrUpdate` uses a real `merge into` (executed row-by-row to avoid the driver's batch-mode multi-element parameter misalignment), lock waits go through the session-level `set lock mode to wait n`, tableApi uses JDBC metadata, updateFetch/updateSaveFetch are carried by the `GBase8sRsProxy` proxy (fixing the driver's broken CONCUR_UPDATABLE updateRow/insertRow), and json opaque types are read as bytes + UTF-8 decoded; driver URL `jdbc:gbasedbt-sqli://`, product name "GBase Server".
+
+**Cross-database function adaptation improvements (see [Dialect Self-Adaption & Function Extension](../dialect/sqltoy_function.md))**
+
+- 11 new function classes (all registered into default): `find_in_set`, `uuid` (unique-id generation), `year/month/day` component extraction, `last_day/eomonth`, `add_months`, `date_add/date_sub/dateadd` interval arithmetic, `left/right`, `lpad/rpad`, `extract/date_part`, `trunc/date_trunc` date truncation, and `mod`;
+- Source-spelling expansion for existing functions: `instr` adds `locate/posstr`, `length` adds `character_length/octet_length`, `now` adds `current_timestamp`, `if` adds `iif`, `substr` adds `mid`, `to_date` adds `str_to_date`;
+- All verified by real-database probing across multiple databases; forms that cannot be converted safely are kept "loud" (passed through for the target database to error on), avoiding silent wrong values.
+
+**Lowercase primary-key insert return (PostgreSQL family)**
+
+- The case conversion of the primary-key column name when returning the key value on single-row inserts (`getReturnPrimaryKeyColumnCase`) is expanded from PostgreSQL/PostgreSQL14 only to the entire **PG-folding family**: OpenGauss, GaussDB, MogDB, Vastbase, StarDB, Oscar, Kingbase and HighGo are now lowercased as well. Reason: `getGeneratedKeys` column hints are case-sensitive on PG-folding kernels (e.g. opengauss/vastbase/highgo report "column does not exist" for "ID"/"Id", and kingbase errors on mixed case), so lowercasing is safe for the whole family; the mysql family/tidb/oceanbase/sqlserver/db2/dm/oracle/gbase8s keep DEFAULT (the driver ignores the hint or folds consistently). This can still be overridden per dialect via the `dialectReturnPrimaryColumnCase` configuration.
+
+**Other optimizations and fixes**
+
+- Fixed bare functions at the very start of a string never being converted (when the whole sql is a function expression, the adaptation regex `\W(funcName)\(` never matches; a space sentinel is added at the entry);
+- Completed TO_DATE/TO_TIMESTAMP cast-family handling for HIGHGO/GBASE8S/H2/SQLITE;
+- GBase 8s companions: reserved-word handling (double-quote delimited identifiers), json-column null binding via VARCHAR, BigDecimal binding precision, no dual table (the oracle-family dual pseudo-table is replaced), etc.
+
+## 8. Recommended Upgrade Steps
 
 1. Upgrade the dependency version numbers uniformly to 6.0.4 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);

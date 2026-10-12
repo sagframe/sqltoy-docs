@@ -1,6 +1,6 @@
 # 6.0 升级指南
 
-从 5.6.x 升级到 6.0.4（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
+从 5.6.x 升级到 6.0.5（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
 
 ## 一、环境要求
 
@@ -92,7 +92,32 @@
 
 - 配套的 quickvo-maven-plugin 升级至 **2.0.2**。
 
-## 七、升级步骤建议
+## 七、6.0.5 更新说明
+
+6.0.5 在 6.0.4 基础上进一步增强，同样为**增量能力，无需改动既有代码**（当前发布为 6.0.5.RC2）：
+
+**新增数据库支持（方言总数 24 → 26，详见[支持的数据库](db_list.md)）**
+
+- **瀚高 HighGo**：PG12 内核 + oracle 兼容层，SQL 生成层复用 PostgreSQL 系（`HighgoDialect extends PostgreSqlDialect`），差异集中在函数面（无 `uuid()`/`gen_random_uuid()` 但有 `sys_guid()`、`last_day`/`add_months`/`trunc` 原生、无 `listagg` 而 `string_agg` 原生），由函数适配器 HIGHGO 分支承担；同时支持官方驱动 URL `jdbc:highgo://` 与 vanilla pg 驱动（经 `version()` 内核探测区分）；
+- **南大通用 GBase 8s**：Informix 12.10 内核，CRUD/update 主体复用 Oracle 系（`GBase8sDialect extends OracleDialect`），关键差异覆写——分页用 `limit ? offset ?`、`saveOrUpdate` 走真 `merge into`（逐条执行规避驱动 batch 模式多元素参数错位）、锁等待经会话级 `set lock mode to wait n`、tableApi 走 JDBC 元数据、updateFetch/updateSaveFetch 经 `GBase8sRsProxy` 代理承接（修复驱动 CONCUR_UPDATABLE 结果集 updateRow/insertRow 缺陷）、json 不透明类型按字节读取 + UTF-8 解码；驱动 URL `jdbc:gbasedbt-sqli://`、产品名 "GBase Server"。
+
+**跨数据库函数适配完善（详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）**
+
+- 新增 11 个函数类（均默认注册进 default）：`find_in_set`、`uuid`（唯一 id 生成）、`year/month/day` 分量提取、`last_day/eomonth`、`add_months`、`date_add/date_sub/dateadd` 日期区间加减、`left/right`、`lpad/rpad`、`extract/date_part`、`trunc/date_trunc` 日期截断、`mod` 取模；
+- 既有函数源拼写扩充：`instr` 补 `locate/posstr`、`length` 补 `character_length/octet_length`、`now` 补 `current_timestamp`、`if` 补 `iif`、`substr` 补 `mid`、`to_date` 补 `str_to_date`；
+- 均经多数据库真库探针验证，无法安全转换的形态保持"响亮保留"（原样交目标库报错），避免静默错值。
+
+**主键插入返回值转小写（PostgreSQL 系）**
+
+- 单行插入返回主键值时的主键列名大小写转换（`getReturnPrimaryKeyColumnCase`）由原仅 PostgreSQL/PostgreSQL14 扩展到 **PG 折叠家族**全量：OpenGauss、GaussDB、MogDB、Vastbase、StarDB、Oscar、Kingbase、HighGo 一并转小写。原因：`getGeneratedKeys` 列提示在 PG 折叠内核上大小写敏感（如 opengauss/vastbase/highgo 的 "ID"/"Id" 报 column does not exist、kingbase 混合大小写报错），转小写对全家族安全；mysql 系/tidb/oceanbase/sqlserver/db2/dm/oracle/gbase8s 维持 DEFAULT（驱动忽略提示或折叠一致）。仍可通过 `dialectReturnPrimaryColumnCase` 配置按方言覆盖。
+
+**其他优化与修复**
+
+- 修复串首裸函数永不转换的缺陷（整条 sql 即函数表达式时适配正则 `\W(函数名)\(` 恒不命中，入口加空格哨兵）；
+- 补齐 HIGHGO/GBASE8S/H2/SQLITE 的 TO_DATE/TO_TIMESTAMP cast 族处理；
+- GBase 8s 配套：保留字处理（双引号定界标识符）、json 列 null 绑定用 VARCHAR、BigDecimal 绑定精度、无 dual 表（oracle 系传入的 dual 伪表替换）等。
+
+## 八、升级步骤建议
 
 1. 依赖版本号统一升级为 6.0.4（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；

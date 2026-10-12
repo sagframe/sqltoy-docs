@@ -21,23 +21,37 @@ spring.sqltoy.functionConverts=Nvl,Instr
 # spring.sqltoy.functionConverts=com.yourpackage.Nvl,com.yourpackage.Instr
 ```
 
-* functionConverts=default in sqltoy includes the following functions
+* functionConverts=default in sqltoy includes the following functions (28 in total since 6.0.5)
 
 ```java
+org.sagacity.sqltoy.plugins.function.impl.SubStr
+org.sagacity.sqltoy.plugins.function.impl.Trim
+org.sagacity.sqltoy.plugins.function.impl.Instr
 org.sagacity.sqltoy.plugins.function.impl.Concat
 org.sagacity.sqltoy.plugins.function.impl.ConcatWs
-org.sagacity.sqltoy.plugins.function.impl.DateFormat
-org.sagacity.sqltoy.plugins.function.impl.Decode
-org.sagacity.sqltoy.plugins.function.impl.GroupConcat
-org.sagacity.sqltoy.plugins.function.impl.If
-org.sagacity.sqltoy.plugins.function.impl.Instr
-org.sagacity.sqltoy.plugins.function.impl.Length
-org.sagacity.sqltoy.plugins.function.impl.Now
 org.sagacity.sqltoy.plugins.function.impl.Nvl
-org.sagacity.sqltoy.plugins.function.impl.SubStr
+org.sagacity.sqltoy.plugins.function.impl.DateFormat
+org.sagacity.sqltoy.plugins.function.impl.Now
+org.sagacity.sqltoy.plugins.function.impl.CurrentDate
+org.sagacity.sqltoy.plugins.function.impl.Length
 org.sagacity.sqltoy.plugins.function.impl.ToChar
+org.sagacity.sqltoy.plugins.function.impl.If
+org.sagacity.sqltoy.plugins.function.impl.GroupConcat
+org.sagacity.sqltoy.plugins.function.impl.ToNumber
 org.sagacity.sqltoy.plugins.function.impl.ToDate
-org.sagacity.sqltoy.plugins.function.impl.Trim
+org.sagacity.sqltoy.plugins.function.impl.DateDiff
+org.sagacity.sqltoy.plugins.function.impl.Decode
+org.sagacity.sqltoy.plugins.function.impl.FindInSet
+org.sagacity.sqltoy.plugins.function.impl.Uuid
+org.sagacity.sqltoy.plugins.function.impl.YearMonthDay
+org.sagacity.sqltoy.plugins.function.impl.LastDay
+org.sagacity.sqltoy.plugins.function.impl.AddMonths
+org.sagacity.sqltoy.plugins.function.impl.DateAdd
+org.sagacity.sqltoy.plugins.function.impl.LeftRight
+org.sagacity.sqltoy.plugins.function.impl.Pad
+org.sagacity.sqltoy.plugins.function.impl.Extract
+org.sagacity.sqltoy.plugins.function.impl.DateTrunc
+org.sagacity.sqltoy.plugins.function.impl.Mod
 ```
 
 * Function implementation interface
@@ -112,6 +126,38 @@ public class Trim extends IFunction {
 * `datediff(month, …)` unified month-difference semantics: MONTHS_BETWEEN's Oracle fractional basis (day difference divided by a 1/31-day month) diverges across databases and is no longer registered as a source form — the year/month component difference is used uniformly;
 * `to_char` → sqlserver target: carried by FORMAT (2012+), fixing wrong output for uppercase format forms (e.g. `'YYYY-MM-DD HH24:MI:SS'`) caused by .NET token case-sensitivity, plus quoted-format literal protection;
 * sqlite targets for now() / CURRENT_DATE / CURRENT_TIMESTAMP: uniformly use the local clock (the native forms are UTC wall clocks, 8 hours off for UTC+8 business logic).
+
+### 1.2 Function adaptation improvements (6.0.5)
+
+**New function classes (11, all registered into `default`):**
+
+* `find_in_set(str, strlist)`: native on the MySQL family; elsewhere rewritten as "wrap with commas + exact substring positioning via instr" (so `1` does not match `11`);
+* `uuid()` unique-id generation: unifies source spellings `uuid`/`guid`/`newid`/`sys_guid`/`random_uuid`/`gen_random_uuid`/`uuid_generate_v4`, converted per target (mysql `uuid()`, oracle family `sys_guid()`, pg family `gen_random_uuid()`, sqlserver `newid()`, etc.);
+* `year`/`month`/`day` (plus `hour`/`minute`/`second`, ...) date-time component extraction;
+* `last_day`/`eomonth` last day of the month;
+* `add_months` month arithmetic (month-end clamping);
+* `date_add`/`date_sub`/`dateadd`/`adddate`/`subdate` date-interval arithmetic family;
+* `left(str, n)`/`right(str, n)` prefix/suffix extraction;
+* `lpad`/`rpad` fixed-length padding;
+* `extract`/`date_part` component extraction (ANSI and pg forms);
+* `trunc`/`date_trunc` date-truncation family (oracle `trunc(x[, unit])` and pg `date_trunc(unit, x)` dual source forms);
+* `mod(a, b)` modulo (real-DB probing across 18 environments shows only sqlserver lacks mod — converted to the `%` operator).
+
+**Source-spelling expansion for existing functions:**
+
+* `instr`: added `locate`/`posstr` (mysql and db2 user forms);
+* `length`: added `character_length` (ANSI) / `octet_length` (pg byte form);
+* `now`: added the `current_timestamp` keyword source form (standard SQL);
+* `if`: added `iif` (native on sqlserver 2012+/sqlite 3.32+);
+* `substr`: added `mid` (mysql synonym);
+* `to_date`: added `str_to_date` (mysql user form).
+
+**Function adaptation for the new databases (HighGo and GBase 8s added in 6.0.5):**
+
+* HighGo (PG12 kernel + Oracle compatibility layer): no `uuid()`/`gen_random_uuid()` but has `sys_guid()`; `last_day`/`add_months`/`trunc` are native; no `listagg` but `string_agg` is native — carried by the HIGHGO branch of the function adapters;
+* GBase 8s (Informix 12.10 kernel): no `group_concat`/`string_agg`/`listagg` aggregates, no `CURRENT_DATE` keyword (uses `CURRENT`), no `SUBSTRING` (uses native `SUBSTR`), no `trunc`/`date_trunc` date truncation, no built-in uuid generation, and `decode`/`coalesce`/`to_char`/`trim` return varchar requiring type fixing — carried by the GBASE8S branch of the function adapters.
+
+> All the above additions/expansions are verified by real-database probing across multiple databases; forms that cannot be converted safely (e.g. aggregate ordering unsupported by the target) are kept "loud" — passed through as-is for the target database to error on, avoiding silent wrong values.
 
 ## 2. The sqlId+dialect pattern
 * You can write SQL for specific databases; sqltoy picks the SQL that is actually executed based on the database type, in the order: dialect_sqlId->sqlId_dialect->sqlId. For example, if the database is mysql and sqlId: sqltoy_showcase is called, the SQL actually executed is: sqltoy_showcase_mysql

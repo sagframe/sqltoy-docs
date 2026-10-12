@@ -21,23 +21,37 @@ spring.sqltoy.functionConverts=Nvl,Instr
 # spring.sqltoy.functionConverts=com.yourpackage.Nvl,com.yourpackage.Instr
 ```
 
-* sqltoy中functionConverts=default包含以下函数
+* sqltoy中functionConverts=default包含以下函数（6.0.5 起共 28 个）
 
 ```java
+org.sagacity.sqltoy.plugins.function.impl.SubStr
+org.sagacity.sqltoy.plugins.function.impl.Trim
+org.sagacity.sqltoy.plugins.function.impl.Instr
 org.sagacity.sqltoy.plugins.function.impl.Concat
 org.sagacity.sqltoy.plugins.function.impl.ConcatWs
-org.sagacity.sqltoy.plugins.function.impl.DateFormat
-org.sagacity.sqltoy.plugins.function.impl.Decode
-org.sagacity.sqltoy.plugins.function.impl.GroupConcat
-org.sagacity.sqltoy.plugins.function.impl.If
-org.sagacity.sqltoy.plugins.function.impl.Instr
-org.sagacity.sqltoy.plugins.function.impl.Length
-org.sagacity.sqltoy.plugins.function.impl.Now
 org.sagacity.sqltoy.plugins.function.impl.Nvl
-org.sagacity.sqltoy.plugins.function.impl.SubStr
+org.sagacity.sqltoy.plugins.function.impl.DateFormat
+org.sagacity.sqltoy.plugins.function.impl.Now
+org.sagacity.sqltoy.plugins.function.impl.CurrentDate
+org.sagacity.sqltoy.plugins.function.impl.Length
 org.sagacity.sqltoy.plugins.function.impl.ToChar
+org.sagacity.sqltoy.plugins.function.impl.If
+org.sagacity.sqltoy.plugins.function.impl.GroupConcat
+org.sagacity.sqltoy.plugins.function.impl.ToNumber
 org.sagacity.sqltoy.plugins.function.impl.ToDate
-org.sagacity.sqltoy.plugins.function.impl.Trim
+org.sagacity.sqltoy.plugins.function.impl.DateDiff
+org.sagacity.sqltoy.plugins.function.impl.Decode
+org.sagacity.sqltoy.plugins.function.impl.FindInSet
+org.sagacity.sqltoy.plugins.function.impl.Uuid
+org.sagacity.sqltoy.plugins.function.impl.YearMonthDay
+org.sagacity.sqltoy.plugins.function.impl.LastDay
+org.sagacity.sqltoy.plugins.function.impl.AddMonths
+org.sagacity.sqltoy.plugins.function.impl.DateAdd
+org.sagacity.sqltoy.plugins.function.impl.LeftRight
+org.sagacity.sqltoy.plugins.function.impl.Pad
+org.sagacity.sqltoy.plugins.function.impl.Extract
+org.sagacity.sqltoy.plugins.function.impl.DateTrunc
+org.sagacity.sqltoy.plugins.function.impl.Mod
 ```
 
 * 函数实现接口
@@ -112,6 +126,38 @@ public class Trim extends IFunction {
 * `datediff(month, …)` 跨库月差口径统一：MONTHS_BETWEEN 的 oracle 小数口径（日差按 1/31 天月折算）与各库语义分歧，不再作为源函数注册转换，统一按年月分量差计算；
 * `to_char` → sqlserver 目标：以 FORMAT（2012+）承担，修复大写格式形态（如 `'YYYY-MM-DD HH24:MI:SS'`）与 .NET token 大小写敏感导致的错值，并归一带引号格式串的字面量保护；
 * sqlite 目标的 now() / CURRENT_DATE / CURRENT_TIMESTAMP：统一取本地时钟（原生为 UTC 墙钟，东八区业务差 8 小时）。
+
+### 1.2 函数适配完善（6.0.5）
+
+**新增函数类（11 个，均默认注册进 `default`）：**
+
+* `find_in_set(str, strlist)`：mysql 系原生透传，其余库以"首尾补逗号 + instr 精确子串定位"改写（避免 `1` 命中 `11` 的误判）；
+* `uuid()` 唯一 id 生成：归一 `uuid`/`guid`/`newid`/`sys_guid`/`random_uuid`/`gen_random_uuid`/`uuid_generate_v4` 等多种源拼写，按目标库转换（mysql 用 `uuid()`、oracle 系用 `sys_guid()`、pg 系用 `gen_random_uuid()`、sqlserver 用 `newid()` 等）；
+* `year`/`month`/`day`（含 `hour`/`minute`/`second` 等）日期时间分量提取；
+* `last_day`/`eomonth` 当月最后一天；
+* `add_months` 月份加减（月末钳制）；
+* `date_add`/`date_sub`/`dateadd`/`adddate`/`subdate` 日期区间加减族；
+* `left(str, n)`/`right(str, n)` 前缀后缀取串；
+* `lpad`/`rpad` 定长填充；
+* `extract`/`date_part` 分量提取（ANSI 与 pg 写法）；
+* `trunc`/`date_trunc` 日期截断族（oracle 的 `trunc(x[, unit])` 与 pg 的 `date_trunc(unit, x)` 双源形态）；
+* `mod(a, b)` 取模（18 环境实测仅 sqlserver 无 mod 函数，转 `%` 运算符）。
+
+**既有函数源拼写扩充：**
+
+* `instr`：补 `locate`/`posstr`（mysql 与 db2 用户写法）；
+* `length`：补 `character_length`（ANSI 写法）/`octet_length`（pg 字节写法）；
+* `now`：补 `current_timestamp` 关键字源拼写（标准 SQL 写法）；
+* `if`：补 `iif`（sqlserver 2012+/sqlite 3.32+ 原生）；
+* `substr`：补 `mid`（mysql 同义词写法）；
+* `to_date`：补 `str_to_date`（mysql 用户写法）。
+
+**新增数据库的函数适配（配合 6.0.5 新增瀚高 HighGo、南大通用 GBase 8s）：**
+
+* 瀚高 HighGo（PG12 内核 + oracle 兼容层）：无 `uuid()`/`gen_random_uuid()` 但有 `sys_guid()`、`last_day`/`add_months`/`trunc` 原生、无 `listagg` 而 `string_agg` 原生，由函数适配器的 HIGHGO 分支承担；
+* GBase 8s（Informix 12.10 内核）：无 `group_concat`/`string_agg`/`listagg` 聚合、无 `CURRENT_DATE` 关键字（用 `CURRENT`）、无 `SUBSTRING`（用原生 `SUBSTR`）、无 `trunc`/`date_trunc` 日期截断、无内置 uuid 生成函数，且 `decode`/`coalesce`/`to_char`/`trim` 等返回 varchar 需定型处理，由函数适配器的 GBASE8S 分支承担。
+
+> 上述新增/扩充函数均经多数据库真库探针验证；无法安全转换的形态（如目标库不支持的聚合排序）保持"响亮保留"，原样交由目标库报错，避免静默错值。
 
 ## 2. 通过sqlId+dialect模式
 * 可针对特定数据库写sql,sqltoy根据数据库类型获取实际执行sql,顺序为: dialect_sqlId->sqlId_dialect->sqlId， 如数据库为mysql,调用sqlId:sqltoy_showcase,则实际执行:sqltoy_showcase_mysql

@@ -1,6 +1,6 @@
 # 支持的数据库
 
-sqltoy 内置 24 种数据库方言（`dialect`，6.0 新增 SAP HANA），并通过 `DialectFactory` 自动识别数据库类型、适配分页与函数。只要数据库提供 JDBC 驱动，sqltoy 即可对其进行查询。
+sqltoy 内置 26 种数据库方言（`dialect`，6.0 新增 SAP HANA，6.0.5 新增瀚高 HighGo、南大通用 GBase 8s），并通过 `DialectFactory` 自动识别数据库类型、适配分页与函数。只要数据库提供 JDBC 驱动，sqltoy 即可对其进行查询。
 
 ## 主流关系型数据库
 
@@ -8,7 +8,7 @@ MySQL、Oracle、PostgreSQL、SQL Server、DB2、SAP HANA、H2、SQLite、TiDB�
 
 ## 国产 / 信创数据库
 
-达梦（DM）、人大金仓（Kingbase）、神通（Oscar）、瀚高（HighGo）、MogDB、Vastbase、StarDB、GaussDB、OpenGauss
+达梦（DM）、人大金仓（Kingbase）、神通（Oscar）、瀚高（HighGo）、MogDB、Vastbase、StarDB、GaussDB、OpenGauss、南大通用（GBase 8s）
 
 ## 分布式 OLAP 数据库
 
