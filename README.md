@@ -28,7 +28,7 @@ SqlToy 的定位是**弥补 JPA 的查询短板、解决 MyBatis 的高频痛点
 | 高并发台账类场景 | 需自行实现锁与多次交互 | 无对应能力 | **updateFetch / updateSaveFetch**：一次交互完成锁查询→校验→修改→返回 |
 | 码值→名称显示 | 手写 JOIN 或多次查询 | 关联映射繁琐 | **缓存翻译**：免 join，本地缓存零网络开销 |
 | 分页 | 通常是简单包裹 `select count(1) from (原sql)` | 有分页 API，无 count 优化 | **智能 count 改写** + 缓存分页 + `@fast` 快速分页 + 并行分页 |
-| 跨数据库 | SQL 绑定特定数据库方言 | 对象操作可跨库，查询能力弱 | **26 种方言** + 函数自动替换 + 方言 sqlId + 多库重放验证 |
+| 跨数据库 | SQL 绑定特定数据库方言 | 对象操作可跨库，查询能力弱 | **25 种方言** + 函数自动替换 + 方言 sqlId + 多库重放验证 |
 | 数据分析 | 手写复杂透视/汇总 SQL | 不支持 | pivot/unpivot、分组汇总、同比环比、树形排序汇总 内置内存算法 |
 | 查询结果封装 | ResultMap 手动映射 | 对象映射 | 自动映射 + **主子表层次封装**（一条 join SQL 封装成父子对象） |
 
@@ -51,7 +51,7 @@ sqltoy提供高效的ORM操作，包括对象化CRUD、级联加载、自动DDL�
 | [对象操作](./crud/sqltoy_crud.md) | JPA 风格 CRUD、弹性更新、updateFetch / updateSaveFetch、级联、查询层次封装、树形表路由 | [CRUD](./crud/sqltoy_crud.md) |
 | [SQL 查询](./query/dynamic_sql.md) | 动态 SQL（`#[]` + filters）、缓存翻译、最强分页（count 优化 / 缓存 / 快速 / 并行）、并行查询、存储过程、流式查询 | [动态 SQL](./query/dynamic_sql.md) / [分页](./query/pagination.md) |
 | [数据分析](./query/sqltoy_complex_query.md) | 行转列 / 列转行、分组汇总、同比环比、树形排序汇总、分组拼接、日期数字格式化 | [数据分析](./query/sqltoy_complex_query.md) |
-| [跨数据库](./dialect/sqltoy_function.md) | 26 种方言（含 SAP HANA、瀚高 HighGo、南大通用 GBase 8s）、函数自动替换、多方言 sqlId、多库适配验证 | [方言](./dialect/sqltoy_function.md) / [数据库清单](./introduction/db_list.md) |
+| [跨数据库](./dialect/sqltoy_function.md) | 25 种方言（含 SAP HANA、瀚高 HighGo）、函数自动替换、多方言 sqlId、多库适配验证 | [方言](./dialect/sqltoy_function.md) / [数据库清单](./introduction/db_list.md) |
 | [企业级](./enterprise/sqltoy_multitenant.md) | 分库分表、多租户、数据权限与越权校验、脱敏加解密、数据版本控制、SQL 拦截、慢 SQL 处理 | [分库分表](./enterprise/sqltoy_sharding.md) / [安全](./enterprise/sqltoy_security.md) |
 | [NoSQL](./nosql/sqltoy_mongo.md) | Elasticsearch（sql / json 双模式）、MongoDB（查询 / 聚合 + 缓存翻译） | [Mongo](./nosql/sqltoy_mongo.md) / [ES](./nosql/sqltoy_elasticsearch.md) |
 | [工程化](./config/sqltoy_config.md) | quickvo 代码生成、autoDDL 自动建表、debug 热加载、GraalVM AOT、Spring Boot / Spring / Solon / 纯 Java | [配置](./config/sqltoy_config.md) / [quickvo](./prepare/quickvo.md) |
@@ -67,7 +67,7 @@ Object list = lightDao.find("select * from sqltoy_order_info", new HashMap());
 
 ## 支持的数据库
 
-* 常规的mysql、oracle、db2、postgresql、 sqlserver、dm、kingbase、hana、sqlite、h2、 oceanBase、polardb、gaussdb、tidb、oscar(神通)、瀚高、mogdb、vastbase、stardb、gbase8s(南大通用)
+* 常规的mysql、oracle、db2、postgresql、 sqlserver、dm、kingbase、hana、sqlite、h2、 oceanBase、polardb、gaussdb、tidb、oscar(神通)、瀚高、mogdb、vastbase、stardb
 * 支持分布式olap数据库: clickhouse、doris、StarRocks、greenplum、impala(kudu)、TDengine
 * 支持elasticsearch、mongodb
 * 所有基于sql和jdbc 各类数据库查询

@@ -48,7 +48,7 @@ sqltoy 以最佳的动态 sql 编写模式为起点，融合 JPA 对象化操作
 
 | 特性 | 说明 | 详见 |
 | --- | --- | --- |
-| 26 种方言 | MySQL、Oracle、PostgreSQL、SQL Server、DB2、SAP HANA、达梦、金仓、瀚高、南大通用 GBase 8s、OceanBase、TiDB、ClickHouse、Doris、StarRocks、TDengine 等 | [支持的数据库](db_list.md) |
+| 25 种方言 | MySQL、Oracle、PostgreSQL、SQL Server、DB2、SAP HANA、达梦、金仓、瀚高、OceanBase、TiDB、ClickHouse、Doris、StarRocks、TDengine 等 | [支持的数据库](db_list.md) |
 | 函数自动替换 | `functionConverts=default` 开启，nvl/concat/to_char/datediff/uuid/date_add 等 28 个函数按数据库自动适配，支持自定义扩展 | [方言与函数](../dialect/sqltoy_function.md) |
 | 多方言 sqlId | `sqlId_dialect` / `dialect_sqlId` 命名，框架按当前库自动匹配专属 SQL | [方言与函数](../dialect/sqltoy_function.md) |
 | 多库适配验证 | redoDataSources 让任意查询在其他库重放执行，产品化跨库测试利器 | [多库适配验证](../dialect/multi_db_verify.md) |

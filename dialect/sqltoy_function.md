@@ -152,10 +152,9 @@ public class Trim extends IFunction {
 * `substr`：补 `mid`（mysql 同义词写法）；
 * `to_date`：补 `str_to_date`（mysql 用户写法）。
 
-**新增数据库的函数适配（配合 6.0.5 新增瀚高 HighGo、南大通用 GBase 8s）：**
+**新增数据库的函数适配（配合 6.0.5 新增瀚高 HighGo）：**
 
-* 瀚高 HighGo（PG12 内核 + oracle 兼容层）：无 `uuid()`/`gen_random_uuid()` 但有 `sys_guid()`、`last_day`/`add_months`/`trunc` 原生、无 `listagg` 而 `string_agg` 原生，由函数适配器的 HIGHGO 分支承担；
-* GBase 8s（Informix 12.10 内核）：无 `group_concat`/`string_agg`/`listagg` 聚合、无 `CURRENT_DATE` 关键字（用 `CURRENT`）、无 `SUBSTRING`（用原生 `SUBSTR`）、无 `trunc`/`date_trunc` 日期截断、无内置 uuid 生成函数，且 `decode`/`coalesce`/`to_char`/`trim` 等返回 varchar 需定型处理，由函数适配器的 GBASE8S 分支承担。
+* 瀚高 HighGo（PG12 内核 + oracle 兼容层）：无 `uuid()`/`gen_random_uuid()` 但有 `sys_guid()`、`last_day`/`add_months`/`trunc` 原生、无 `listagg` 而 `string_agg` 原生，由函数适配器的 HIGHGO 分支承担。
 
 > 上述新增/扩充函数均经多数据库真库探针验证；无法安全转换的形态（如目标库不支持的聚合排序）保持"响亮保留"，原样交由目标库报错，避免静默错值。
 

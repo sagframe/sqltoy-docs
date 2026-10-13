@@ -28,7 +28,7 @@ SqlToy aims to **fill JPA's query gaps while solving MyBatis's daily pain points
 | High-concurrency ledger scenarios | Build your own locking with multiple interactions | No equivalent | **updateFetch / updateSaveFetch**: one interaction does lock-query → validate → modify → return |
 | Code-to-name display | Hand-written JOINs or extra queries | Cumbersome associations | **Cache translate**: join-free, local cache with zero network cost |
 | Pagination | Usually a plain `select count(1) from (your sql)` wrapper | Has paging API, no count optimization | **Smart count rewriting** + cached pagination + `@fast` fast pagination + parallel pagination |
-| Cross-database | SQL bound to a specific dialect | Object operations port, querying weak | **26 dialects** + function auto-replacement + dialect sqlId + multi-DB replay verification |
+| Cross-database | SQL bound to a specific dialect | Object operations port, querying weak | **25 dialects** + function auto-replacement + dialect sqlId + multi-DB replay verification |
 | Analytics | Hand-written pivot/summary SQL | Not supported | Built-in in-memory algorithms: pivot/unpivot, group summary, YoY & MoM, tree sort & rollup |
 | Result packaging | Manual ResultMap | Object mapping | Auto mapping + **parent-child hierarchy packaging** (one join SQL packed into nested objects) |
 
@@ -51,7 +51,7 @@ SqlToy provides efficient ORM operations including object CRUD, cascade loading 
 | [Object operations](./crud/sqltoy_crud.md) | JPA-style CRUD, elastic update, updateFetch / updateSaveFetch, cascades, query hierarchy packaging, tree-table routes | [Object CRUD](./crud/sqltoy_crud.md) |
 | [SQL query](./query/dynamic_sql.md) | Dynamic SQL (`#[]` + filters), cache translate, strongest pagination (count optimize / cached / fast / parallel), parallel query, stored procedures, stream query | [Dynamic SQL](./query/dynamic_sql.md) / [Pagination](./query/pagination.md) |
 | [Analytics](./query/sqltoy_complex_query.md) | Pivot / unpivot, group summary, YoY & MoM, tree sort & rollup, group concatenation, formatting | [Analytics](./query/sqltoy_complex_query.md) |
-| [Cross-database](./introduction/db_list.md) | 26 dialects (incl. SAP HANA, HighGo, GBase 8s), function auto-replacement, dialect sqlId, multi-DB verification | [Dialects](./dialect/sqltoy_function.md) / [DB list](./introduction/db_list.md) |
+| [Cross-database](./introduction/db_list.md) | 25 dialects (incl. SAP HANA, HighGo), function auto-replacement, dialect sqlId, multi-DB verification | [Dialects](./dialect/sqltoy_function.md) / [DB list](./introduction/db_list.md) |
 | [Enterprise](./enterprise/sqltoy_sharding.md) | Sharding, multi-tenancy, data permission, masking & encryption, data versioning, SQL interceptors, slow SQL | [Sharding](./enterprise/sqltoy_sharding.md) / [Security](./enterprise/sqltoy_security.md) |
 | [NoSQL](./nosql/sqltoy_mongo.md) | Elasticsearch (SQL / JSON modes), MongoDB (query / aggregation + cache translate) | [Mongo](./nosql/sqltoy_mongo.md) / [ES](./nosql/sqltoy_elasticsearch.md) |
 | [Engineering](./config/sqltoy_config.md) | quickvo code generation, autoDDL, debug hot-reload, GraalVM AOT, Spring Boot / Spring / Solon / plain Java | [Config](./config/sqltoy_config.md) / [quickvo](./prepare/quickvo.md) |
@@ -67,7 +67,7 @@ Object list = lightDao.find("select * from sqltoy_order_info", new HashMap());
 
 ## Supported Databases
 
-* Mainstream relational databases: MySQL, Oracle, DB2, PostgreSQL, SQL Server, DM, Kingbase, **SAP HANA**, SQLite, H2, OceanBase, PolarDB, GaussDB, TiDB, Oscar, HighGo, MogDB, Vastbase, StarDB, **GBase 8s**
+* Mainstream relational databases: MySQL, Oracle, DB2, PostgreSQL, SQL Server, DM, Kingbase, **SAP HANA**, SQLite, H2, OceanBase, PolarDB, GaussDB, TiDB, Oscar, HighGo, MogDB, Vastbase, StarDB
 * Distributed OLAP databases: ClickHouse, Doris, StarRocks, Greenplum, Impala (Kudu), TDengine
 * Elasticsearch and MongoDB
 * Any SQL/JDBC-capable database for queries

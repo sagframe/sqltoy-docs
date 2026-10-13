@@ -96,10 +96,9 @@
 
 6.0.5 在 6.0.4 基础上进一步增强，同样为**增量能力，无需改动既有代码**（当前发布为 6.0.5.RC2）：
 
-**新增数据库支持（方言总数 24 → 26，详见[支持的数据库](db_list.md)）**
+**新增数据库支持（方言总数 24 → 25，详见[支持的数据库](db_list.md)）**
 
-- **瀚高 HighGo**：PG12 内核 + oracle 兼容层，SQL 生成层复用 PostgreSQL 系（`HighgoDialect extends PostgreSqlDialect`），差异集中在函数面（无 `uuid()`/`gen_random_uuid()` 但有 `sys_guid()`、`last_day`/`add_months`/`trunc` 原生、无 `listagg` 而 `string_agg` 原生），由函数适配器 HIGHGO 分支承担；同时支持官方驱动 URL `jdbc:highgo://` 与 vanilla pg 驱动（经 `version()` 内核探测区分）；
-- **南大通用 GBase 8s**：Informix 12.10 内核，CRUD/update 主体复用 Oracle 系（`GBase8sDialect extends OracleDialect`），关键差异覆写——分页用 `limit ? offset ?`、`saveOrUpdate` 走真 `merge into`（逐条执行规避驱动 batch 模式多元素参数错位）、锁等待经会话级 `set lock mode to wait n`、tableApi 走 JDBC 元数据、updateFetch/updateSaveFetch 经 `GBase8sRsProxy` 代理承接（修复驱动 CONCUR_UPDATABLE 结果集 updateRow/insertRow 缺陷）、json 不透明类型按字节读取 + UTF-8 解码；驱动 URL `jdbc:gbasedbt-sqli://`、产品名 "GBase Server"。
+- **瀚高 HighGo**：PG12 内核 + oracle 兼容层，SQL 生成层复用 PostgreSQL 系（`HighgoDialect extends PostgreSqlDialect`），差异集中在函数面（无 `uuid()`/`gen_random_uuid()` 但有 `sys_guid()`、`last_day`/`add_months`/`trunc` 原生、无 `listagg` 而 `string_agg` 原生），由函数适配器 HIGHGO 分支承担；同时支持官方驱动 URL `jdbc:highgo://` 与 vanilla pg 驱动（经 `version()` 内核探测区分）。
 
 **跨数据库函数适配完善（详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）**
 
@@ -109,13 +108,12 @@
 
 **主键插入返回值转小写（PostgreSQL 系）**
 
-- 单行插入返回主键值时的主键列名大小写转换（`getReturnPrimaryKeyColumnCase`）由原仅 PostgreSQL/PostgreSQL14 扩展到 **PG 折叠家族**全量：OpenGauss、GaussDB、MogDB、Vastbase、StarDB、Oscar、Kingbase、HighGo 一并转小写。原因：`getGeneratedKeys` 列提示在 PG 折叠内核上大小写敏感（如 opengauss/vastbase/highgo 的 "ID"/"Id" 报 column does not exist、kingbase 混合大小写报错），转小写对全家族安全；mysql 系/tidb/oceanbase/sqlserver/db2/dm/oracle/gbase8s 维持 DEFAULT（驱动忽略提示或折叠一致）。仍可通过 `dialectReturnPrimaryColumnCase` 配置按方言覆盖。
+- 单行插入返回主键值时的主键列名大小写转换（`getReturnPrimaryKeyColumnCase`）由原仅 PostgreSQL/PostgreSQL14 扩展到 **PG 折叠家族**全量：OpenGauss、GaussDB、MogDB、Vastbase、StarDB、Oscar、Kingbase、HighGo 一并转小写。原因：`getGeneratedKeys` 列提示在 PG 折叠内核上大小写敏感（如 opengauss/vastbase/highgo 的 "ID"/"Id" 报 column does not exist、kingbase 混合大小写报错），转小写对全家族安全；mysql 系/tidb/oceanbase/sqlserver/db2/dm/oracle 维持 DEFAULT（驱动忽略提示或折叠一致）。仍可通过 `dialectReturnPrimaryColumnCase` 配置按方言覆盖。
 
 **其他优化与修复**
 
 - 修复串首裸函数永不转换的缺陷（整条 sql 即函数表达式时适配正则 `\W(函数名)\(` 恒不命中，入口加空格哨兵）；
-- 补齐 HIGHGO/GBASE8S/H2/SQLITE 的 TO_DATE/TO_TIMESTAMP cast 族处理；
-- GBase 8s 配套：保留字处理（双引号定界标识符）、json 列 null 绑定用 VARCHAR、BigDecimal 绑定精度、无 dual 表（oracle 系传入的 dual 伪表替换）等。
+- 补齐 HIGHGO/H2/SQLITE 的 TO_DATE/TO_TIMESTAMP cast 族处理。
 
 ## 八、升级步骤建议
 

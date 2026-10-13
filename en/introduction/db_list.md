@@ -1,6 +1,6 @@
 # Supported Databases
 
-SqlToy ships with **26 built-in database dialects** (SAP HANA added in 6.0; HighGo and GBase 8s added in 6.0.5) and auto-detects the database type via `DialectFactory`, adapting pagination and functions automatically. Any database providing a JDBC driver can be queried by SqlToy.
+SqlToy ships with **25 built-in database dialects** (SAP HANA added in 6.0; HighGo added in 6.0.5) and auto-detects the database type via `DialectFactory`, adapting pagination and functions automatically. Any database providing a JDBC driver can be queried by SqlToy.
 
 ## Mainstream Relational Databases
 
@@ -8,7 +8,7 @@ MySQL, Oracle, PostgreSQL, SQL Server, DB2, SAP HANA, H2, SQLite, TiDB, OceanBas
 
 ## Chinese / Domestic Databases
 
-DM (Dameng), Kingbase, Oscar, HighGo, MogDB, Vastbase, StarDB, GaussDB, OpenGauss, GBase 8s
+DM (Dameng), Kingbase, Oscar, HighGo, MogDB, Vastbase, StarDB, GaussDB, OpenGauss
 
 ## Distributed OLAP Databases
 

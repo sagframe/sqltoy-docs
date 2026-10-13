@@ -152,10 +152,9 @@ public class Trim extends IFunction {
 * `substr`: added `mid` (mysql synonym);
 * `to_date`: added `str_to_date` (mysql user form).
 
-**Function adaptation for the new databases (HighGo and GBase 8s added in 6.0.5):**
+**Function adaptation for the new database (HighGo added in 6.0.5):**
 
-* HighGo (PG12 kernel + Oracle compatibility layer): no `uuid()`/`gen_random_uuid()` but has `sys_guid()`; `last_day`/`add_months`/`trunc` are native; no `listagg` but `string_agg` is native — carried by the HIGHGO branch of the function adapters;
-* GBase 8s (Informix 12.10 kernel): no `group_concat`/`string_agg`/`listagg` aggregates, no `CURRENT_DATE` keyword (uses `CURRENT`), no `SUBSTRING` (uses native `SUBSTR`), no `trunc`/`date_trunc` date truncation, no built-in uuid generation, and `decode`/`coalesce`/`to_char`/`trim` return varchar requiring type fixing — carried by the GBASE8S branch of the function adapters.
+* HighGo (PG12 kernel + Oracle compatibility layer): no `uuid()`/`gen_random_uuid()` but has `sys_guid()`; `last_day`/`add_months`/`trunc` are native; no `listagg` but `string_agg` is native — carried by the HIGHGO branch of the function adapters.
 
 > All the above additions/expansions are verified by real-database probing across multiple databases; forms that cannot be converted safely (e.g. aggregate ordering unsupported by the target) are kept "loud" — passed through as-is for the target database to error on, avoiding silent wrong values.
 
