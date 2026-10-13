@@ -94,7 +94,7 @@ Changes and notes for upgrading from 5.6.x to 6.0.5 (the 6.0 line). All changes 
 
 ## 7. What's New in 6.0.5
 
-6.0.5 builds on 6.0.4 with further enhancements — likewise **incremental, requiring no changes to existing code** (the current release is 6.0.5.RC2):
+6.0.5 builds on 6.0.4 with further enhancements — likewise **incremental, requiring no changes to existing code**:
 
 **New database support (dialect total 24 → 25; see [Supported Databases](db_list.md))**
 
