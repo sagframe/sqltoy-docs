@@ -14,7 +14,7 @@ sqltoy 的出发点之一就是解决性能问题：
 - **update 操作**：改变 hibernate"先 load 再 update"的模式，变成**一步数据库交互**（弹性更新）。
 - 所有 SQL 查询都基于 `PreparedStatement`，减少数据库对 SQL 的预编译过程。
 - 批量、级联加载都基于批量查询，用程序在后台组织数据，避免多次数据库交互（参见 `loadAllCascade` 底层实现）。
-- 分页除快速分页、分页优化外，对 count 查询的优化达到极致，不是简单的 `select count(1) from (你的sql) as t`。
+- 分页除快速分页、分页优化外，对 count 查询做了针对性优化，不是简单的 `select count(1) from (你的sql) as t`。
 
 系统核心瓶颈大多在 IO（尤其数据库 IO），sqltoy 在数据库交互上做了大量优化。框架自身对 SQL 语句的组织处理消耗极微，通常在 **1 毫秒以内**。
 

@@ -1,6 +1,6 @@
 # Pagination Optimize
 
-sqltoy provides the industry's most complete pagination mechanism: **intelligent count optimization, cached pagination, fast pagination, and parallel pagination**, and also supports custom count SQL and skipping count. Developers do not need to worry about pagination dialect differences across databases — sqltoy adapts automatically.
+sqltoy provides a multi-layer pagination mechanism: **intelligent count optimization, cached pagination, fast pagination, and parallel pagination**, and also supports custom count SQL and skipping count. Developers do not need to worry about pagination dialect differences across databases — sqltoy adapts automatically.
 
 Overall flow:
 

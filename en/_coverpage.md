@@ -4,9 +4,9 @@
 
 # sqltoy-orm
 
-> A truly intelligent Java ORM framework
+> JPA-style object CRUD with SQL-first querying — one SQL across 25 databases
 
-- The cleanest dynamic-SQL style — SQL you can run directly in any database client
+- An intuitive dynamic-SQL style — SQL you can run directly in any database client
 - Cache Translate · Pagination Optimize · Fast Pagination · Cross-DB Function Adaptation
 - Pivot/Unpivot · YoY & MoM · Tree Sort & Rollup · Sharding · Multi-Tenancy · Data Masking
 

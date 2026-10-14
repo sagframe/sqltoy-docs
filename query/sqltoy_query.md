@@ -23,7 +23,7 @@
 		left join sqltoy_organ_info t2 on  t1.organ_id=t2.ORGAN_ID
           ]]>
 	</value>
-	<!-- 这里为极特殊情况下提供了自定义count-sql来实现极致性能优化 -->
+	<!-- 这里为极特殊情况下提供了自定义count-sql来实现针对性的性能优化 -->
 	<!-- <count-sql></count-sql> -->
 </sql>
 ```

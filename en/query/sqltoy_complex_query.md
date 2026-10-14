@@ -5,7 +5,7 @@ sqltoy provides a set of analytics capabilities that **perform secondary computa
 These algorithms deliver two standout benefits:
 
 1. **Offloads the database**: computations such as row-column conversion and layer-by-layer rollup would cause huge CPU and memory overhead if done by the database; sqltoy processes them in a single linear pass in application memory with extremely high efficiency.
-2. **Perfect cross-database compatibility**: the algorithms do not depend on any database dialect at all. The same SQL runs on MySQL and Oracle and migrates smoothly to domestic and mainstream databases such as Dameng (DM), GaussDB, and PostgreSQL.
+2. **Cross-database compatibility**: the algorithms do not depend on any database dialect at all. The same SQL runs on MySQL and Oracle and migrates smoothly to domestic and mainstream databases such as Dameng (DM), GaussDB, and PostgreSQL.
 
 All analytics features can be declared with tags in `*.sql.xml` or built fluently in Java with `QueryExecutor`; the two approaches are fully equivalent.
 
@@ -85,7 +85,7 @@ Banana|2019-03|13 | 2300|2700
 Converts a "narrow table" in the database (multiple row records) into a "wide table" for front-end display (multiple columns). For example, row data of "month, product, sales volume" is expanded horizontally into "product, March sales, April sales, May sales".
 
 - **Traditional pain point**: the database `PIVOT` syntax cannot cope with dynamic, non-fixed columns; once months or product types change dynamically, pure SQL breaks down.
-- **The sqltoy way**: combining its core algorithms, sqltoy perfectly supports fully dynamic pivot with just a few declarative lines.
+- **The sqltoy way**: combining its core algorithms, sqltoy supports fully dynamic pivot with just a few declarative lines.
 
 ### 2.2 XML Configuration Example
 

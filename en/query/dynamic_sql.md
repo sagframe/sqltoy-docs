@@ -156,7 +156,7 @@ Below is a `<sql>` element listing **all available child tags** (validated again
 
     <!-- ===== filters: pre-normalizes the parameter values participating in query/execution (see section 4 of this page) ===== -->
     <filters>
-        <!-- Most common: eq, to-date; most elegant: cache-arg; most powerful: primary -->
+        <!-- common: eq, to-date; targeted: cache-arg; fallback: primary -->
         <!-- Converts the parameter to null when it equals the given value (e.g. a dropdown "All" sends -1 so the condition is not applied) -->
         <eq params="organType" value="-1" />
         <!-- Date conversion: format can be a custom pattern like yyyy-MM-dd, or FIRST_OF_MONTH/LAST_OF_MONTH/FIRST_OF_YEAR/LAST_OF_YEAR/FIRST_OF_WEEK/LAST_OF_WEEK;

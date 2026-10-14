@@ -156,7 +156,7 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 
     <!-- ===== filters：对参与查询/执行的参数值做规整处理（详见本页第四节）===== -->
     <filters>
-        <!-- 最常用：eq、to-date；精妙：cache-arg；强大：primary -->
+        <!-- 常用：eq、to-date；针对性：cache-arg；兜底：primary -->
         <!-- 参数等于给定值则转 null（如下拉框"全部"传 -1 时不过滤该条件） -->
         <eq params="organType" value="-1" />
         <!-- 转日期：format 可为 yyyy-MM-dd 等自定义格式，或 FIRST_OF_MONTH/LAST_OF_MONTH/FIRST_OF_YEAR/LAST_OF_YEAR/FIRST_OF_WEEK/LAST_OF_WEEK；

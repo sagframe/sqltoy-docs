@@ -1,8 +1,8 @@
 ## 项目介绍
 
-#### Sqltoy一个真正智慧的Java ORM框架!
+#### Sqltoy——融合 JPA 式对象操作与 SQL 优先查询的 Java ORM 框架
 
-Sqltoy以最佳的动态sql编写模式作为起点，并首创了缓存翻译、分页优化、快速分页、sql函数不同数据库自适配等高价值特性，同时对项目实践过程中各类复杂场景提供了极为细致的解决方案！
+Sqltoy 以直观的动态sql编写模式作为起点，提供缓存翻译、分页优化、快速分页、sql函数不同数据库自适配等特性，并对项目实践过程中的各类复杂场景给出了系统的解决方案。
 
 > 通过开源分享已经凝聚了更广泛用户的场景和智慧,欢迎您的加入共同打造一个中国式智慧的ORM框架!
 
@@ -44,12 +44,12 @@ SqlToy 的定位是**弥补 JPA 的查询短板、解决 MyBatis 的高频痛点
 
 ## 功能特性
 
-sqltoy提供高效的ORM操作，包括对象化CRUD、级联加载、自动DDL生成等。在数据修改方面，提供弹性字段更新、强事务处理能力，支持分库分表、多种主键策略和数据加密。查询方面支持直观的SQL编写、缓存翻译优化、跨数据库自适配，提供业界最强的分页机制（自动count优化、缓存分页、快速分页、并行分页）。此外还支持数据分析（行列转换、同比环比、树形处理）、层次化数据结构、多租户隔离、数据脱敏等企业级特性。
+sqltoy提供高效的ORM操作，包括对象化CRUD、级联加载、自动DDL生成等。在数据修改方面，提供弹性字段更新、强事务处理能力，支持分库分表、多种主键策略和数据加密。查询方面支持直观的SQL编写、缓存翻译优化、跨数据库自适配，提供四层优化的分页机制（自动count优化、缓存分页、快速分页、并行分页）。此外还支持数据分析（行列转换、同比环比、树形处理）、层次化数据结构、多租户隔离、数据脱敏等企业级特性。
 
 | 类别 | 核心能力 | 文档 |
 | --- | --- | --- |
 | [对象操作](./crud/sqltoy_crud.md) | JPA 风格 CRUD、弹性更新、updateFetch / updateSaveFetch、级联、查询层次封装、树形表路由 | [CRUD](./crud/sqltoy_crud.md) |
-| [SQL 查询](./query/dynamic_sql.md) | 动态 SQL（`#[]` + filters）、缓存翻译、最强分页（count 优化 / 缓存 / 快速 / 并行）、并行查询、存储过程、流式查询 | [动态 SQL](./query/dynamic_sql.md) / [分页](./query/pagination.md) |
+| [SQL 查询](./query/dynamic_sql.md) | 动态 SQL（`#[]` + filters）、缓存翻译、四层分页优化（count 优化 / 缓存 / 快速 / 并行）、并行查询、存储过程、流式查询 | [动态 SQL](./query/dynamic_sql.md) / [分页](./query/pagination.md) |
 | [数据分析](./query/sqltoy_complex_query.md) | 行转列 / 列转行、分组汇总、同比环比、树形排序汇总、分组拼接、日期数字格式化 | [数据分析](./query/sqltoy_complex_query.md) |
 | [跨数据库](./dialect/sqltoy_function.md) | 25 种方言（含 SAP HANA、瀚高 HighGo）、函数自动替换、多方言 sqlId、多库适配验证 | [方言](./dialect/sqltoy_function.md) / [数据库清单](./introduction/db_list.md) |
 | [企业级](./enterprise/sqltoy_multitenant.md) | 分库分表、多租户、数据权限与越权校验、脱敏加解密、数据版本控制、SQL 拦截、慢 SQL 处理 | [分库分表](./enterprise/sqltoy_sharding.md) / [安全](./enterprise/sqltoy_security.md) |

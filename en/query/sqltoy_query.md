@@ -23,7 +23,7 @@
 		left join sqltoy_organ_info t2 on  t1.organ_id=t2.ORGAN_ID
           ]]>
 	</value>
-	<!-- For extremely special cases, a custom count-sql is provided here to achieve ultimate performance optimization -->
+	<!-- For extremely special cases, a custom count-sql is provided here to achieve targeted performance optimization -->
 	<!-- <count-sql></count-sql> -->
 </sql>
 ```

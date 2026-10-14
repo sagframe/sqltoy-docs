@@ -14,7 +14,7 @@ Solving performance problems was one of sqltoy's original motivations:
 - **update operations**: abandons hibernate's "load first, then update" model in favor of a **single database interaction** (elastic update).
 - All SQL queries go through `PreparedStatement`, reducing the database's SQL precompilation overhead.
 - Batch and cascading loads are based on batch queries, with data assembled in the background by the application, avoiding multiple database round trips (see the underlying implementation of `loadAllCascade`).
-- Beyond fast pagination and pagination optimize, the count query is optimized to the extreme — not the naive `select count(1) from (your sql) as t`.
+- Beyond fast pagination and pagination optimize, the count query is specifically optimized — not the naive `select count(1) from (your sql) as t`.
 
 Most system bottlenecks lie in IO (especially database IO), and sqltoy heavily optimizes database interactions. The framework's own overhead for organizing and processing SQL statements is negligible — typically **under 1 millisecond**.
 

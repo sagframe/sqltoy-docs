@@ -1,6 +1,6 @@
-# Xinchuang (Domestic-DB) Replacement Guide
+# Database Migration Guide
 
-This chapter targets **Xinchuang / domestic-database replacement** projects (migrating from Oracle, MySQL, etc. to DM, Kingbase, HighGo, Oscar, MogDB, Vastbase, GaussDB, OpenGauss and other domestic databases). It organizes sqltoy's cross-database adaptation capabilities into an executable six-step checklist — assess → configure → refactor → verify → perform → cut over; each step links to the chapter holding the full mechanism and parameters. For the selection rationale and overall introduction, see `docs/xinchuang-sqltoy.md` in the source repository (linked from the README's "Documentation & Resources" table).
+This chapter targets **database migration** projects (migrating from Oracle, MySQL, etc. to DM, Kingbase, HighGo, Oscar, MogDB, Vastbase, GaussDB, OpenGauss and other databases). It organizes sqltoy's cross-database adaptation capabilities into an executable six-step checklist — assess → configure → refactor → verify → perform → cut over; each step links to the chapter holding the full mechanism and parameters. For the selection rationale and overall introduction, see `docs/xinchuang-sqltoy.md` in the source repository (linked from the README's "Documentation & Resources" table).
 
 ## 1. Assess First: Map the Adaptation Surface
 
@@ -11,7 +11,7 @@ This chapter targets **Xinchuang / domestic-database replacement** projects (mig
 spring.sqltoy.dialectMap.kingbase=mysql
 ```
 
-3. **Assess primary-key strategy**: `identity`/`sequence` carry dialect and case-sensitivity differences across databases; for Xinchuang replacement prefer programmatic keys (22-digit/26-digit/snowflake/UUID) to eliminate this class of difference at the source — see [Primary Key Strategies](../primarykey/sqltoy_primarykey.md); existing sequence-based tables keep working, with backfill handled per dialect.
+3. **Assess primary-key strategy**: `identity`/`sequence` carry dialect and case-sensitivity differences across databases; for a database migration prefer programmatic keys (22-digit/26-digit/snowflake/UUID) to eliminate this class of difference at the source — see [Primary Key Strategies](../primarykey/sqltoy_primarykey.md); existing sequence-based tables keep working, with backfill handled per dialect.
 
 ## 2. Configuration: Switch On Cross-DB Adaptation
 

@@ -1,6 +1,6 @@
 # SqlToy Feature List
 
-SqlToy starts from the cleanest dynamic-SQL authoring model, combining JPA-style object operations with the strongest native SQL querying. The full feature catalog by category — each row links to its detailed chapter.
+SqlToy starts from an intuitive dynamic-SQL authoring model, combining JPA-style object operations with native SQL querying. The full feature catalog by category — each row links to its detailed chapter.
 
 ## 1. Object Operations (JPA-style)
 

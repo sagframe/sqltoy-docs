@@ -1,8 +1,8 @@
 ## Introduction
 
-#### SqlToy — a truly intelligent Java ORM framework!
+#### SqlToy — a Java ORM combining JPA-style object CRUD with SQL-first querying
 
-SqlToy starts from the cleanest dynamic-SQL authoring model and pioneers high-value features such as **Cache Translate**, **Pagination Optimize**, **Fast Pagination** and automatic **cross-database function adaptation**, while providing carefully-crafted solutions for nearly every complex scenario found in real-world projects!
+SqlToy starts from an intuitive dynamic-SQL authoring model and provides **Cache Translate**, **Pagination Optimize**, **Fast Pagination** and automatic **cross-database function adaptation**, with systematic solutions for the complex scenarios found in real-world projects.
 
 > Through open-source sharing we have gathered scenarios and wisdom from a broad community — join us in building a China-born intelligent ORM framework!
 
@@ -44,12 +44,12 @@ These frameworks model SQL with Java objects and fail compilation when a column 
 
 ## Key Features
 
-SqlToy provides efficient ORM operations including object CRUD, cascade loading and automatic DDL generation. For data modification it offers elastic (null-skipping) updates and strong transactional capabilities, with sharding, various primary-key strategies and field encryption built in. For querying it supports intuitive SQL authoring, cache-translate optimization and cross-database adaptation, delivering the industry's strongest pagination mechanism (automatic count optimization, cached pagination, fast pagination and parallel pagination). It also covers analytics (pivot/unpivot, YoY & MoM, tree processing), hierarchical data structures, multi-tenancy isolation, data masking and more enterprise-grade features.
+SqlToy provides efficient ORM operations including object CRUD, cascade loading and automatic DDL generation. For data modification it offers elastic (null-skipping) updates and strong transactional capabilities, with sharding, various primary-key strategies and field encryption built in. For querying it supports intuitive SQL authoring, cache-translate optimization and cross-database adaptation, delivering a four-layer pagination mechanism (automatic count optimization, cached pagination, fast pagination and parallel pagination). It also covers analytics (pivot/unpivot, YoY & MoM, tree processing), hierarchical data structures, multi-tenancy isolation, data masking and more enterprise-grade features.
 
 | Category | Highlights | Docs |
 | --- | --- | --- |
 | [Object operations](./crud/sqltoy_crud.md) | JPA-style CRUD, elastic update, updateFetch / updateSaveFetch, cascades, query hierarchy packaging, tree-table routes | [Object CRUD](./crud/sqltoy_crud.md) |
-| [SQL query](./query/dynamic_sql.md) | Dynamic SQL (`#[]` + filters), cache translate, strongest pagination (count optimize / cached / fast / parallel), parallel query, stored procedures, stream query | [Dynamic SQL](./query/dynamic_sql.md) / [Pagination](./query/pagination.md) |
+| [SQL query](./query/dynamic_sql.md) | Dynamic SQL (`#[]` + filters), cache translate, four-layer pagination (count optimize / cached / fast / parallel), parallel query, stored procedures, stream query | [Dynamic SQL](./query/dynamic_sql.md) / [Pagination](./query/pagination.md) |
 | [Analytics](./query/sqltoy_complex_query.md) | Pivot / unpivot, group summary, YoY & MoM, tree sort & rollup, group concatenation, formatting | [Analytics](./query/sqltoy_complex_query.md) |
 | [Cross-database](./introduction/db_list.md) | 25 dialects (incl. SAP HANA, HighGo), function auto-replacement, dialect sqlId, multi-DB verification | [Dialects](./dialect/sqltoy_function.md) / [DB list](./introduction/db_list.md) |
 | [Enterprise](./enterprise/sqltoy_sharding.md) | Sharding, multi-tenancy, data permission, masking & encryption, data versioning, SQL interceptors, slow SQL | [Sharding](./enterprise/sqltoy_sharding.md) / [Security](./enterprise/sqltoy_security.md) |

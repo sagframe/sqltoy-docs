@@ -2,7 +2,7 @@
 
 For CRUD, cascading, cross-database access, sharding and the like, sqltoy differs little from hibernate/mybatis. What sqltoy really wants to share is a **different way of thinking** — the "killer features" below are high-value capabilities distilled from extensive project practice.
 
-## 1. The perfect SQL style
+## 1. A clean SQL style
 
 Requirement: query the order table with conditions covering a transaction date range, order status, organization, employee and order number.
 
