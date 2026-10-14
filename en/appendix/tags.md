@@ -75,18 +75,38 @@ Used to dynamically loop-concatenate fields or conditions in SQL, generally over
 @secure-loop(:loopParam, loopContent, linkSign, startIndex, endIndex)
 ```
 
+**Parameters:** `startIndex` / `endIndex` are an optional loop index range (0-based; `endIndex` beyond the array length is clamped to the end), for looping over only a slice of the collection — e.g. skipping the first element and looping from the second to the end. **Write the indexes as bare numbers, without quotes:**
+
+```text
+@secure-loop(:staffIds, { t.STAFF_ID=:staffIds[i] }, { or }, 1, 100)
+```
+
 **Notes:**
 
 - Inner parameters are comma-separated; if `loopContent` contains commas, wrap the content with `{}`, `''` or `""` to ensure it is split correctly.
 - Sub-object property patterns such as `staffInfos[i].xxxx` are supported for extreme scenarios.
+- When `loopParam` is empty or absent the macro returns `@blank(:loopParam)`, which makes the enclosing `#[]` fragment drop out entirely — no extra null-check needed.
 - When an in-condition parameter array exceeds 1000 entries (e.g. the Oracle limit), the framework (since 5.1.32 / 4.19.25) **splits it automatically**.
 - `@secure-loop` is supported since version 5.1.44.
 
-**Example:**
+**Examples:**
 
 ```text
-@secure-loop(:staffIds, { t.STAFF_ID=:staffIds[i] }, { or })
+-- 1) OR condition chain (VALUE conditions use @secure-loop, bound as ? placeholders):
+--    with staffIds = ["S0001","S0003"] it expands to:  and ( t.STAFF_ID=?  or  t.STAFF_ID=? )
+#[and (@secure-loop(:staffIds, { t.STAFF_ID=:staffIds[i] }, { or }))]
+
+-- 2) Dynamic columns (column names are IDENTIFIERS — the placeholder mechanism does not
+--    apply, so @loop concatenation is the only option here):
+--    with fields = ["STAFF_NAME","EMAIL"] it expands to:  select t.STAFF_ID ,t.STAFF_NAME ,t.EMAIL from ...
+select t.STAFF_ID @loop(:fields, { ,t.:fields[i] }) from sqltoy_staff_info t
+
+-- 3) Index slice (bare numbers, no quotes): loop from the second element (skipping the first),
+--    endIndex beyond the array is clamped
+@secure-loop(:staffIds, { t.STAFF_ID=:staffIds[i] }, { or }, 1, 100)
 ```
+
+> Prefer `@secure-loop` whenever the loop involves **values** (injection-safe); reserve `@loop` for identifier concatenation such as column names.
 
 ## 6. @include(sqlId)
 

@@ -75,18 +75,36 @@
 @secure-loop(:loopParam, loopContent, linkSign, startIndex, endIndex)
 ```
 
+**参数说明：** `startIndex` / `endIndex` 是可选的循环下标区间（从 0 开始计数，`endIndex` 超出数组长度时自动截断到末尾），用于只循环集合中的一段——例如跳过首个元素、从第 2 项开始循环到结尾。**下标直接写数字即可，无需引号**：
+
+```text
+@secure-loop(:staffIds, { t.STAFF_ID=:staffIds[i] }, { or }, 1, 100)
+```
+
 **注意事项：**
 
 - 内部参数以逗号分隔，若 `loopContent` 中含逗号，请用 `{}`、`''` 或 `""` 包裹内容，确保切割准确。
 - 支持子对象属性模式：`staffInfos[i].xxxx`，应对极端场景。
+- `loopParam` 为空或未传时，宏返回 `@blank(:loopParam)`，配合外层 `#[]` 会把整段条件自动剔除，无需额外判空。
 - in 条件参数数组超过 1000 时，框架（5.1.32 / 4.19.25 起）会**自动切分**。
 - `@secure-loop` 自 5.1.44 版本支持。
 
 **范例：**
 
 ```text
-@secure-loop(:staffIds, { t.STAFF_ID=:staffIds[i] }, { or })
+-- 1) OR 条件链（值条件用 @secure-loop，参数以 ? 占位）：staffIds = ["S0001","S0003"] 时展开为：
+--    and ( t.STAFF_ID=?  or  t.STAFF_ID=? )
+#[and (@secure-loop(:staffIds, { t.STAFF_ID=:staffIds[i] }, { or }))]
+
+-- 2) 动态列（列名属标识符，占位符机制不适用，只能用 @loop 拼接）：
+--    fields = ["STAFF_NAME","EMAIL"] 时展开为 select t.STAFF_ID ,t.STAFF_NAME ,t.EMAIL from ...
+select t.STAFF_ID @loop(:fields, { ,t.:fields[i] }) from sqltoy_staff_info t
+
+-- 3) 下标切片（数字直接写，无需引号）：从第 2 个元素开始循环（跳过首元素），endIndex 超长自动截断
+@secure-loop(:staffIds, { t.STAFF_ID=:staffIds[i] }, { or }, 1, 100)
 ```
+
+> 涉及**值**的循环一律优先 `@secure-loop`（防注入）；`@loop` 仅用于列名等标识符拼接场景。
 
 ## 六、@include(sqlId)
 
