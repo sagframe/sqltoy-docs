@@ -50,7 +50,37 @@ List result = lightDao
 ## 字段加密解密
 
 * sqltoy支持对字段进行加密存储，查询时可动态解密
-* sqltoy 定义私钥和公钥，可通过sqltoy框架源码中src/test 路径下面的org.sagacity.sqltoy.utils.SecureUtils生成，默认基于RSA算法
+* sqltoy 通过一对 RSA 公私钥实现字段加解密（公钥加密、私钥解密）。密钥格式为**去掉 PEM 头尾和换行的单行 Base64**（私钥 PKCS#8、公钥 X.509），用 openssl 一条命令即可生成（Git Bash / Linux / macOS 自带 openssl，Windows 装了 Git 即有）：
+
+```bash
+# 生成 1024 位私钥(PKCS#8)并导出配对公钥(X.509)，去头尾压成单行 Base64
+openssl genrsa 1024 2>/dev/null | openssl pkcs8 -topk8 -nocrypt > private.pem
+openssl rsa -in private.pem -pubout > public.pem
+grep -v '^-' private.pem | tr -d '
+' > rsa_private.key && echo >> rsa_private.key
+grep -v '^-' public.pem  | tr -d '
+' > rsa_public.key  && echo >> rsa_public.key
+```
+
+> 也可以用纯 Java 生成（JDK 自带 JCE，无需任何依赖）——sqltoy 源码 `src/test` 路径下的 `org.sagacity.sqltoy.utils.SecureUtils` 就是这段逻辑的封装：
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.util.Base64;
+
+public class GenerateRsaKeys {
+    public static void main(String[] args) throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(1024); // 2048 for production; widen the encrypted column accordingly
+        KeyPair keyPair = generator.generateKeyPair();
+        // single-line Base64 without PEM headers — the format sqltoy expects
+        // (private key PKCS#8, public key X.509); print two lines and save each to its own file
+        System.out.println(Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded()));
+        System.out.println(Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
+    }
+}
+```1024 位密文的单字段密文约 172 字符，加密列建议 `varchar(500)`；生产环境可按安全要求改用更长位数（列宽同步加大）。
 
 ```properties
 # 可以自定义加解密算法实现，框架提供了默认实现
@@ -66,7 +96,7 @@ spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 <property name="securePublicKey" value="classpath:mock/rsa_public.key" />
 ```
 
-> 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `SecureTest.java`（测试资源已内置 `mock/rsa_private.key`、`rsa_public.key` 演示密钥，可直接复用）。
+> 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `SecureEncryptTest.java`（加密存储/自动解密/检索码）与 `SecureMaskTest.java`（先解密再脱敏）；测试资源已内置 `mock/rsa_private.key`、`rsa_public.key` 演示密钥。
 
 * 在pojo对象类上增加注解@SecureConfig,为了便于检索，可以额外增加一个脱敏值，注意sourceField的指向作用
 

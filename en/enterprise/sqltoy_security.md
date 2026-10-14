@@ -50,7 +50,38 @@ List result = lightDao
 ## Field Encryption/Decryption
 
 * sqltoy supports encrypting fields for storage and decrypting them dynamically at query time
-* sqltoy defines a private key and a public key, which can be generated with org.sagacity.sqltoy.utils.SecureUtils located under the src/test path of the sqltoy framework source code; the default is based on the RSA algorithm
+* sqltoy encrypts/decrypts fields with an RSA key pair (public key encrypts, private key decrypts). The key format is **a single line of Base64 without the PEM headers and line breaks** (private key PKCS#8, public key X.509); one openssl command pair generates it (openssl ships with Git Bash / Linux / macOS, so Windows users have it once Git is installed):
+
+```bash
+# generate a 1024-bit private key (PKCS#8) and export the matching public key (X.509),
+# then strip headers and squeeze to single-line Base64
+openssl genrsa 1024 2>/dev/null | openssl pkcs8 -topk8 -nocrypt > private.pem
+openssl rsa -in private.pem -pubout > public.pem
+grep -v '^-' private.pem | tr -d '
+' > rsa_private.key && echo >> rsa_private.key
+grep -v '^-' public.pem  | tr -d '
+' > rsa_public.key  && echo >> rsa_public.key
+```
+
+> Or generate with plain Java (JDK built-in JCE, zero dependencies) — the `org.sagacity.sqltoy.utils.SecureUtils` class under `src/test` of the framework source wraps exactly this logic:
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.util.Base64;
+
+public class GenerateRsaKeys {
+    public static void main(String[] args) throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(1024); // 2048 for production; widen the encrypted column accordingly
+        KeyPair keyPair = generator.generateKeyPair();
+        // single-line Base64 without PEM headers — the format sqltoy expects
+        // (private key PKCS#8, public key X.509); print two lines and save each to its own file
+        System.out.println(Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded()));
+        System.out.println(Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
+    }
+}
+``` A 1024-bit ciphertext is about 172 characters per field, so encrypted columns should be `varchar(500)`; longer keys are fine for production as long as the column width grows accordingly.
 
 ```properties
 # You can provide a custom encryption/decryption algorithm implementation; the framework ships a default one
@@ -66,7 +97,7 @@ In traditional Spring XML mode, configure the properties of the same names on th
 <property name="securePublicKey" value="classpath:mock/rsa_public.key" />
 ```
 
-> 🎬 Fully runnable example: `SecureTest.java` in the demo project `sqltoy-showcase` (the test resources already bundle the demo keys `mock/rsa_private.key` and `rsa_public.key`, ready for direct reuse).
+> 🎬 Fully runnable examples: `SecureEncryptTest.java` (encrypted storage / automatic decrypt / search mask) and `SecureMaskTest.java` (decrypt-then-mask) in the demo project `sqltoy-showcase`; the test resources already bundle the demo keys `mock/rsa_private.key` and `rsa_public.key`.
 
 * Add the @SecureConfig annotation on the POJO class; to facilitate searching, you can additionally store a masked value — pay attention to what sourceField points to
 
