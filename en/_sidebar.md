@@ -2,6 +2,7 @@
     * [What is sqltoy-orm](introduction/introduction.md)
     * [Key Features](introduction/feature.md)
     * [Supported Databases](introduction/db_list.md)
+    * [Xinchuang Replacement Guide](introduction/xinchuang.md)
     * [Technical Architecture](introduction/architecture.md)
     * [Upgrade to 6.0.x](introduction/upgrade_6.0.md)
 * Environment Setup
