@@ -2,7 +2,7 @@
     * [sqltoy-orm 是什么](introduction/introduction.md)
     * [sqltoy 主要特性](introduction/feature.md)
     * [支持的数据库](introduction/db_list.md)
-    * [信创替换适配指引](introduction/xinchuang.md)
+    * [换库迁移适配指引](introduction/xinchuang.md)
     * [技术架构](introduction/architecture.md)
     * [6.0 升级指南](introduction/upgrade_6.0.md)
 * 环境准备

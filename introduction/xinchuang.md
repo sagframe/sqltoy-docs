@@ -1,6 +1,6 @@
-# 信创替换适配指引
+# 换库迁移适配指引
 
-本章面向**数据库信创替换**场景（从 Oracle、MySQL 等迁移到达梦、金仓、瀚高、神通、MogDB、Vastbase、GaussDB、OpenGauss 等国产数据库），把 sqltoy 的跨数据库适配能力整理为「评估 → 配置 → 改造 → 验证 → 性能 → 切换」六步可执行清单；每步的原理与完整参数说明见对应章节链接。选型论证与整体介绍见源码仓库 `docs/xinchuang-sqltoy.md`（README「文档与资源」表有入口）。
+本章面向**数据库换库迁移**场景（从 Oracle、MySQL 等迁移到达梦、金仓、瀚高、神通、MogDB、Vastbase、GaussDB、OpenGauss 等国产数据库），把 sqltoy 的跨数据库适配能力整理为「评估 → 配置 → 改造 → 验证 → 性能 → 切换」六步可执行清单；每步的原理与完整参数说明见对应章节链接。选型论证与整体介绍见源码仓库 `docs/xinchuang-sqltoy.md`（README「文档与资源」表有入口）。
 
 ## 一、评估先行：摸清适配面
 
@@ -11,7 +11,7 @@
 spring.sqltoy.dialectMap.kingbase=mysql
 ```
 
-3. **主键策略评估**：`identity`/`sequence` 在各库存在方言与大小写差异，信创替换建议改用程序化主键（22 位/26 位/雪花/UUID）从源头消除，见[主键策略](../primarykey/sqltoy_primarykey.md)；存量 sequence 表可继续使用，框架按方言处理回填。
+3. **主键策略评估**：`identity`/`sequence` 在各库存在方言与大小写差异，换库迁移建议改用程序化主键（22 位/26 位/雪花/UUID）从源头消除，见[主键策略](../primarykey/sqltoy_primarykey.md)；存量 sequence 表可继续使用，框架按方言处理回填。
 
 ## 二、配置层：开启跨库适配能力
 

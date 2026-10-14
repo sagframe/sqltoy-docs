@@ -6,7 +6,7 @@ sqltoy 内置 25 种数据库方言（`dialect`，6.0 新增 SAP HANA，6.0.5 �
 
 MySQL、Oracle、PostgreSQL、SQL Server、DB2、SAP HANA、H2、SQLite、TiDB、OceanBase、PolarDB
 
-## 国产 / 信创数据库
+## 国产数据库
 
 达梦（DM）、人大金仓（Kingbase）、神通（Oscar）、瀚高（HighGo）、MogDB、Vastbase、StarDB、GaussDB、OpenGauss
 
