@@ -218,7 +218,67 @@ spring.sqltoy.realDialectFirst=true
 * 经真实方言变体匹配选中的 sql，其函数/保留字替换方言也跟随真实方言（未命中变体回退 base 的 sql 保持配置方言行为）；
 * 仅作用于 sql 形态转换层（函数与保留字），分页等执行策略的数据库分派不受影响。
 
-## 3. 如何同时测试多种数据库环境
+## 3. 虚表宏 @virtualTable()（6.0.6 新增）
+
+"select 常量行 union 真实查询"类 sql（字典下拉兜底行、报表固定合计行等）在各数据库对"select 常量行（不带 from）"的支持不一致：oracle/db2/hana 必须挂伪表，mysql/pg/sqlserver 等原生支持无 from 的 select（写 `from dual` 反而语法错）。6.0.6 起在需要伪表的位置写 `@virtualTable()` 宏，sqltoy 在 sql 解析期按方言自动展开（在函数/保留字转换前处理，随 SqlToyConfig 固化），一条 sql 全库通用。以 xml 配置为例：
+
+```xml
+<sql id="sys_tenant_options">
+	<value>
+	<![CDATA[
+		select '0' tenant_id,'全局公共' tenant_name @virtualTable()
+		union
+		select s.tenant_id,s.tenant_name
+		from sys_tenant_info s
+		where s.status=1
+	]]>
+	</value>
+</sql>
+```
+
+不同数据库上实际执行的 sql：
+
+```sql
+-- oracle / oracle11 / dm(达梦) / oceanbase：展开为 from dual
+select '0' tenant_id,'全局公共' tenant_name from dual
+union
+select s.tenant_id,s.tenant_name from sys_tenant_info s where s.status=1
+
+-- db2：展开为 from sysibm.sysdummy1
+select '0' tenant_id,'全局公共' tenant_name from sysibm.sysdummy1
+union
+select s.tenant_id,s.tenant_name from sys_tenant_info s where s.status=1
+
+-- hana：展开为 from dummy
+select '0' tenant_id,'全局公共' tenant_name from dummy
+union
+select s.tenant_id,s.tenant_name from sys_tenant_info s where s.status=1
+
+-- mysql / postgresql / sqlserver 等：宏被剔除（原生支持无 from 的 select）
+select '0' tenant_id,'全局公共' tenant_name
+union
+select s.tenant_id,s.tenant_name from sys_tenant_info s where s.status=1
+```
+
+方言展开对照：
+
+| 数据库 | 宏展开结果 |
+| --- | --- |
+| oracle / oracle11 / dm（达梦） / oceanbase | `from dual` |
+| db2 | `from sysibm.sysdummy1` |
+| hana | `from dummy` |
+| mysql 系（mysql/tidb/doris/starrocks）、pg 系（postgresql/gaussdb/mogdb/openGauss/stardb/vastbase/oscar/kingbase/highgo）、sqlserver、sqlite、h2、clickhouse、impala、tdengine | 直接剔除（原生支持无 from 的 select） |
+
+使用说明：
+
+* 兼容别名 `@dual()` / `@dummyTable()`，三名等价、大小写不敏感、括号内空白容错；
+* 同一条 sql 可出现多次，每处独立按方言展开（每个常量 select 各写一个）；
+* xml 配置 sql、`@Sql` 注解 sql、代码 sql（`findBySql` 等）同样有效（统一解析管线）；
+* 展开发生在解析期并随 SqlToyConfig 固化（与函数/保留字转换同一时机），运行期零开销；不含宏的 sql 零影响（含 `@` 的普通 sql 如 `email like 'a@%'` 不受影响）；
+* 伪表映射与框架生成 merge 语句所用伪表同源（各 Dialect 的 VIRTUAL_TABLE 常量），行为一致；
+* `realDialectFirst` 场景下宏按"解析方言"展开固化，运行期惰性转换层不再重复展开宏。
+
+## 4. 如何同时测试多种数据库环境
 * sqltoy提供了spring.sqltoy.redoDataSources参数，来设置查询语句重复执行的数据库
 
 ```properties
@@ -226,7 +286,7 @@ spring.sqltoy.realDialectFirst=true
 spring.sqltoy.redoDataSources[0]=pgdb
 ```
 
-## 4. 常见问题
+## 5. 常见问题
 * 1) 为什么我的kingbase、polardb、oceanbase这些数据库使用mysql或postgresql数据库模式，还有大量错误？
 解答: 因为sqltoy获取数据库方言是通过jdbc connection获取当前productName来判断数据库类型，并不能完全准确获取数据库的方言模式，所以要通过2种方式之一来解决
 ### 方式一: 单一数据库场景下直接设置当前数据库方言

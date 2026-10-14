@@ -1,13 +1,13 @@
 # 6.0 升级指南
 
-从 5.6.x 升级到 6.0.5（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
+从 5.6.x 升级到 6.0.6（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
 
 ## 一、环境要求
 
 | 项 | 要求 |
 | --- | --- |
 | JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.96.jre8`（最终 jre8 版本，支持 quickvo-maven-plugin 插件） |
-| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.4 |
+| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.6 |
 | 配置参数 | `spring.sqltoy.*` 在 6.0.2 的 58 个参数基础上新增 2 个：`realDialectFirst`（6.0.3 新增）、`ddlLowerOrUpper`（6.0.3 起暴露为 starter 属性），其余参数无增减，存量配置无需调整 |
 
 ## 二、API 变更（需要改代码）
@@ -115,9 +115,25 @@
 - 修复串首裸函数永不转换的缺陷（整条 sql 即函数表达式时适配正则 `\W(函数名)\(` 恒不命中，入口加空格哨兵）；
 - 补齐 HIGHGO/H2/SQLITE 的 TO_DATE/TO_TIMESTAMP cast 族处理。
 
-## 八、升级步骤建议
+## 八、6.0.6 更新说明
 
-1. 依赖版本号统一升级为 6.0.4（starter / spring / solon-plugin 与 core 同版本）；
+6.0.6 在 6.0.5 基础上进一步增强，同样为**增量能力，无需改动既有代码**：
+
+**虚表宏 @virtualTable()（详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）**
+
+- 解决"select 常量行 union 真实查询"类 sql（字典下拉兜底行、报表固定合计行等）跨数据库无法统一编写的问题：oracle/db2/hana 必须挂伪表（`from dual` / `from sysibm.sysdummy1` / `from dummy`），而 mysql/pg/sqlserver 等原生支持无 from 的 select（写 `from dual` 反而语法错）；
+- 统一写法：`select '0' id,'全局公共' name @virtualTable() union select id,name from t`，sql 解析期按方言自动展开——oracle 系（oracle/oracle11/dm/oceanbase）→ `from dual`、db2 → `from sysibm.sysdummy1`、hana → `from dummy`、其余方言直接剔除；
+- 兼容别名 `@dual()` / `@dummyTable()`，三名等价、大小写不敏感、括号内空白容错；同一条 sql 可出现多次（每个常量 select 各写一个）；
+- xml 配置 sql、`@Sql` 注解 sql、代码 sql（`findBySql` 等）同样有效（统一解析管线）；不含宏的 sql 零影响（含 `@` 的普通 sql 如 email 不受影响）；
+- 展开发生在解析期并随 SqlToyConfig 固化（与函数/保留字转换同一时机），运行期零开销；`realDialectFirst` 场景宏按解析方言展开，运行期惰性层不再重复展开。
+
+**配套工具**
+
+- 配套的 quickvo-maven-plugin 升级至 **2.0.3**。
+
+## 九、升级步骤建议
+
+1. 依赖版本号统一升级为 6.0.6（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；

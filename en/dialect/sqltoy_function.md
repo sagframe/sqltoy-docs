@@ -219,7 +219,67 @@ spring.sqltoy.realDialectFirst=true
 * For sqls selected via real-dialect variant matching, function/reserved-word replacement also follows the real dialect (sqls that fall back to the base keep the configured-dialect behavior);
 * Only the sql form-conversion layer (functions and reserved words) is affected; execution-strategy dispatch such as pagination is not.
 
-## 3. How to test against multiple database environments at the same time
+## 3. Virtual-table macro @virtualTable() (new in 6.0.6)
+
+For "select constant-row union real-query" SQL (dictionary dropdown fallback rows, fixed report total rows, etc.), databases differ in their support for "select of constant rows (without FROM)": oracle/db2/hana require a pseudo-table, while mysql/pg/sqlserver etc. natively support FROM-less select (writing `from dual` actually errors there). Since 6.0.6, write the `@virtualTable()` macro where the pseudo-table belongs — sqltoy expands it per dialect at SQL parse time (processed before function/reserved-word conversion and solidified with SqlToyConfig), so one SQL works across all databases. Taking an xml configuration as an example:
+
+```xml
+<sql id="sys_tenant_options">
+	<value>
+	<![CDATA[
+		select '0' tenant_id,'Global' tenant_name @virtualTable()
+		union
+		select s.tenant_id,s.tenant_name
+		from sys_tenant_info s
+		where s.status=1
+	]]>
+	</value>
+</sql>
+```
+
+The SQL actually executed on different databases:
+
+```sql
+-- oracle / oracle11 / dm (Dameng) / oceanbase: expanded to from dual
+select '0' tenant_id,'Global' tenant_name from dual
+union
+select s.tenant_id,s.tenant_name from sys_tenant_info s where s.status=1
+
+-- db2: expanded to from sysibm.sysdummy1
+select '0' tenant_id,'Global' tenant_name from sysibm.sysdummy1
+union
+select s.tenant_id,s.tenant_name from sys_tenant_info s where s.status=1
+
+-- hana: expanded to from dummy
+select '0' tenant_id,'Global' tenant_name from dummy
+union
+select s.tenant_id,s.tenant_name from sys_tenant_info s where s.status=1
+
+-- mysql / postgresql / sqlserver etc.: macro stripped (FROM-less select is native)
+select '0' tenant_id,'Global' tenant_name
+union
+select s.tenant_id,s.tenant_name from sys_tenant_info s where s.status=1
+```
+
+Dialect expansion reference:
+
+| Database | Macro expansion |
+| --- | --- |
+| oracle / oracle11 / dm (Dameng) / oceanbase | `from dual` |
+| db2 | `from sysibm.sysdummy1` |
+| hana | `from dummy` |
+| mysql family (mysql/tidb/doris/starrocks), pg family (postgresql/gaussdb/mogdb/openGauss/stardb/vastbase/oscar/kingbase/highgo), sqlserver, sqlite, h2, clickhouse, impala, tdengine | Stripped (FROM-less select is native) |
+
+Notes:
+
+* Compatible aliases `@dual()` / `@dummyTable()` — all three names are equivalent, case-insensitive, and tolerant of spaces inside the parentheses;
+* May appear multiple times in one SQL, each expanded independently per dialect (one per constant select);
+* Works in xml-configured SQL, `@Sql` annotation SQL and code SQL (`findBySql` etc.) alike (unified parse pipeline);
+* Expansion happens at parse time and is solidified with SqlToyConfig (same timing as function/reserved-word conversion), zero runtime overhead; SQL without the macro is completely unaffected (plain SQL containing `@` such as `email like 'a@%'` is not touched);
+* The pseudo-table mapping shares the same source as the pseudo-tables used by the framework's merge-statement generation (each Dialect's VIRTUAL_TABLE constant);
+* With `realDialectFirst`, the macro is expanded and solidified by the "parse dialect" — the runtime lazy-conversion layer does not re-expand it.
+
+## 4. How to test against multiple database environments at the same time
 * sqltoy provides the spring.sqltoy.redoDataSources parameter to set the databases on which queries are repeatedly executed
 
 ```properties
@@ -227,7 +287,7 @@ spring.sqltoy.realDialectFirst=true
 spring.sqltoy.redoDataSources[0]=pgdb
 ```
 
-## 4. FAQ
+## 5. FAQ
 * 1) Why do my kingbase, polardb, oceanbase and similar databases still produce lots of errors when using the mysql or postgresql database mode?
 Answer: because sqltoy determines the database type from the productName obtained through the JDBC connection, it cannot always accurately determine the database's dialect mode. Therefore, resolve this with one of the following two approaches
 ### Option 1: In a single-database scenario, set the current database dialect directly

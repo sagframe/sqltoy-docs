@@ -1,13 +1,13 @@
 # Upgrade to 6.0.x
 
-Changes and notes for upgrading from 5.6.x to 6.0.5 (the 6.0 line). All changes have been verified against the 6.0 source code.
+Changes and notes for upgrading from 5.6.x to 6.0.6 (the 6.0 line). All changes have been verified against the 6.0 source code.
 
 ## 1. Environment Requirements
 
 | Item | Requirement |
 | --- | --- |
 | JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
-| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.4 |
+| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.6 |
 | Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged, and existing configuration files need no adjustment |
 
 ## 2. API Changes (Code Changes Required)
@@ -115,9 +115,25 @@ Changes and notes for upgrading from 5.6.x to 6.0.5 (the 6.0 line). All changes 
 - Fixed bare functions at the very start of a string never being converted (when the whole sql is a function expression, the adaptation regex `\W(funcName)\(` never matches; a space sentinel is added at the entry);
 - Completed TO_DATE/TO_TIMESTAMP cast-family handling for HIGHGO/H2/SQLITE.
 
-## 8. Recommended Upgrade Steps
+## 8. What's New in 6.0.6
 
-1. Upgrade the dependency version numbers uniformly to 6.0.4 (starter / spring / solon-plugin use the same version as core);
+6.0.6 builds on 6.0.5 with further enhancements — likewise **incremental, requiring no changes to existing code**:
+
+**Virtual-table macro @virtualTable() (see [Dialect Self-Adaption & Function Extension](../dialect/sqltoy_function.md))**
+
+- Solves the cross-database dilemma of "select constant-row union real-query" SQL (dictionary dropdown fallback rows, fixed report total rows, etc.): oracle/db2/hana require a pseudo-table (`from dual` / `from sysibm.sysdummy1` / `from dummy`), while mysql/pg/sqlserver etc. natively support FROM-less select (writing `from dual` actually errors there);
+- Unified form: `select '0' id,'Global' name @virtualTable() union select id,name from t` — expanded per dialect at SQL parse time: oracle family (oracle/oracle11/dm/oceanbase) → `from dual`, db2 → `from sysibm.sysdummy1`, hana → `from dummy`, stripped elsewhere;
+- Compatible aliases `@dual()` / `@dummyTable()` — all three names are equivalent, case-insensitive, tolerant of spaces inside the parentheses; may appear multiple times in one SQL (one per constant select);
+- Works in xml-configured SQL, `@Sql` annotation SQL and code SQL (`findBySql` etc.) alike (unified parse pipeline); SQL without the macro is completely unaffected (plain SQL containing `@` such as emails is not touched);
+- Expansion happens at parse time and is solidified with SqlToyConfig (same timing as function/reserved-word conversion), zero runtime overhead; with `realDialectFirst` the macro is expanded by the parse dialect — the runtime lazy layer does not re-expand it.
+
+**Companion tooling**
+
+- The companion quickvo-maven-plugin is upgraded to **2.0.3**.
+
+## 9. Recommended Upgrade Steps
+
+1. Upgrade the dependency version numbers uniformly to 6.0.6 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);
 3. If you have custom `DataSourceCallbackHandler` implementations, adjust the `doConnection` signature to take a `DBProfile` parameter;
 4. If you reference the framework internal utility classes listed in the table above, adjust the imports to their new package locations;
