@@ -7,7 +7,7 @@
 3. It makes use of sqltoy's **result-set algorithms** (data masking, formatting, pivot, group summary, etc.) to simplify writing queries/aggregations directly;
 4. It facilitates integration with external low-code frameworks (such as reporting platforms), enabling configuration-driven data query and processing.
 
-> Demo project: https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-nosql
+> Demo project: https://github.com/sagframe/sqltoy-showcase
 
 ## 1. Configuration
 
@@ -23,6 +23,10 @@ spring:
       username: sagframe
       password: sagframe
 ```
+
+> **Spring Boot 4 migration note**: since Boot 4 the connection properties moved from `spring.data.mongodb.*` to `spring.mongodb.*` (e.g. `spring.mongodb.uri`); projects crossing versions should set both.
+
+> Fully runnable example: `NoSqlTest` in `sqltoy-showcase` (a real MongoDB container via Testcontainers; the `<mql>` dynamic json query, `$in` array condition and `findPage` are verified end to end).
 
 Direct object operations (`@Document(collection="")`, `@Id`, `@Field` annotations + `MongoTemplate`) belong to the spring-data domain and are not covered here; sqltoy mainly takes care of **querying + Cache Translate + result-set algorithms**.
 

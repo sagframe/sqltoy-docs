@@ -7,7 +7,7 @@ sqltoy 集成 Elasticsearch 的出发点（同样适用于 MongoDB）：
 3. 利用 sqltoy 提供的**结果集算法**（脱敏、格式化、旋转、分组汇总等），简化直接写查询/聚合的复杂度；
 4. 便于与外部低代码框架（如报表平台）集成，实现配置化数据查询与处理。
 
-> 演示项目：https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-nosql
+> 演示项目：https://github.com/sagframe/sqltoy-showcase
 
 ## 一、配置 ES 节点
 
@@ -75,8 +75,9 @@ ES 查询用 `<eql>` 标签定义，支持两种模式：`mode="sql"`（SQL 模�
 不写 `mode` 即为原生 JSON 模式。此时动态条件用 `<#> ... </#>` 包裹（替代 SQL 模式的 `#[]`），参数用 `@(:paramName)` 引用：
 
 ```xml
-<!-- 当 _source 已提供字段时，fields 属性可留空 -->
-<eql id="sys_elastic_test_json" fields="" index="cc_company_info">
+<!-- fields 属性 与 查询体中的 _source 二选一:两者都没有时结果映射报错
+     (collection or property name array is empty) -->
+<eql id="sys_elastic_test_json" fields="company_id,company_name,company_type" index="cc_company_info">
     <!-- 依然可以使用 translate 缓存翻译，column 对应 _source 中定义的字段 -->
     <value><![CDATA[
         {
@@ -98,7 +99,7 @@ ES 查询用 `<eql>` 标签定义，支持两种模式：`mode="sql"`（SQL 模�
 | 属性 | 必填 | 说明 |
 | --- | --- | --- |
 | `id` | 是 | 查询唯一标识 |
-| `fields` | 是 | 最终 ES 返回 JSON 中需要提取的属性名（JSON 模式下若 `_source` 已含字段可留空） |
+| `fields` | 条件必填 | 最终 ES 返回 JSON 中需要提取的属性名。**与查询体中的 `_source` 二选一**（实测验证）：两者都不提供时触发 `collection or property name array is empty`（属性名数组为空）异常 |
 | `mode` | 否 | `sql`（SQL 模式）或 `original`（原生 JSON），缺省为原生 JSON |
 | `index` | 否 | 索引名（JSON 模式常用） |
 | `end-point` | 否 | 对应配置中的 endpoint id，缺省取第一个 |
@@ -146,3 +147,11 @@ List<CompanyInfoVO> jsonResult = (List<CompanyInfoVO>) lightDao.elastic()
 - **分页**：ES 原生 SQL 已支持 cursor 游标模式分页；elasticsearch-sql / opendistro 插件亦支持，可按需选择 `sqlPath`。
 - 多集群/多节点通过配置多个 `endpoints[n]` 实现，查询时可用 `end-point` 属性或 `.endPoint(id)` 指定。
 - 纯 CRUD 建议直接用 ES 官方客户端；sqltoy 的价值在于**动态条件 + 缓存翻译 + 结果集算法**的组合。
+
+## 四、接入注意事项（实测）
+
+1. **endpoint 的 `id` 必填**：`endpoints[0].id` 缺省不写会在 `SqlToyContext` 初始化时报 `getId()` 为 null 的 NPE，务必为每个 endpoint 显式设置 id（或配置 `default-id`）。
+2. **依赖**：sqltoy 的 ES 客户端（Rest5Client）基于 Apache HttpClient 5，项目需显式引入 `org.apache.httpcomponents.client5:httpclient5`（sqltoy 未传递该依赖）。
+3. **`fields` 或 `_source` 必须提供其一**：见 2.3 属性表说明——两者都缺时结果映射报 `collection or property name array is empty`。
+
+> 完整可运行示例：`sqltoy-showcase` 的 `NoSqlTest`（Testcontainers 起真实 ES 容器，`<eql>` json 模式动态查询实测）。

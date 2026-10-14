@@ -7,7 +7,7 @@ sqltoy's motivation for integrating Elasticsearch (equally applicable to MongoDB
 3. It makes use of sqltoy's **result-set algorithms** (data masking, formatting, pivot, group summary, etc.) to simplify writing queries/aggregations directly;
 4. It facilitates integration with external low-code frameworks (such as reporting platforms), enabling configuration-driven data query and processing.
 
-> Demo project: https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-nosql
+> Demo project: https://github.com/sagframe/sqltoy-showcase
 
 ## 1. Configuring ES Nodes
 
@@ -76,7 +76,9 @@ ES queries are defined with the `<eql>` tag; two modes are supported: `mode="sql
 Omitting `mode` gives the native JSON mode. Dynamic conditions are then wrapped with `<#> ... </#>` (instead of the `#[]` used in SQL mode), and parameters are referenced with `@(:paramName)`:
 
 ```xml
-<!-- The fields attribute can be left empty when _source already provides the fields -->
+<!-- fields and the _source inside the query body are INTERCHANGEABLE:
+     when neither is present, result mapping fails with
+     "collection or property name array is empty" -->
 <eql id="sys_elastic_test_json" fields="" index="cc_company_info">
     <!-- translate (Cache Translate) still works; column refers to the fields defined in _source -->
     <value><![CDATA[
@@ -99,7 +101,7 @@ Omitting `mode` gives the native JSON mode. Dynamic conditions are then wrapped 
 | Attribute | Required | Description |
 | --- | --- | --- |
 | `id` | Yes | Unique identifier of the query |
-| `fields` | Yes | Property names to extract from the JSON finally returned by ES (can be left empty in JSON mode if `_source` already contains the fields) |
+| `fields` | Conditionally | Property names to extract from the JSON finally returned by ES. **Either this or `_source` inside the query body must be present** (verified): when both are absent, mapping throws `collection or property name array is empty` |
 | `mode` | No | `sql` (SQL mode) or `original` (native JSON); defaults to native JSON |
 | `index` | No | Index name (commonly used in JSON mode) |
 | `end-point` | No | The endpoint id defined in the configuration; defaults to the first one |
@@ -147,3 +149,11 @@ The `elastic()` chain supports: `sql`, `names`, `values`, `entity`, `endPoint`, 
 - **Pagination**: ES native SQL already supports cursor-based pagination; the elasticsearch-sql / OpenDistro plugins support it as well — choose `sqlPath` as needed.
 - Multiple clusters/nodes are configured via multiple `endpoints[n]` entries; at query time, specify one with the `end-point` attribute or `.endPoint(id)`.
 - For pure CRUD, use the official ES client directly; sqltoy's value lies in the combination of **dynamic conditions + Cache Translate + result-set algorithms**.
+
+## 4. Integration notes (verified)
+
+1. **The endpoint `id` is mandatory**: omitting `endpoints[0].id` fails `SqlToyContext` initialization with an NPE on `getId()` — set an explicit id for every endpoint (or configure `default-id`).
+2. **Dependency**: sqltoy's ES client (Rest5Client) is built on Apache HttpClient 5 — add `org.apache.httpcomponents.client5:httpclient5` explicitly (sqltoy does not carry it transitively).
+3. **Provide either `fields` or `_source`**: see the attribute table in 2.3 — when both are absent, result mapping throws `collection or property name array is empty`.
+
+> Fully runnable example: `NoSqlTest` in `sqltoy-showcase` (a real ES container via Testcontainers; the `<eql>` json-mode dynamic query is verified end to end).

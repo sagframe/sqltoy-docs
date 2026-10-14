@@ -7,7 +7,7 @@
 3. 利用 sqltoy 提供的**结果集算法**（脱敏、格式化、旋转、分组汇总等），简化直接写查询/聚合的复杂度；
 4. 便于与外部低代码框架（如报表平台）集成，实现配置化数据查询与处理。
 
-> 演示项目：https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-nosql
+> 演示项目：https://github.com/sagframe/sqltoy-showcase
 
 ## 一、配置
 
@@ -23,6 +23,10 @@ spring:
       username: sagframe
       password: sagframe
 ```
+
+> **Spring Boot 4 迁移注意**：Boot 4 起连接属性从 `spring.data.mongodb.*` 迁移为 `spring.mongodb.*`（如 `spring.mongodb.uri`）；跨版本项目建议两者同时设置。
+
+> 完整可运行示例：`sqltoy-showcase` 的 `NoSqlTest`（Testcontainers 起真实 MongoDB 容器，`<mql>` 动态 json 查询、`$in` 数组条件、`findPage` 分页实测）。
 
 对象直接操作（`@Document(collection="")`、`@Id`、`@Field` 注解 + `MongoTemplate`）属于 spring-data 范畴，这里不展开；sqltoy 主要负责**查询 + 缓存翻译 + 结果集算法**。
 
