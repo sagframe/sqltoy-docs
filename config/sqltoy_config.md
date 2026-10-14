@@ -114,8 +114,9 @@ spring.sqltoy.functionConverts=default
 ```properties
 # 统一字段处理器：对 createBy/createTime/updateBy/updateTime 等做补漏性赋值(为空时才赋)
 spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
-# 非标准数据类型处理器(如 JSON)，详见类型扩展 TypeHandler
-spring.sqltoy.typeHandler=com.sqltoy.plugins.JSONTypeHandler
+# 自定义 TypeHandler(仅特殊场景!)。JSON/JSONB、vector、geometry 列和枚举类型
+# 框架均已内置处理、无需配置；此处仅用于真正特殊的值对象映射，如 Money(CNY,88000)<->"CNY:88000"
+spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
 # 查询返回 List<Map> 时，map 的 label 是否转驼峰，默认 true
 spring.sqltoy.humpMapResultTypeLabel=true
 # 获取 ResultSetMetaData 列标题的处理策略：default(不处理)/upper(转大写)/lower(转小写)
@@ -234,6 +235,7 @@ spring.sqltoy.debug=true
 spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 # 慢 sql 的时长标准定义
 spring.sqltoy.printSqlTimeoutMillis=3000
-# 非标准类型处理(如 JSON)，使用比例较低(枚举类型框架自动适配)
-spring.sqltoy.typeHandler=com.sqltoy.plugins.JSONTypeHandler
+# 自定义 TypeHandler(仅特殊场景!)。JSON/vector/geometry/枚举框架均已内置处理；
+# 此处仅用于特殊的值对象映射，完整演示见 sqltoy-showcase 的 CustomTypeHandlerTest
+spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
 ```

@@ -157,3 +157,29 @@ The `elastic()` chain supports: `sql`, `names`, `values`, `entity`, `endPoint`, 
 3. **Provide either `fields` or `_source`**: see the attribute table in 2.3 — when both are absent, result mapping throws `collection or property name array is empty`.
 
 > Fully runnable example: `NoSqlTest` in `sqltoy-showcase` (a real ES container via Testcontainers; the `<eql>` json-mode dynamic query is verified end to end).
+
+## 5. Secure connections (authentication and TLS)
+
+Production ES clusters usually run with security enabled (auth + TLS). sqltoy endpoints support the full connection-security set:
+
+```yaml
+spring:
+  sqltoy:
+    elastic:
+      endpoints[0]:
+        id: prod
+        url: https://es.prod.internal:9200
+        # basic auth
+        username: elastic
+        password: ${ES_PASSWORD}
+        # TLS: truststore for self-signed certificates
+        key-store: classpath:certs/es-truststore.p12
+        key-store-pass: ${ES_TRUSTSTORE_PASS}
+        key-store-type: PKCS12
+        key-store-self-sign: true
+        # auth caching (on by default, avoids re-authenticating per request)
+        auth-caching: true
+```
+
+> Full property list on `ElasticEndpoint` (id/url/username/password/keyStore*/requestTimeout, ...). The `NoSqlTest` demo intentionally runs a security-off container (`xpack.security.enabled=false`) for zero-friction testing; use the above for production.
+

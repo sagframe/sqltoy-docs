@@ -115,8 +115,10 @@ spring.sqltoy.functionConverts=default
 ```properties
 # Unified field assignment handler (unifyFieldsHandler): fills createBy/createTime/updateBy/updateTime etc. only when they are empty
 spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
-# Handler for non-standard data types (e.g. JSON); see the TypeHandler extension for details
-spring.sqltoy.typeHandler=com.sqltoy.plugins.JSONTypeHandler
+# Custom TypeHandler (SPECIAL cases only!). JSON/JSONB, vector, geometry columns
+# and enum conversion are all handled by the framework out of the box — no config needed;
+# this is only for genuinely special value objects, e.g. Money(CNY,88000) <-> "CNY:88000"
+spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
 # When queries return List<Map>, whether map labels are converted to camelCase, default true
 spring.sqltoy.humpMapResultTypeLabel=true
 # Strategy for obtaining ResultSetMetaData column labels: default (no processing)/upper (uppercase)/lower (lowercase)
@@ -235,6 +237,7 @@ spring.sqltoy.debug=true
 spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 # Definition of the duration standard for slow sql
 spring.sqltoy.printSqlTimeoutMillis=3000
-# Handling of non-standard types (e.g. JSON); used relatively rarely (enum types are adapted automatically by the framework)
-spring.sqltoy.typeHandler=com.sqltoy.plugins.JSONTypeHandler
+# Custom TypeHandler (SPECIAL cases only). JSON/vector/geometry/enum are built in;
+# only for special value objects — see CustomTypeHandlerTest in sqltoy-showcase
+spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
 ```

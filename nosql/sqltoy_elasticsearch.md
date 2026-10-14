@@ -155,3 +155,29 @@ List<CompanyInfoVO> jsonResult = (List<CompanyInfoVO>) lightDao.elastic()
 3. **`fields` 或 `_source` 必须提供其一**：见 2.3 属性表说明——两者都缺时结果映射报 `collection or property name array is empty`。
 
 > 完整可运行示例：`sqltoy-showcase` 的 `NoSqlTest`（Testcontainers 起真实 ES 容器，`<eql>` json 模式动态查询实测）。
+
+## 五、安全连接（认证与 TLS）
+
+生产环境的 ES 通常开启安全（认证 + TLS）。sqltoy 的 endpoint 支持完整的连接安全配置：
+
+```yaml
+spring:
+  sqltoy:
+    elastic:
+      endpoints[0]:
+        id: prod
+        url: https://es.prod.internal:9200
+        # Basic 认证
+        username: elastic
+        password: ${ES_PASSWORD}
+        # TLS:信任的证书库(自签证书场景)
+        key-store: classpath:certs/es-truststore.p12
+        key-store-pass: ${ES_TRUSTSTORE_PASS}
+        key-store-type: PKCS12
+        key-store-self-sign: true   # 自签证书
+        # 认证缓存(默认开启,避免每次请求重复认证)
+        auth-caching: true
+```
+
+> 完整属性见 `ElasticEndpoint`（id/url/username/password/keyStore*/requestTimeout 等）。演示项目 `NoSqlTest` 出于零门槛用了无安全容器（`xpack.security.enabled=false`），生产配置以上述为准。
+
