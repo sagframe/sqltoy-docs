@@ -1,13 +1,13 @@
 # 6.0 升级指南
 
-从 5.6.x 升级到 6.0.6（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
+从 5.6.x 升级到 6.0.7（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
 
 ## 一、环境要求
 
 | 项 | 要求 |
 | --- | --- |
 | JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.96.jre8`（最终 jre8 版本，支持 quickvo-maven-plugin 插件） |
-| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.6 |
+| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.7 |
 | 配置参数 | `spring.sqltoy.*` 在 6.0.2 的 58 个参数基础上新增 2 个：`realDialectFirst`（6.0.3 新增）、`ddlLowerOrUpper`（6.0.3 起暴露为 starter 属性），其余参数无增减，存量配置无需调整 |
 
 ## 二、API 变更（需要改代码）
@@ -127,16 +127,13 @@
 - xml 配置 sql、`@Sql` 注解 sql、代码 sql（`findBySql` 等）同样有效（统一解析管线）；不含宏的 sql 零影响（含 `@` 的普通 sql 如 email 不受影响）；
 - 展开发生在解析期并随 SqlToyConfig 固化（与函数/保留字转换同一时机），运行期零开销；`realDialectFirst` 场景宏按解析方言展开，运行期惰性层不再重复展开。
 
-**字段名列表拼接宏 @joinFields()（详见[补充说明：标签与表达式参考](../appendix/tags.md)）**
+**配套工具**
 
-- 面向页面配置化的报表与接口服务：由配置决定 `select` / `group by` / `order by` 的列。写法 `@joinFields(:fields,default)`，也可在 sql 里直写位置参数形态 `@joinFields(?,default)`——它与 `@value` 处于同一处理位置，命名参数转成 `?` 后两种写法完全等价，被消费的参数会从参数集合中剔除、不影响其余 `?` 的对位；
-- `fields` 为 null、空集合或全空白时输出 `default`；`default` 取自 sql 文本（开发者编写，可信）原样输出、不做标识符校验，因此可写 `t.*` 或 `sum(t.amount)`，含逗号或括号时用 `{}`、`''` 或 `""` 包裹；未提供 `default` 则输出空串；
-- 入参归一：单个字符串或长度为 1 的数组按逗号切割（页面多选常序列化成 `["a,b,c"]`），长度大于 1 时元素即字段、不做二次切割，因此 `["a,b","c"]` 会因 `"a,b"` 非法而报错，而不是被静默拆成三个字段；空白段跳过以容忍尾逗号；
-- 安全：字段名走字符白名单（字母含中文、数字、下划线，最多三段点号限定 `schema.table.column`），显式排除 `$` 与 `#`（与自身的 `#[]` 动态段和 `${}`/`#{}` 参数占位冲突）以及空白、引号、括号、分号、逗号、注释符、反斜杠；非法值直接抛异常并带上具体值，不做静默清洗（经 DAO 层会被包装成 `DataAccessException`，捕获时取根因）；
-- 合法字段按方言仅对**保留字**加引用符（mysql 系反引号、oracle/pg 系双引号、sqlserver 方括号），非保留字保持裸标识符，以规避 oracle/pg 上引号引入的大小写敏感；点号限定名逐段处理，`t.order` 的列段同样会被引用；
-- **前提**：保留字引用依赖 `spring.sqltoy.reservedWords` 配置，而该配置**无默认值**；未配置时保留字集合为空、`convertWord` 原样返回不加引用符，字段列表含保留字（`order`/`desc`/`level`/`group` 等）会产出裸标识符并被数据库拒绝——PostgreSQL、MySQL 9、SQL Server 2025 三库实测均报语法错误；
-- 只受理纯标识符，`sum(col)`、`col as alias` 这类表达式仍用 `@value`（安全自负）；运算符写法（`a % b`、`a || b`）不是函数调用，同样不在受理范围；
-- 已在 PostgreSQL、MySQL 9、SQL Server 2025 三个真实数据库上完成端到端验证（普通列、default 回退、group by 聚合、保留字列、注入拦截）。
+- 配套的 quickvo-maven-plugin 升级至 **2.0.3**。
+
+## 九、6.0.7 更新说明
+
+6.0.7 在 6.0.6 基础上进一步增强，同样为**增量能力，无需改动既有代码**：
 
 **JSON 库可插拔（JsonProvider SPI）**
 
@@ -148,13 +145,20 @@
 - core 的 jackson2 / jackson3 依赖均为 `provided + optional`，不传递给使用方；
 - 详见[配置说明](../config/sqltoy_config.md)与 [Elasticsearch](../nosql/sqltoy_elasticsearch.md)。
 
-**配套工具**
+**字段名列表拼接宏 @joinFields()（详见[补充说明：标签与表达式参考](../appendix/tags.md)）**
 
-- 配套的 quickvo-maven-plugin 升级至 **2.0.3**。
+- 面向页面配置化的报表与接口服务：由配置决定 `select` / `group by` / `order by` 的列。写法 `@joinFields(:fields,default)`，也可在 sql 里直写位置参数形态 `@joinFields(?,default)`——它与 `@value` 处于同一处理位置，命名参数转成 `?` 后两种写法完全等价，被消费的参数会从参数集合中剔除、不影响其余 `?` 的对位；
+- `fields` 为 null、空集合或全空白时输出 `default`；`default` 取自 sql 文本（开发者编写，可信）原样输出、不做标识符校验，因此可写 `t.*` 或 `sum(t.amount)`，含逗号或括号时用 `{}`、`''` 或 `""` 包裹；未提供 `default` 则输出空串；
+- 入参归一：单个字符串或长度为 1 的数组按逗号切割（页面多选常序列化成 `["a,b,c"]`），长度大于 1 时元素即字段、不做二次切割，因此 `["a,b","c"]` 会因 `"a,b"` 非法而报错，而不是被静默拆成三个字段；空白段跳过以容忍尾逗号；
+- 安全：字段名走字符白名单（字母含中文、数字、下划线，最多三段点号限定 `schema.table.column`），显式排除 `$` 与 `#`（与自身的 `#[]` 动态段和 `${}`/`#{}` 参数占位冲突）以及空白、引号、括号、分号、逗号、注释符、反斜杠；非法值直接抛异常并带上具体值，不做静默清洗（经 DAO 层会被包装成 `DataAccessException`，捕获时取根因）；
+- 合法字段按方言仅对**保留字**加引用符（mysql 系反引号、oracle/pg 系双引号、sqlserver 方括号），非保留字保持裸标识符，以规避 oracle/pg 上引号引入的大小写敏感；点号限定名逐段处理，`t.order` 的列段同样会被引用；
+- **前提**：保留字引用依赖 `spring.sqltoy.reservedWords` 配置，而该配置**无默认值**；未配置时保留字集合为空、`convertWord` 原样返回不加引用符，字段列表含保留字（`order`/`desc`/`level`/`group` 等）会产出裸标识符并被数据库拒绝——PostgreSQL、MySQL 9、SQL Server 2025 三库实测均报语法错误；
+- 只受理纯标识符，`sum(col)`、`col as alias` 这类表达式仍用 `@value`（安全自负）；运算符写法（`a % b`、`a || b`）不是函数调用，同样不在受理范围；
+- 已在 PostgreSQL、MySQL 9、SQL Server 2025 三个真实数据库上完成端到端验证（普通列、default 回退、group by 聚合、保留字列、注入拦截）。
 
-## 九、升级步骤建议
+## 十、升级步骤建议
 
-1. 依赖版本号统一升级为 6.0.6（starter / spring / solon-plugin 与 core 同版本）；
+1. 依赖版本号统一升级为 6.0.7（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；

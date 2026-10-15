@@ -127,7 +127,7 @@ List result = lightDao.find(sql,
               .values(1, 12, "and sale_count>:saleCount"));
 ```
 
-## 8. @joinFields()
+## 8. @joinFields() (new in 6.0.7)
 
 Joins a runtime-supplied **list of field names** into a SQL identifier list — for page-configurable reports and API services where the configuration decides the `select` / `group by` / `order by` columns.
 

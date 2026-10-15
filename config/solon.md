@@ -9,7 +9,7 @@ sqltoy 通过独立的 `sagacity-sqltoy-solon-plugin` 模块支持 [Solon](https
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
     <!-- 与 core 保持同版本号 -->
-    <version>6.0.4</version>
+    <version>6.0.7</version>
 </dependency>
 ```
 

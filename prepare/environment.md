@@ -10,7 +10,7 @@
 | 连接池 | Druid、HikariCP 等任意连接池（sqltoy 不绑定连接池） |
 
 > [!NOTE]
-> 版本号请以 [Maven Central](https://mvnrepository.com/artifact/com.sagframe/sagacity-sqltoy) 最新版为准，本文以 `6.0.4` 为例。
+> 版本号请以 [Maven Central](https://mvnrepository.com/artifact/com.sagframe/sagacity-sqltoy) 最新版为准，本文以 `6.0.7` 为例。
 
 ## 二、引入依赖
 
@@ -22,7 +22,7 @@
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring-starter</artifactId>
-    <version>6.0.4</version>
+    <version>6.0.7</version>
 </dependency>
 ```
 
@@ -32,7 +32,7 @@
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring</artifactId>
-    <version>6.0.4</version>
+    <version>6.0.7</version>
 </dependency>
 ```
 
@@ -42,7 +42,7 @@
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-    <version>6.0.4</version>
+    <version>6.0.7</version>
 </dependency>
 ```
 

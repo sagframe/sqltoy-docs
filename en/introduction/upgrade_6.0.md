@@ -1,13 +1,13 @@
 # Upgrade to 6.0.x
 
-Changes and notes for upgrading from 5.6.x to 6.0.6 (the 6.0 line). All changes have been verified against the 6.0 source code.
+Changes and notes for upgrading from 5.6.x to 6.0.7 (the 6.0 line). All changes have been verified against the 6.0 source code.
 
 ## 1. Environment Requirements
 
 | Item | Requirement |
 | --- | --- |
 | JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
-| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.6 |
+| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.7 |
 | Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged, and existing configuration files need no adjustment |
 
 ## 2. API Changes (Code Changes Required)
@@ -127,16 +127,13 @@ Changes and notes for upgrading from 5.6.x to 6.0.6 (the 6.0 line). All changes 
 - Works in xml-configured SQL, `@Sql` annotation SQL and code SQL (`findBySql` etc.) alike (unified parse pipeline); SQL without the macro is completely unaffected (plain SQL containing `@` such as emails is not touched);
 - Expansion happens at parse time and is solidified with SqlToyConfig (same timing as function/reserved-word conversion), zero runtime overhead; with `realDialectFirst` the macro is expanded by the parse dialect — the runtime lazy layer does not re-expand it.
 
-**Field-list joining macro @joinFields() (see [Tags & Expressions](../appendix/tags.md))**
+**Companion tooling**
 
-- For page-configurable reports and API services where the configuration decides the `select` / `group by` / `order by` columns. Written as `@joinFields(:fields,default)`, or directly in positional form `@joinFields(?,default)` — it is processed at the same stage as `@value`, so once named parameters have become `?` the two forms are exactly equivalent; the consumed parameter is removed from the parameter set, leaving the remaining `?` placeholders aligned;
-- When `fields` is null, empty or all-blank, `default` is emitted. `default` comes from the SQL text (author-written, trusted) and is emitted verbatim without identifier validation, so it may be `t.*` or `sum(t.amount)`; wrap it with `{}`, `''` or `""` when it contains commas or parentheses. Without a `default` the result is an empty string;
-- Input normalization: a single string or a 1-element array is split on commas (page multi-selects often serialize to `["a,b,c"]`); with more than one element the elements are the fields and no further splitting occurs, so `["a,b","c"]` fails on `"a,b"` instead of being silently split into three fields; blank fragments are skipped to tolerate trailing commas;
-- Security: field names go through a character whitelist (letters including Chinese, digits, underscore, at most two dots for `schema.table.column`). `$` and `#` are explicitly excluded (they collide with the `#[]` dynamic segments and the `${}`/`#{}` placeholders), as are whitespace, quotes, brackets, parentheses, semicolons, commas, comment markers and backslashes. An illegal value throws immediately and names the offending value — it is never silently sanitized (the DAO layer wraps it into a `DataAccessException`, so inspect the root cause when catching);
-- Legal fields are quoted per dialect **only when reserved words** (backticks for the mysql family, double quotes for oracle/pg, square brackets for sqlserver); non-reserved identifiers stay bare, avoiding the case sensitivity that quoting introduces on oracle/pg. Dotted names are handled segment by segment, so the column part of `t.order` is quoted too;
-- **Prerequisite**: reserved-word quoting depends on the `spring.sqltoy.reservedWords` configuration, which has **no default**. Without it the reserved-word set is empty and `convertWord` returns names unchanged, so a field list containing a reserved word (`order`/`desc`/`level`/`group` ...) produces a bare identifier that the database rejects — verified to raise a syntax error on PostgreSQL, MySQL 9 and SQL Server 2025;
-- Plain identifiers only: expressions such as `sum(col)` or `col as alias` still belong to `@value` (safety then on you); operator forms (`a % b`, `a || b`) are not function calls and are likewise out of scope;
-- Verified end to end against three real databases — PostgreSQL, MySQL 9 and SQL Server 2025 (plain columns, default fallback, group-by aggregation, reserved-word columns, injection rejection).
+- The companion quickvo-maven-plugin is upgraded to **2.0.3**.
+
+## 9. What's New in 6.0.7
+
+6.0.7 builds on 6.0.6 with further enhancements — likewise **incremental, requiring no changes to existing code**:
 
 **Pluggable JSON library (JsonProvider SPI)**
 
@@ -148,13 +145,20 @@ Changes and notes for upgrading from 5.6.x to 6.0.6 (the 6.0 line). All changes 
 - The jackson2 / jackson3 dependencies in core are both `provided + optional` and are not transitive;
 - See [Configuration](../config/sqltoy_config.md) and [Elasticsearch](../nosql/sqltoy_elasticsearch.md).
 
-**Companion tooling**
+**Field-list joining macro @joinFields() (see [Tags & Expressions](../appendix/tags.md))**
 
-- The companion quickvo-maven-plugin is upgraded to **2.0.3**.
+- For page-configurable reports and API services where the configuration decides the `select` / `group by` / `order by` columns. Written as `@joinFields(:fields,default)`, or directly in positional form `@joinFields(?,default)` — it is processed at the same stage as `@value`, so once named parameters have become `?` the two forms are exactly equivalent; the consumed parameter is removed from the parameter set, leaving the remaining `?` placeholders aligned;
+- When `fields` is null, empty or all-blank, `default` is emitted. `default` comes from the SQL text (author-written, trusted) and is emitted verbatim without identifier validation, so it may be `t.*` or `sum(t.amount)`; wrap it with `{}`, `''` or `""` when it contains commas or parentheses. Without a `default` the result is an empty string;
+- Input normalization: a single string or a 1-element array is split on commas (page multi-selects often serialize to `["a,b,c"]`); with more than one element the elements are the fields and no further splitting occurs, so `["a,b","c"]` fails on `"a,b"` instead of being silently split into three fields; blank fragments are skipped to tolerate trailing commas;
+- Security: field names go through a character whitelist (letters including Chinese, digits, underscore, at most two dots for `schema.table.column`). `$` and `#` are explicitly excluded (they collide with the `#[]` dynamic segments and the `${}`/`#{}` placeholders), as are whitespace, quotes, brackets, parentheses, semicolons, commas, comment markers and backslashes. An illegal value throws immediately and names the offending value — it is never silently sanitized (the DAO layer wraps it into a `DataAccessException`, so inspect the root cause when catching);
+- Legal fields are quoted per dialect **only when reserved words** (backticks for the mysql family, double quotes for oracle/pg, square brackets for sqlserver); non-reserved identifiers stay bare, avoiding the case sensitivity that quoting introduces on oracle/pg. Dotted names are handled segment by segment, so the column part of `t.order` is quoted too;
+- **Prerequisite**: reserved-word quoting depends on the `spring.sqltoy.reservedWords` configuration, which has **no default**. Without it the reserved-word set is empty and `convertWord` returns names unchanged, so a field list containing a reserved word (`order`/`desc`/`level`/`group` ...) produces a bare identifier that the database rejects — verified to raise a syntax error on PostgreSQL, MySQL 9 and SQL Server 2025;
+- Plain identifiers only: expressions such as `sum(col)` or `col as alias` still belong to `@value` (safety then on you); operator forms (`a % b`, `a || b`) are not function calls and are likewise out of scope;
+- Verified end to end against three real databases — PostgreSQL, MySQL 9 and SQL Server 2025 (plain columns, default fallback, group-by aggregation, reserved-word columns, injection rejection).
 
-## 9. Recommended Upgrade Steps
+## 10. Recommended Upgrade Steps
 
-1. Upgrade the dependency version numbers uniformly to 6.0.6 (starter / spring / solon-plugin use the same version as core);
+1. Upgrade the dependency version numbers uniformly to 6.0.7 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);
 3. If you have custom `DataSourceCallbackHandler` implementations, adjust the `doConnection` signature to take a `DBProfile` parameter;
 4. If you reference the framework internal utility classes listed in the table above, adjust the imports to their new package locations;

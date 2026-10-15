@@ -125,7 +125,7 @@ List result = lightDao.find(sql,
               .values(1, 12, "and sale_count>:saleCount"));
 ```
 
-## 八、@joinFields()
+## 八、@joinFields()（6.0.7 新增）
 
 把运行期传入的**字段名列表**拼成 SQL 标识符串，用于页面配置化的报表与接口服务（由配置决定 `select` / `group by` / `order by` 的列）。
 
