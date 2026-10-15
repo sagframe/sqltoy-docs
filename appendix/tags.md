@@ -59,6 +59,8 @@
 
 典型用法：`@value(:sqlScript)` 直接把代码中组织好的 SQL 片段嵌入进来，应对超复杂动态 SQL。
 
+> **注意**：`@value` 注入的是未经校验的文本。若只是要拼接**字段名列表**（页面配置化的报表/接口服务按配置决定 select、group by、order by 的列），请改用第八节的 `@joinFields()`——它带字段名白名单校验与按方言的保留字引用。
+
 ## 五、@loop() / @secure-loop() / @loop-full() / @secure-loop-full()
 
 用于 SQL 动态循环拼接字段、条件，一般针对数组或集合，**不适用于 in 场景**（in 直接用 `in (:param)` 即可）。
@@ -121,6 +123,65 @@ String sql = "select * from sqltoy_fruit_order where status=:status @include(:sq
 List result = lightDao.find(sql,
         MapKit.keys("status", "saleCount", "sqlScript")
               .values(1, 12, "and sale_count>:saleCount"));
+```
+
+## 八、@joinFields()
+
+把运行期传入的**字段名列表**拼成 SQL 标识符串，用于页面配置化的报表与接口服务（由配置决定 `select` / `group by` / `order by` 的列）。
+
+**格式：**
+
+```text
+@joinFields(:fields)
+@joinFields(:fields, default)
+@joinFields(?, default)
+```
+
+- 与 `@value` 处于同一处理位置（命名参数已转成 `?` 之后按位置取值），因此 `@joinFields(:fields,...)` 与在 SQL 里直写 `@joinFields(?,...)` 完全等价；被消费的参数会从参数集合中剔除，不影响其余 `?` 的对位。
+- `fields` 为 null、空集合或全空白时输出 `default`；未提供 `default` 则输出空串。
+- `default` 取自 SQL 文本（开发者编写，可信），原样输出、不做标识符校验，因此可以写 `t.*`、`sum(t.amount)` 这类表达式；含逗号或括号时用 `{}`、`''` 或 `""` 包裹，如 `@joinFields(:fields,{a.id,a.code})`。
+
+**入参归一规则：**
+
+| 传入形态 | 处理 |
+|---|---|
+| 单个字符串 `"a,b,c"` | 按逗号切割成 3 个字段 |
+| 长度为 1 的数组 `["a,b,c"]` | 同上（页面多选常序列化成这种形态） |
+| 长度 > 1 的数组 `["a","b"]` | 元素即字段，**不做二次切割** |
+| 长度 > 1 且某元素含逗号 `["a,b","c"]` | 报错，不静默拆分 |
+| 空白段（如尾逗号 `"a,b,"`） | 跳过 |
+
+**安全：** 字段名走字符白名单——字母（含中文）、数字、下划线，最多三段点号限定（`schema.table.column`）；显式排除 `$` 与 `#`（与 `#[]` 动态段和 `${}`/`#{}` 参数占位冲突），以及空白、引号、括号、分号、逗号、注释符、反斜杠。非法值**直接抛异常并带上具体值**，不做静默清洗。合法字段再按方言对**保留字**加引用符（mysql 系反引号、oracle/pg 系双引号、sqlserver 方括号），非保留字保持裸标识符，避免 oracle/pg 上引号引入的大小写敏感问题。
+
+**只受理纯标识符**：`sum(col)`、`col as alias` 这类表达式请继续用 `@value`（安全自负）。
+
+**前提：保留字引用依赖 `spring.sqltoy.reservedWords` 配置，而该配置没有默认值。** 未配置时保留字集合为空，`ReservedWordsUtil.convertWord` 会原样返回、不加任何引用符，于是字段列表里含保留字（`order`、`desc`、`level`、`group` 等）时会产出裸标识符并被数据库拒绝——三库实测均报错：PostgreSQL `ERROR: syntax error at or near ","`（`select order,staff_code` 里的 `order` 被当成 `ORDER BY` 关键字解析）、MySQL `You have an error in your SQL syntax`、SQL Server `Incorrect syntax near the keyword 'order'`。因此**若字段名可能命中保留字，必须配置保留字词表**：
+
+```properties
+spring.sqltoy.reservedWords=order,desc,level,group,key,comment
+```
+
+配置后同一查询在三个库上分别产出 `select "order",staff_code`（PG）、``select `order`,staff_code``（MySQL）、`select [order],staff_code`（SQL Server），实测均正常执行并取回列值。
+
+另外，字段名校验失败抛出的 `IllegalArgumentException` 经 DAO 层会被统一包装成 `DataAccessException`，捕获时请取根因（`getCause()` 链末端），异常信息里带有具体的非法值。
+
+**约束：** 与 `@loop` 等宏一样，SQL 完全没有任何参数时会提前返回、宏不展开；实际报表场景总有 `:fields`，故不受影响。
+
+**示例：**
+
+```xml
+<sql id="report_columns">
+	select @joinFields(:cols,{t.*}),count(1) total
+	from sqltoy_staff_info t
+	#[where t.status=:status]
+	group by @joinFields(:cols,{t.organ_id})
+</sql>
+```
+
+```java
+// 由页面配置决定展示与分组哪些列
+List result = lightDao.find("report_columns",
+        MapKit.keys("cols", "status").values("organ_id,dept_id", 1));
 ```
 
 ---

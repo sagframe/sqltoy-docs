@@ -59,6 +59,8 @@ Invents a parameter for statements that are not conditions themselves, so they f
 
 Typical usage: `@value(:sqlScript)` embeds a SQL fragment assembled in code, handling ultra-complex dynamic SQL.
 
+> **Note**: `@value` injects text without validation. When all you need is to join a **list of field names** (page-configurable reports/API services where the configuration decides the select, group by and order by columns), use `@joinFields()` in section 8 instead — it validates field names against a whitelist and quotes reserved words per dialect.
+
 ## 5. @loop() / @secure-loop() / @loop-full() / @secure-loop-full()
 
 Used to dynamically loop-concatenate fields or conditions in SQL, generally over arrays or collections; **not intended for in scenarios** (just use `in (:param)` directly for those).
@@ -123,6 +125,65 @@ String sql = "select * from sqltoy_fruit_order where status=:status @include(:sq
 List result = lightDao.find(sql,
         MapKit.keys("status", "saleCount", "sqlScript")
               .values(1, 12, "and sale_count>:saleCount"));
+```
+
+## 8. @joinFields()
+
+Joins a runtime-supplied **list of field names** into a SQL identifier list — for page-configurable reports and API services where the configuration decides the `select` / `group by` / `order by` columns.
+
+**Formats:**
+
+```text
+@joinFields(:fields)
+@joinFields(:fields, default)
+@joinFields(?, default)
+```
+
+- Processed at the same stage as `@value` (after named parameters have become `?`, resolved positionally), so `@joinFields(:fields,...)` and writing `@joinFields(?,...)` directly in the SQL are equivalent; the consumed parameter is removed from the parameter set, so the remaining `?` placeholders stay aligned.
+- When `fields` is null, empty or all-blank, `default` is emitted; without a `default` the result is an empty string.
+- `default` comes from the SQL text (author-written, trusted) and is emitted verbatim without identifier validation, so it may be an expression such as `t.*` or `sum(t.amount)`; wrap it with `{}`, `''` or `""` when it contains commas or parentheses, e.g. `@joinFields(:fields,{a.id,a.code})`.
+
+**Input normalization:**
+
+| Input shape | Handling |
+|---|---|
+| a single string `"a,b,c"` | split on commas into 3 fields |
+| a 1-element array `["a,b,c"]` | same (page multi-selects often serialize this way) |
+| an array with more than 1 element `["a","b"]` | elements are the fields, **no further splitting** |
+| more than 1 element where one contains a comma `["a,b","c"]` | rejected, never silently split |
+| blank fragments (e.g. a trailing comma `"a,b,"`) | skipped |
+
+**Security:** field names go through a character whitelist — letters (including Chinese), digits, underscore, and at most two dots for qualification (`schema.table.column`). `$` and `#` are explicitly excluded (they collide with the `#[]` dynamic segments and the `${}`/`#{}` parameter placeholders), as are whitespace, quotes, brackets, parentheses, semicolons, commas, comment markers and backslashes. An illegal value **throws immediately and names the offending value** — it is never silently sanitized. Legal fields are then quoted per dialect **only when they are reserved words** (backticks for the mysql family, double quotes for oracle/pg, square brackets for sqlserver); non-reserved identifiers stay bare, which avoids the case-sensitivity that quoting would introduce on oracle/pg.
+
+**Plain identifiers only**: for expressions such as `sum(col)` or `col as alias` keep using `@value` (safety is then on you).
+
+**Prerequisite: reserved-word quoting depends on the `spring.sqltoy.reservedWords` configuration, which has no default.** When it is not set the reserved-word set is empty, so `ReservedWordsUtil.convertWord` returns the name unchanged without any quoting; a field list containing a reserved word (`order`, `desc`, `level`, `group`, ...) then produces a bare identifier that the database rejects — verified to fail on three databases: PostgreSQL `ERROR: syntax error at or near ","` (the `order` in `select order,staff_code` is parsed as the `ORDER BY` keyword), MySQL `You have an error in your SQL syntax`, and SQL Server `Incorrect syntax near the keyword 'order'`. So **configure the reserved-word list whenever field names may hit one**:
+
+```properties
+spring.sqltoy.reservedWords=order,desc,level,group,key,comment
+```
+
+With it configured the same query renders as `select "order",staff_code` on PostgreSQL, ``select `order`,staff_code`` on MySQL and `select [order],staff_code` on SQL Server — all three were verified to execute and return the column values.
+
+Also note that the `IllegalArgumentException` thrown on validation failure is wrapped into a `DataAccessException` by the DAO layer, so look at the root cause (the end of the `getCause()` chain) when catching it; the message carries the offending value.
+
+**Constraint:** as with `@loop` and the other macros, when the SQL has no parameters at all it returns early and the macro is not expanded; real report queries always have `:fields`, so this does not bite in practice.
+
+**Example:**
+
+```xml
+<sql id="report_columns">
+	select @joinFields(:cols,{t.*}),count(1) total
+	from sqltoy_staff_info t
+	#[where t.status=:status]
+	group by @joinFields(:cols,{t.organ_id})
+</sql>
+```
+
+```java
+// the page configuration decides which columns to select and group by
+List result = lightDao.find("report_columns",
+        MapKit.keys("cols", "status").values("organ_id,dept_id", 1));
 ```
 
 ---

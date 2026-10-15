@@ -320,6 +320,6 @@ Don't be intimidated by the "full landscape" above — everyday SQL is usually j
 
 ## 6. Related Advanced Syntax
 
-- Macro directives such as `@if()`/`@elseif()`/`@else`, `@fast`, `@blank()`, `@value()`, `@loop()`/`@secure-loop()`, `@include(sqlId)`, `@include(:scriptParam)` are covered in [Tags & Expressions](../appendix/tags.md).
+- Macro directives such as `@if()`/`@elseif()`/`@else`, `@fast`, `@blank()`, `@value()`, `@loop()`/`@secure-loop()`, `@include(sqlId)`, `@include(:scriptParam)`, `@joinFields()` (safe field-list joining for page-configurable reports) are covered in [Tags & Expressions](../appendix/tags.md).
 - More practical patterns (dynamic `@include`, configuration-driven SQL integration, slow SQL statistics, etc.) are covered in [SQL Showcase](sql_showcase.md).
 - Query APIs (findOne/find/findPage/findTop/findRandom/getValue/isUnique, etc.) are covered in [Query API](sqltoy_query.md).

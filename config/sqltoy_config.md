@@ -117,9 +117,14 @@ spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 # 自定义 TypeHandler(仅特殊场景!)。JSON/JSONB、vector、geometry 列和枚举类型
 # 框架均已内置处理、无需配置；此处仅用于真正特殊的值对象映射，如 Money(CNY,88000)<->"CNY:88000"
 spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
-# JSON 列的底层 JSON 库可插拔:缺省按 classpath 自动探测 fastjson2 -> jackson3 -> jackson2,
-# 三者皆无时触及 JSON 列会给出明确指引(而非 NoClassDefFoundError);也可显式指定实现类
+# JSON 列的底层 JSON 库可插拔:缺省按 classpath 自动探测 fastjson2 -> jackson3 -> jackson2。
+# 探测到的库还要先通过一次冒烟解析才会被采纳——库在 classpath 上不代表可用(例如 jackson3 的
+# databind 需要 jackson-annotations 2.20+,若被仲裁成更旧版本会抛 NoSuchFieldError),不可用时
+# 记 WARN 并降级到下一个候选;皆不可用时触及 JSON 列会给出明确指引(而非 NoClassDefFoundError)。
+# 需要固定用某个库时显式指定(例如 fastjson2 与 jackson 同时在 classpath 上但只想用 jackson):
+# 取值可以是内置别名 fastjson2 / jackson3 / jackson2,也可以是自定义实现的全限定类名
 # (实现 org.sagacity.sqltoy.plugins.json.JsonProvider 接口)
+#spring.sqltoy.jsonProvider=jackson2
 #spring.sqltoy.jsonProvider=com.xxx.MyJsonProvider
 # 查询返回 List<Map> 时，map 的 label 是否转驼峰，默认 true
 spring.sqltoy.humpMapResultTypeLabel=true

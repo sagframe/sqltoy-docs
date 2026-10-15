@@ -22,7 +22,7 @@ sqltoy 以直观的动态 sql 编写模式为起点，融合 JPA 对象化操作
 
 | 特性 | 说明 | 详见 |
 | --- | --- | --- |
-| 动态 SQL | `#[]` 条件片段 + `@if/@loop/@include` 宏 + filters 参数规整；带动态片段的 SQL 可直接在数据库客户端执行调试 | [动态 SQL](../query/dynamic_sql.md) |
+| 动态 SQL | `#[]` 条件片段 + `@if/@loop/@include/@joinFields` 宏 + filters 参数规整；带动态片段的 SQL 可直接在数据库客户端执行调试 | [动态 SQL](../query/dynamic_sql.md) |
 | filters 过滤器 | eq/between/to-date/to-number/split/primary（首要参数）/cache-arg（缓存反向匹配替代 like）等 20+ 种 | [动态 SQL](../query/dynamic_sql.md) |
 | 多形态查询 API | findOne / find / findPage / findTop / findRandom / getValue / getCount / isUnique / loadByQuery / findEntity（单表 EntityQuery 快捷查询） | [常规查询 API](../query/sqltoy_query.md) |
 | 缓存翻译 | 码值→名称免 join；API 直取缓存供下拉框等组件；反向匹配 key；支持条件翻译、多值拆分、租户隔离、i18n；超大规模数据按需动态加载只保留常用数据 | [缓存翻译使用](../quickstart/translates.md) |

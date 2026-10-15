@@ -158,6 +158,82 @@ public class Trim extends IFunction {
 
 > 上述新增/扩充函数均经多数据库真库探针验证；无法安全转换的形态（如目标库不支持的聚合排序）保持"响亮保留"，原样交由目标库报错，避免静默错值。
 
+### 1.3 自行扩展函数适配（开发者侧，无需框架改动）
+
+内置的 28 个函数覆盖的是**跨库写法存在差异**的常见函数。项目里遇到框架没适配的函数——数据库私有函数、行业专用函数、某个库新引入的函数——**由项目开发者自行扩展即可，不需要等框架层面支持**：实现 `IFunction` 并通过 `functionConverts` 挂载，与内置函数走的是完全同一套机制。
+
+**契约（`org.sagacity.sqltoy.plugins.function.IFunction`）**
+
+| 方法 | 作用 | 返回约定 |
+|---|---|---|
+| `dialects()` | 声明本函数适配哪些方言 | `ALL`（即空串）表示全部方言；否则用逗号或分号分隔**精确枚举**方言名 |
+| `regex()` | 匹配 SQL 中的函数调用 | `Pattern`，用于定位待改写的函数 |
+| `wrap(dialect, functionName, hasArgs, args...)` | 产出目标方言的 SQL | 返回改写后的片段；返回 `IGNORE`（即 null）表示**原样透传** |
+| `wrapArgs(functionName, args...)` | 受保护的便捷方法 | 按“函数名不变、仅重新拼接参数”这一最常见形态生成结果 |
+
+**最小示例：只有 SQL Server 需要改写，其余库原生透传**（内置 `Mod` 的实现）
+
+```java
+public class Mod extends IFunction {
+	// 开头的 \W 防止把 ltrim( 之类误命中成 trim(，(?i) 保证大小写不敏感
+	private static Pattern regex = Pattern.compile("(?i)\\Wmod\\(");
+
+	@Override
+	public String dialects() {
+		return ALL;
+	}
+
+	@Override
+	public Pattern regex() {
+		return regex;
+	}
+
+	@Override
+	public String wrap(int dialect, String functionName, boolean hasArgs, String... args) {
+		if (args == null || args.length < 2) {
+			return super.IGNORE;
+		}
+		// sqlserver 无 mod 函数(真库实测)，由 % 运算符承担；其余全库原生透传
+		if (dialect == DBType.SQLSERVER) {
+			return "(" + args[0].trim() + " % " + args[1].trim() + ")";
+		}
+		return super.IGNORE;
+	}
+}
+```
+
+**必须注意的几点**
+
+1. `regex()` 要以 `\W` 开头、以 `\(` 结尾，如 `(?i)\Wmod\(`。开头的 `\W` 防止子串误命中，`(?i)` 保证大小写不敏感。
+2. `dialects()` 是**按逗号/分号切分后逐项精确比对**，不是子串包含匹配——子串匹配有双向偏差（声明 `oracle11` 会被当前方言 `oracle` 误命中，声明 `oracle` 又匹配不上方言 `oracle11`）。所以自定义函数必须显式枚举要适配的方言名。
+3. 匹配是在**字面量掩码后的 SQL** 上进行的，因此字符串常量里出现的同名文本不会被误改写。
+4. `wrap` 的 `args` 是已切分好的参数表达式原文，可能带空白，拼接前建议 `trim()`。
+5. **只能改写函数名形态**。运算符写法（如 SQL Server 的 `a % b`、Oracle 的 `a || b`）不是函数调用，正则框架捕获不到，因此不在适配范围内——跨库 SQL 请统一写函数形态（`mod(a,b)`、`concat(a,b)`），可移植性最好。
+6. 绝大多数情况下 `wrap` 应当对“本来就原生支持该函数的库”返回 `IGNORE`，只改写真正有差异的方言。无差别改写会破坏原生行为。
+
+**覆盖内置实现**
+
+`functionConverts` 按函数名去重，且 `default` 展开的内置函数**排在自定义之后加载**，因此自定义的同名实现会覆盖内置的：
+
+```properties
+# 用自己的 Nvl 覆盖内置 Nvl，其余内置函数照常生效
+spring.sqltoy.functionConverts=default,com.yourpackage.Nvl
+```
+
+类名简写（`Nvl`、`Instr`）只在框架自带的 impl 包内解析，自定义实现请写全限定类名。
+
+**进阶：尾部子句钩子**
+
+少数函数的方言差异不在括号内，而在闭括号之后紧邻的附属子句上，例如聚合的 `within group (order by ...)`、`find_in_set(x,y) > 0` 这类布尔口径。这类场景用三个可选钩子：
+
+- `suffixPattern()`：尾部子句的匹配 pattern，须以 `\s*` 开头承担间隔空白、以 `\(*` 结尾；返回 null（默认）表示本函数不消费尾部子句
+- `suffixNeedsParen()`：true（默认）按平衡括号消费整个子句；false 按 pattern 命中长度消费，用于 `>0`/`=0` 这类裸操作符子句
+- `wrapWithSuffix(dialect, functionName, suffix, args...)`：命中后的处理入口，`suffix` 是子句原文（含前导空白）；返回 `IGNORE` 表示连同子句原样保留
+
+**什么时候不该扩展函数，而该用方言 sqlId**
+
+如果差异不是“同一个函数换个写法”，而是**整条 SQL 的结构不同**（分页语法、递归 CTE 写法、upsert 语义、窗口函数支持度），函数改写解决不了，应当用 `sqlId_dialect` / `dialect_sqlId` 变体或 `<sql dialect="xxx">` 属性，见第 2 节。
+
 ## 2. 通过sqlId+dialect模式
 * 可针对特定数据库写sql,sqltoy根据数据库类型获取实际执行sql,顺序为: dialect_sqlId->sqlId_dialect->sqlId， 如数据库为mysql,调用sqlId:sqltoy_showcase,则实际执行:sqltoy_showcase_mysql
 

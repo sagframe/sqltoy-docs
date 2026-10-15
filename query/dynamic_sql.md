@@ -320,6 +320,6 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 
 ## 六、相关高级语法
 
-- `@if()`/`@elseif()`/`@else`、`@fast`、`@blank()`、`@value()`、`@loop()`/`@secure-loop()`、`@include(sqlId)`、`@include(:scriptParam)` 等宏指令，见[补充说明：标签与表达式参考](../appendix/tags.md)。
+- `@if()`/`@elseif()`/`@else`、`@fast`、`@blank()`、`@value()`、`@loop()`/`@secure-loop()`、`@include(sqlId)`、`@include(:scriptParam)`、`@joinFields()`（字段名列表安全拼接，页面配置化报表用）等宏指令，见[补充说明：标签与表达式参考](../appendix/tags.md)。
 - 更多实战写法（动态 `@include`、配置驱动 SQL 集成、慢 SQL 统计等）见[常见 SQL 案例](sql_showcase.md)。
 - 查询 API（findOne/find/findPage/findTop/findRandom/getValue/isUnique 等）见[常规查询 API](sqltoy_query.md)。

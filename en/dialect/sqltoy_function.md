@@ -158,6 +158,83 @@ public class Trim extends IFunction {
 
 > All the above additions/expansions are verified by real-database probing across multiple databases; forms that cannot be converted safely (e.g. aggregate ordering unsupported by the target) are kept "loud" — passed through as-is for the target database to error on, avoiding silent wrong values.
 
+### 1.3 Extending function adaptation yourself (application side, no framework change needed)
+
+The 28 built-in functions cover the common ones **whose syntax differs across databases**. When your project meets a function the framework does not adapt — a database-private function, a domain-specific one, or something a database added recently — **extend it yourself; there is no need to wait for framework support**. Implement `IFunction` and mount it via `functionConverts`; it then runs through exactly the same mechanism as the built-ins.
+
+**The contract (`org.sagacity.sqltoy.plugins.function.IFunction`)**
+
+| Method | Purpose | Return convention |
+|---|---|---|
+| `dialects()` | declares which dialects this function adapts | `ALL` (the empty string) means every dialect; otherwise a comma- or semicolon-separated **exact enumeration** of dialect names |
+| `regex()` | matches the function call in the SQL | a `Pattern` used to locate the function to rewrite |
+| `wrap(dialect, functionName, hasArgs, args...)` | produces the SQL for the target dialect | return the rewritten fragment; return `IGNORE` (null) to **pass through unchanged** |
+| `wrapArgs(functionName, args...)` | protected convenience helper | builds the result for the most common shape: same function name, arguments re-joined |
+
+**Minimal example: only SQL Server needs rewriting, every other database passes through** (the built-in `Mod`)
+
+```java
+public class Mod extends IFunction {
+	// the leading \W prevents matching trim( inside ltrim(, and (?i) makes it case-insensitive
+	private static Pattern regex = Pattern.compile("(?i)\\Wmod\\(");
+
+	@Override
+	public String dialects() {
+		return ALL;
+	}
+
+	@Override
+	public Pattern regex() {
+		return regex;
+	}
+
+	@Override
+	public String wrap(int dialect, String functionName, boolean hasArgs, String... args) {
+		if (args == null || args.length < 2) {
+			return super.IGNORE;
+		}
+		// sqlserver has no mod function (verified against a real server); the % operator carries it.
+		// every other database supports mod natively, so pass through
+		if (dialect == DBType.SQLSERVER) {
+			return "(" + args[0].trim() + " % " + args[1].trim() + ")";
+		}
+		return super.IGNORE;
+	}
+}
+```
+
+**Points that matter**
+
+1. `regex()` should start with `\W` and end with `\(`, e.g. `(?i)\Wmod\(`. The leading `\W` prevents substring false positives; `(?i)` makes it case-insensitive.
+2. `dialects()` is matched by **splitting on commas/semicolons and comparing each item exactly**, not by substring containment — containment is biased in both directions (declaring `oracle11` would be hit by the current dialect `oracle`, and declaring `oracle` would fail to match the dialect `oracle11`). A custom function must therefore explicitly enumerate the dialect names it adapts.
+3. Matching runs against the SQL **with literals masked**, so the same text appearing inside a string constant is never rewritten by mistake.
+4. `args` in `wrap` are the already-split argument expressions as written, possibly with surrounding whitespace — `trim()` them before concatenating.
+5. **Only the function-call form can be rewritten.** Operator forms (SQL Server's `a % b`, Oracle's `a || b`) are not function calls, so the regex framework cannot capture them and they are out of scope — write the function form in cross-database SQL (`mod(a,b)`, `concat(a,b)`) for the best portability.
+6. In most cases `wrap` should return `IGNORE` for databases that already support the function natively, and rewrite only the dialects that genuinely differ. Rewriting indiscriminately breaks native behavior.
+
+**Overriding a built-in implementation**
+
+`functionConverts` de-duplicates by function name, and the built-ins expanded from `default` are loaded **after** the custom entries, so a custom implementation with the same name overrides the built-in one:
+
+```properties
+# your own Nvl overrides the built-in Nvl; the rest of the built-ins stay active
+spring.sqltoy.functionConverts=default,com.yourpackage.Nvl
+```
+
+Short class names (`Nvl`, `Instr`) resolve only inside the framework's own impl package — use fully qualified names for custom implementations.
+
+**Advanced: trailing-clause hooks**
+
+For a few functions the dialect difference is not inside the parentheses but in the clause immediately following the closing paren — e.g. an aggregate's `within group (order by ...)`, or the boolean convention in `find_in_set(x,y) > 0`. Three optional hooks cover this:
+
+- `suffixPattern()`: the pattern for the trailing clause; it must start with `\s*` to absorb the separating whitespace and end with `\(*`. Returning null (the default) means this function does not consume a trailing clause.
+- `suffixNeedsParen()`: true (default) consumes the whole clause by balanced parentheses; false consumes exactly what the pattern matched, for bare operator clauses such as `>0` / `=0`.
+- `wrapWithSuffix(dialect, functionName, suffix, args...)`: the entry point when the suffix pattern hits; `suffix` is the clause as written (including leading whitespace). Returning `IGNORE` keeps the clause verbatim.
+
+**When not to extend a function, and use a dialect sqlId instead**
+
+If the difference is not "the same function written differently" but **a structurally different statement** (pagination syntax, recursive CTE form, upsert semantics, window-function support), function rewriting cannot solve it — use the `sqlId_dialect` / `dialect_sqlId` variants or the `<sql dialect="xxx">` attribute instead; see section 2.
+
 ## 2. The sqlId+dialect pattern
 * You can write SQL for specific databases; sqltoy picks the SQL that is actually executed based on the database type, in the order: dialect_sqlId->sqlId_dialect->sqlId. For example, if the database is mysql and sqlId: sqltoy_showcase is called, the SQL actually executed is: sqltoy_showcase_mysql
 

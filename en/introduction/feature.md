@@ -22,7 +22,7 @@ SqlToy starts from an intuitive dynamic-SQL authoring model, combining JPA-style
 
 | Feature | Description | Details |
 | --- | --- | --- |
-| Dynamic SQL | `#[]` condition fragments + `@if/@loop/@include` macros + filters; SQL with fragments still runs directly in any DB client | [Dynamic SQL](../query/dynamic_sql.md) |
+| Dynamic SQL | `#[]` condition fragments + `@if/@loop/@include/@joinFields` macros + filters; SQL with fragments still runs directly in any DB client | [Dynamic SQL](../query/dynamic_sql.md) |
 | Filters | eq / between / to-date / to-number / split / primary / cache-arg (reverse cache matching replacing LIKE) and 20+ more | [Dynamic SQL](../query/dynamic_sql.md) |
 | Query API forms | findOne / find / findPage / findTop / findRandom / getValue / getCount / isUnique / loadByQuery / findEntity (single-table EntityQuery shortcuts) | [Query API](../query/sqltoy_query.md) |
 | Cache translate | Code-to-name without joins; API access for dropdowns etc.; reverse key matching; conditional, split-value, tenant-isolated and i18n translation | [Cache Translate](../quickstart/translates.md) |

@@ -120,9 +120,16 @@ spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 # this is only for genuinely special value objects, e.g. Money(CNY,88000) <-> "CNY:88000"
 spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
 # The JSON library behind JSON columns is pluggable: by default it is auto-detected from the
-# classpath in the order fastjson2 -> jackson3 -> jackson2; when none is present, touching a
-# JSON column fails with a clear pointer instead of a NoClassDefFoundError. You can also pin
-# an implementation of org.sagacity.sqltoy.plugins.json.JsonProvider explicitly.
+# classpath in the order fastjson2 -> jackson3 -> jackson2. A detected library must also pass a
+# smoke parse before it is accepted — being on the classpath is not enough (e.g. jackson3's
+# databind needs jackson-annotations 2.20+ and throws NoSuchFieldError when an older one wins
+# the version conflict); an unusable candidate is logged as a warning and the next one is tried.
+# When none is usable, touching a JSON column fails with a clear pointer instead of a
+# NoClassDefFoundError. Pin one explicitly when you need to (e.g. both fastjson2 and jackson are
+# on the classpath but you want jackson): the value is either a built-in alias
+# (fastjson2 / jackson3 / jackson2) or the fully qualified class name of a custom
+# org.sagacity.sqltoy.plugins.json.JsonProvider implementation.
+#spring.sqltoy.jsonProvider=jackson2
 #spring.sqltoy.jsonProvider=com.xxx.MyJsonProvider
 # When queries return List<Map>, whether map labels are converted to camelCase, default true
 spring.sqltoy.humpMapResultTypeLabel=true
