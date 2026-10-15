@@ -204,7 +204,6 @@ import org.sagacity.sqltoy.model.QueryExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.alibaba.fastjson2.JSON;
 import com.sqltoy.helloworld.dto.OrderInfoVO;
 
 @SpringBootTest
@@ -233,7 +232,8 @@ public class TranslateTest {
 				.values(MapKit.keys("statusAry", "beginTime", "endTime").values(new Integer[] { 1 },
 						LocalDateTime.parse("2024-10-17T00:00:01"), null))
 				.resultType(OrderInfoVO.class)).getRows();
-		System.err.println(JSON.toJSONString(result));
+		// 打印缓存翻译结果:orderTypeName、organName 两列已由缓存翻译填充
+		result.forEach(row -> System.err.println(row.getOrderTypeName() + " | " + row.getOrganName()));
 	}
 	//xml中的
 	//<translate cache="dictKeyNameCache" cache-type="ORDER_TYPE" columns="orderTypeName"/>
@@ -245,7 +245,8 @@ public class TranslateTest {
 				MapKit.keys("statusAry", "beginTime", "endTime").values(new Integer[] { 1 },
 						LocalDateTime.parse("2024-10-17T00:00:01"), null),
 				OrderInfoVO.class);
-		System.err.println(JSON.toJSONString(result));
+		// 打印缓存翻译结果:orderTypeName、organName 两列已由缓存翻译填充
+		result.forEach(row -> System.err.println(row.getOrderTypeName() + " | " + row.getOrganName()));
 	}
 	
 	/**
@@ -264,7 +265,8 @@ public class TranslateTest {
 						.values(MapKit.keys("statusAry", "beginTime", "endTime").values(new Integer[] { 1 },
 								LocalDateTime.parse("2024-10-17T00:00:01"), null)),
 				OrderInfoVO.class);
-		System.err.println(JSON.toJSONString(result));
+		// 打印缓存翻译结果:orderTypeName、organName 两列已由缓存翻译填充
+		result.forEach(row -> System.err.println(row.getOrderTypeName() + " | " + row.getOrganName()));
 	}
 }
 

@@ -153,6 +153,7 @@ List<CompanyInfoVO> jsonResult = (List<CompanyInfoVO>) lightDao.elastic()
 1. **endpoint 的 `id` 必填**：`endpoints[0].id` 缺省不写会在 `SqlToyContext` 初始化时报 `getId()` 为 null 的 NPE，务必为每个 endpoint 显式设置 id（或配置 `default-id`）。
 2. **依赖**：sqltoy 的 ES 客户端（Rest5Client）基于 Apache HttpClient 5，项目需显式引入 `org.apache.httpcomponents.client5:httpclient5`（sqltoy 未传递该依赖）。
 3. **`fields` 或 `_source` 必须提供其一**：见 2.3 属性表说明——两者都缺时结果映射报 `collection or property name array is empty`。
+4. **JSON 库可插拔**：ES 插件栈与 JSON 列共用同一套 JsonProvider 抽象，按 classpath 自动探测 fastjson2 -> jackson3 -> jackson2，也可用 `spring.sqltoy.jsonProvider` 显式指定；三者皆无时启动仅告警、触及 JSON/ES 功能才报错。
 
 > 完整可运行示例：`sqltoy-showcase` 的 `NoSqlTest`（Testcontainers 起真实 ES 容器，`<eql>` json 模式动态查询实测）。
 

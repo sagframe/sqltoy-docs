@@ -117,6 +117,10 @@ spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 # 自定义 TypeHandler(仅特殊场景!)。JSON/JSONB、vector、geometry 列和枚举类型
 # 框架均已内置处理、无需配置；此处仅用于真正特殊的值对象映射，如 Money(CNY,88000)<->"CNY:88000"
 spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
+# JSON 列的底层 JSON 库可插拔:缺省按 classpath 自动探测 fastjson2 -> jackson3 -> jackson2,
+# 三者皆无时触及 JSON 列会给出明确指引(而非 NoClassDefFoundError);也可显式指定实现类
+# (实现 org.sagacity.sqltoy.plugins.json.JsonProvider 接口)
+#spring.sqltoy.jsonProvider=com.xxx.MyJsonProvider
 # 查询返回 List<Map> 时，map 的 label 是否转驼峰，默认 true
 spring.sqltoy.humpMapResultTypeLabel=true
 # 获取 ResultSetMetaData 列标题的处理策略：default(不处理)/upper(转大写)/lower(转小写)

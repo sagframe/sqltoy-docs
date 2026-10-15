@@ -119,6 +119,11 @@ spring.sqltoy.unifyFieldsHandler=com.sqltoy.plugins.SqlToyUnifyFieldsHandler
 # and enum conversion are all handled by the framework out of the box — no config needed;
 # this is only for genuinely special value objects, e.g. Money(CNY,88000) <-> "CNY:88000"
 spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
+# The JSON library behind JSON columns is pluggable: by default it is auto-detected from the
+# classpath in the order fastjson2 -> jackson3 -> jackson2; when none is present, touching a
+# JSON column fails with a clear pointer instead of a NoClassDefFoundError. You can also pin
+# an implementation of org.sagacity.sqltoy.plugins.json.JsonProvider explicitly.
+#spring.sqltoy.jsonProvider=com.xxx.MyJsonProvider
 # When queries return List<Map>, whether map labels are converted to camelCase, default true
 spring.sqltoy.humpMapResultTypeLabel=true
 # Strategy for obtaining ResultSetMetaData column labels: default (no processing)/upper (uppercase)/lower (lowercase)

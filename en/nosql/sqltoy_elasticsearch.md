@@ -155,6 +155,7 @@ The `elastic()` chain supports: `sql`, `names`, `values`, `entity`, `endPoint`, 
 1. **The endpoint `id` is mandatory**: omitting `endpoints[0].id` fails `SqlToyContext` initialization with an NPE on `getId()` — set an explicit id for every endpoint (or configure `default-id`).
 2. **Dependency**: sqltoy's ES client (Rest5Client) is built on Apache HttpClient 5 — add `org.apache.httpcomponents.client5:httpclient5` explicitly (sqltoy does not carry it transitively).
 3. **Provide either `fields` or `_source`**: see the attribute table in 2.3 — when both are absent, result mapping throws `collection or property name array is empty`.
+4. **Pluggable JSON library**: the ES stack and JSON columns share the same JsonProvider abstraction — auto-detected from the classpath (fastjson2 -> jackson3 -> jackson2) or pinned via `spring.sqltoy.jsonProvider`; when none is present startup only warns, and the error appears only when a JSON/ES feature is actually used.
 
 > Fully runnable example: `NoSqlTest` in `sqltoy-showcase` (a real ES container via Testcontainers; the `<eql>` json-mode dynamic query is verified end to end).
 
