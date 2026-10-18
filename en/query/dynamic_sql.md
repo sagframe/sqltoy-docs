@@ -14,6 +14,23 @@ sqltoy uses `#[ ... ]` to mark a **dynamic condition fragment**. The core rules:
 1. `#[ ... ]` marks the condition inside as dynamic; **required conditions do not need** `#[]`.
 2. If **any parameter inside the fragment is null (or blank)**, the entire fragment is removed automatically.
 3. **Multi-level nesting** is supported: `#[t.type=:type #[and t.amt>:amt and t.quantity>:quantity]]`.
+   - **Fragments are dropped level by level, independently**: each `#[...]` looks only at its own direct parameters. When an inner parameter is null, only the inner fragment is removed while the outer fragment and its parentheses survive:
+
+     ```sql
+     where t.type=:type #[and (t.amt>:amt #[or t.qty>:qty])]
+     -- amt=100, qty=null → where t.type=:type and (t.amt>:amt)
+     -- amt=100, qty=5    → where t.type=:type and (t.amt>:amt or t.qty>:qty)
+     ```
+
+   - **When an outer fragment's own direct parameter is null, the whole outer fragment is removed together with everything nested inside** — even if the inner parameters all have values. Nesting therefore naturally expresses **hierarchical / master-detail conditions**: the outer level is the precondition for the inner level to participate. The same applies recursively at three or more levels:
+
+     ```sql
+     where #[t.a=:a #[and t.b=:b #[and t.c=:c]]]
+     -- b null → where t.a=?
+     ```
+
+   - **Parameters work exactly as in a single fragment**; all of the following forms apply inside nested levels: named parameters `:paramName`; array indexing where elements of the same array are referenced separately (e.g. `:starEndTime[0]` and `:starEndTime[1]` forming a date range); tuple multi-parameters `(t.tech_group,t.prod_group) in (:techGroups,:prodGroups)`; collection expansion `t.id in (:ids)` (arrays/collections expand into multiple placeholders). The same parameter may appear at multiple levels, each level checking null on its own.
+   - **Parenthesized groups and multiple members**: several `#[...]` members inside `and ( ... )` are dropped independently (e.g. `#[and ( #[t.a=:a] or #[t.b=:b] )]`) — a member survives as long as its own parameters have values, and the whole group is removed when every member is null. Dangling `and`/`or` connectors left behind by dropped members are cleaned automatically (since 6.0.7; a connector right after `(` or right before `)` is stripped, while legitimate keywords such as `( order by ... )` are unaffected), so no manual workaround is needed.
 4. When a required condition (without `#[]`) gets a null parameter, it is converted automatically to `is null` / `is not null`.
 5. sqltoy enables `blank-to-null="true"` by default: blank strings are treated as null automatically.
 6. `#` happens to be the comment marker in MySQL and similar databases, so **SQL containing `#[]` can be copied straight into a client and executed**, which makes debugging easy.

@@ -14,6 +14,23 @@ sqltoy 用 `#[ ... ]` 标记一段**动态条件片段**，核心规则：
 1. `#[ ... ]` 表示其中的条件是动态的；**必要条件不用加** `#[]`。
 2. 片段内只要**有一个参数为 null（或空白）**，整个片段就被自动剔除。
 3. 支持**多层嵌套**：`#[t.type=:type #[and t.amt>:amt and t.quantity>:quantity]]`。
+   - **剔除规则逐层独立**：每一层 `#[...]` 只看自己这一层的直接参数。内层参数为 null 时仅剔除内层，外层与括号照常保留：
+
+     ```sql
+     where t.type=:type #[and (t.amt>:amt #[or t.qty>:qty])]
+     -- amt=100、qty=null → where t.type=:type and (t.amt>:amt)
+     -- amt=100、qty=5    → where t.type=:type and (t.amt>:amt or t.qty>:qty)
+     ```
+
+   - **外层的直接参数为 null 时，整个外层片段连同内层一起剔除**（内层参数有值也救不回）。因此嵌套天然表达**主从/层级条件**：外层是内层参与运算的前提。三层及以上同理，逐层递归：
+
+     ```sql
+     where #[t.a=:a #[and t.b=:b #[and t.c=:c]]]
+     -- b 为 null → where t.a=?
+     ```
+
+   - **参数用法与单层完全一致**，以下形态在嵌套层内同样适用：命名参数 `:paramName`；数组下标取值，同一数组的元素可分别引用（如 `:starEndTime[0]` 与 `:starEndTime[1]` 组成时间区间）；元组多参数 `(t.tech_group,t.prod_group) in (:techGroups,:prodGroups)`；集合自动展开 `t.id in (:ids)`（数组/集合展开为多占位符）。同名参数可在多层重复出现，各层各自判空、互不影响。
+   - **括号分组与多成员**：`and ( ... )` 括号组内的多个 `#[...]` 成员各自独立判空剔除（如 `#[and ( #[t.a=:a] or #[t.b=:b] )]`）——任一成员自身参数有值即保留该成员，全部为 null 时整组剔除；成员剔除后括号内残留的悬挂 `and`/`or` 连接符由框架自动清理（6.0.7 起，左括号后、右括号前的悬挂连接符一律剔除，`( order by ... )` 这类以 or 开头的合法关键字不受影响），无需手工规避。
 4. 必要条件（未加 `#[]`）当参数为 null 时，会自动转成 `is null` / `is not null`。
 5. sqltoy 默认隐藏了 `blank-to-null="true"`：空白字符串自动按 null 处理。
 6. `#` 恰好是 MySQL 等数据库的注释符，所以**带 `#[]` 的 SQL 可以直接复制到客户端执行**，便于调试。

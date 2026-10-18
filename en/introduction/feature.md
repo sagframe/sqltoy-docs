@@ -79,7 +79,7 @@ SqlToy starts from an intuitive dynamic-SQL authoring model, combining JPA-style
 | quickvo generator | Generates annotated POJO/VO from database tables (standalone tool + Maven plugin), with Lombok and swagger support | [quickvo](../prepare/quickvo.md) / [plugin](../prepare/quickvo_plugin.md) |
 | Automatic DDL | autoDDL + packagesToScan creates tables directly from POJOs | [POJO to DDL](../primarykey/sqltoy_ddl.md) |
 | Debug mode | Prints executed SQL/params/timing; sql files hot-reload on change | [Configuration](../config/sqltoy_config.md) |
-| GraalVM AOT | Built into the spring-starter; Native Image works out of the box | [Other Features](../tools/other_features.md) |
+| GraalVM AOT | Built into the spring-starter/solon-plugin; configuration-driven native metadata since 6.0.8 | [GraalVM Native Image Guide](../tools/graalvm_native.md) |
 | Object mapping | convertType / MapperUtils for fast DTO↔POJO conversion (with @SqlToyFieldAlias) | [Utils](../tools/utils.md) |
 | Table metadata | TableApi for table/column info, truncate/drop | [TableApi](../tools/table_api.md) |
 | Multi-framework | Spring Boot starter / traditional Spring / Solon / plain Java | [Configuration](../config/sqltoy_config.md) |

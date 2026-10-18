@@ -54,7 +54,7 @@ sqltoy提供高效的ORM操作，包括对象化CRUD、级联加载、自动DDL�
 | [跨数据库](./dialect/sqltoy_function.md) | 25 种方言（含 SAP HANA、瀚高 HighGo）、函数自动替换、多方言 sqlId、多库适配验证 | [方言](./dialect/sqltoy_function.md) / [数据库清单](./introduction/db_list.md) |
 | [企业级](./enterprise/sqltoy_multitenant.md) | 分库分表、多租户、数据权限与越权校验、脱敏加解密、数据版本控制、SQL 拦截、慢 SQL 处理 | [分库分表](./enterprise/sqltoy_sharding.md) / [安全](./enterprise/sqltoy_security.md) |
 | [NoSQL](./nosql/sqltoy_mongo.md) | Elasticsearch（sql / json 双模式）、MongoDB（查询 / 聚合 + 缓存翻译） | [Mongo](./nosql/sqltoy_mongo.md) / [ES](./nosql/sqltoy_elasticsearch.md) |
-| [工程化](./config/sqltoy_config.md) | quickvo 代码生成、autoDDL 自动建表、debug 热加载、GraalVM AOT、Spring Boot / Spring / Solon / 纯 Java | [配置](./config/sqltoy_config.md) / [quickvo](./prepare/quickvo.md) |
+| [工程化](./config/sqltoy_config.md) | quickvo 代码生成、autoDDL 自动建表、debug 热加载、GraalVM AOT、Spring Boot / Spring / Solon / 纯 Java | [配置](./config/sqltoy_config.md) / [quickvo](./prepare/quickvo.md) / [GraalVM](./tools/graalvm_native.md) |
 
 > 完整功能清单见 [sqltoy 功能清单](./introduction/feature.md)
 

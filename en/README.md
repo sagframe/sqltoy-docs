@@ -54,7 +54,7 @@ SqlToy provides efficient ORM operations including object CRUD, cascade loading 
 | [Cross-database](./introduction/db_list.md) | 25 dialects (incl. SAP HANA, HighGo), function auto-replacement, dialect sqlId, multi-DB verification | [Dialects](./dialect/sqltoy_function.md) / [DB list](./introduction/db_list.md) |
 | [Enterprise](./enterprise/sqltoy_sharding.md) | Sharding, multi-tenancy, data permission, masking & encryption, data versioning, SQL interceptors, slow SQL | [Sharding](./enterprise/sqltoy_sharding.md) / [Security](./enterprise/sqltoy_security.md) |
 | [NoSQL](./nosql/sqltoy_mongo.md) | Elasticsearch (SQL / JSON modes), MongoDB (query / aggregation + cache translate) | [Mongo](./nosql/sqltoy_mongo.md) / [ES](./nosql/sqltoy_elasticsearch.md) |
-| [Engineering](./config/sqltoy_config.md) | quickvo code generation, autoDDL, debug hot-reload, GraalVM AOT, Spring Boot / Spring / Solon / plain Java | [Config](./config/sqltoy_config.md) / [quickvo](./prepare/quickvo.md) |
+| [Engineering](./config/sqltoy_config.md) | quickvo code generation, autoDDL, debug hot-reload, GraalVM AOT, Spring Boot / Spring / Solon / plain Java | [Config](./config/sqltoy_config.md) / [quickvo](./prepare/quickvo.md) / [GraalVM](./tools/graalvm_native.md) |
 
 > Full catalog: [SqlToy Feature List](./introduction/feature.md)
 

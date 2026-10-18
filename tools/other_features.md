@@ -4,17 +4,14 @@
 
 ## 一、GraalVM Native Image（AOT 原生支持）
 
-`sagacity-sqltoy-spring-starter` 内置 Spring AOT 支持，**开箱即用、无需手工配置**（经 `META-INF/spring/aot.factories` 自动注册），按 Spring Boot 3 官方方式构建原生镜像即可：
-
-| 组件 | 作用 |
-| --- | --- |
-| `SqlToyBeanFactoryInitializationAotProcessor` | 构建期为**全部已注册实体类**注册反射 hints，保障 GraalVM Native Image 下 ORM 反射可用 |
-| `SqlToyRuntimeHintsRegistrar` | 为配置属性类、主键生成器及缓存翻译相关资源注册反射与资源访问 hints |
+`sagacity-sqltoy-spring-starter` 内置 Spring AOT 支持（经 `META-INF/spring/aot.factories` 自动注册 `SqltoyRuntimeHintsRegistrar` 与 `SqltoyBeanFactoryInitializationAotProcessor`），`sagacity-sqltoy-solon-plugin` 对称内置 `SqltoyRuntimeNativeRegistrar`，按 Spring Boot 官方方式构建原生镜像即可；6.0.8 起按实际配置动态注册资源 pattern 与扩展类反射，native 场景只需配置 `packagesToScan`：
 
 ```bash
-# 按 Spring Boot 3 标准方式构建 native image，sqltoy 的 hints 自动生效
+# 按 Spring Boot 标准方式构建 native image，sqltoy 的 hints 自动生效
 mvn -Pnative native:compile
 ```
+
+> 完整指引（构建前置条件、应用侧必要配合、已知限制、演示工程）见 [GraalVM Native Image 指引](graalvm_native.md)。
 
 ## 二、geometry 空间类型支持（JTS）
 

@@ -79,7 +79,7 @@ sqltoy 以直观的动态 sql 编写模式为起点，融合 JPA 对象化操作
 | quickvo 代码生成 | 连接数据库按表生成带注解 POJO/VO（独立工具 + maven 插件），支持 lombok、swagger | [quickvo](../prepare/quickvo.md) / [插件](../prepare/quickvo_plugin.md) |
 | 自动 DDL | autoDDL + packagesToScan 由 POJO 直接创建表结构 | [POJO 生成 DDL](../primarykey/sqltoy_ddl.md) |
 | debug 模式 | 打印执行 SQL/参数/耗时，sql 文件变更自动检测热加载 | [配置参数](../config/sqltoy_config.md) |
-| GraalVM AOT | spring-starter 内置 AOT 支持，Native Image 开箱即用 | [其他特性](../tools/other_features.md) |
+| GraalVM AOT | spring-starter/solon-plugin 内置 AOT 支持，6.0.8 起按配置动态注册 native 元数据 | [GraalVM Native Image 指引](../tools/graalvm_native.md) |
 | 对象转换 | convertType / MapperUtils 实现 DTO 与 POJO 快速互转（支持 @SqlToyFieldAlias 别名） | [工具类](../tools/utils.md) |
 | 表元数据 | TableApi 获取表/列信息、truncate/drop | [TableApi](../tools/table_api.md) |
 | 多框架集成 | Spring Boot starter / 传统 Spring / Solon / 纯 Java 四种接入方式 | [配置](../config/sqltoy_config.md) |

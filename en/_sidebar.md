@@ -59,6 +59,7 @@
     * [DTO / POJO Mapping Utils](tools/utils.md)
     * [TableApi Metadata](tools/table_api.md)
     * [Platform Integration](tools/integration.md)
+    * [GraalVM Native Image Guide](tools/graalvm_native.md)
     * [Other Features](tools/other_features.md)
 * Best Picks
     * [Best Picks](best/best_practices.md)

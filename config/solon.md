@@ -9,7 +9,7 @@ sqltoy 通过独立的 `sagacity-sqltoy-solon-plugin` 模块支持 [Solon](https
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
     <!-- 与 core 保持同版本号 -->
-    <version>6.0.7</version>
+    <version>6.0.8</version>
 </dependency>
 ```
 
@@ -69,6 +69,6 @@ public class TestController {
 
 ## 四、GraalVM Native
 
-solon-plugin 内置 `org.sagacity.sqltoy.solon.integration.aot.SqltoyRuntimeNativeRegistrar`（实现 Solon 的 `RuntimeNativeRegistrar` 接口），构建 native image 时自动注册 sqltoy 配置资源（`sqltoy-translate.xml` 等）与实体类反射元数据，无需手工追加 reflect-config。
+solon-plugin 内置 `org.sagacity.sqltoy.solon.integration.aot.SqltoyRuntimeNativeRegistrar`（实现 Solon 的 `RuntimeNativeRegistrar` 接口），构建 native image 时自动注册 sqltoy 配置资源（`sqltoy-translate.xml` 等）与实体类反射元数据，无需手工追加 reflect-config；6.0.8 起同样按配置动态注册资源 pattern 与扩展类反射。
 
-> Spring Boot 3 侧的 AOT 说明见[其他特性](../tools/other_features.md)。
+> Spring Boot 侧的 AOT 说明与完整 native 指引见 [GraalVM Native Image 指引](../tools/graalvm_native.md)。

@@ -4,17 +4,14 @@ This page summarizes a few less frequently used capabilities that are quite valu
 
 ## 1. GraalVM Native Image (AOT Support)
 
-`sagacity-sqltoy-spring-starter` ships with built-in Spring AOT support — **works out of the box with no manual configuration** (auto-registered via `META-INF/spring/aot.factories`). Simply build the native image the official Spring Boot 3 way:
-
-| Component | Purpose |
-| --- | --- |
-| `SqlToyBeanFactoryInitializationAotProcessor` | Registers reflection hints at build time for **all registered entity classes**, ensuring ORM reflection works under GraalVM Native Image |
-| `SqlToyRuntimeHintsRegistrar` | Registers reflection and resource-access hints for configuration property classes, primary key generators, and cache-translate related resources |
+`sagacity-sqltoy-spring-starter` ships with built-in Spring AOT support (`SqltoyRuntimeHintsRegistrar` and `SqltoyBeanFactoryInitializationAotProcessor`, auto-registered via `META-INF/spring/aot.factories`), mirrored by `SqltoyRuntimeNativeRegistrar` in `sagacity-sqltoy-solon-plugin`. Build the native image the standard Spring Boot way; since 6.0.8 resource patterns and extension-class reflection are registered dynamically from the actual configuration, and native scenarios only require `packagesToScan`:
 
 ```bash
-# Build the native image the standard Spring Boot 3 way; sqltoy's hints take effect automatically
+# Build the native image the standard Spring Boot way; sqltoy's hints take effect automatically
 mvn -Pnative native:compile
 ```
+
+> For the full guide (build prerequisites, what the application must contribute, known limitations, demo project), see the [GraalVM Native Image Guide](graalvm_native.md).
 
 ## 2. geometry Spatial Type Support (JTS)
 

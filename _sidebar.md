@@ -27,6 +27,7 @@
     * [动态 SQL 编写规范](query/dynamic_sql.md)
     * [常规查询 API](query/sqltoy_query.md)
     * [Link 链式操作](query/link_api.md)
+    * [Lambda 条件查询与更新](query/lambda_query.md)
     * [分页优化](query/pagination.md)
     * [复杂查询与数据分析](query/sqltoy_complex_query.md)
     * [并行查询](query/parallel_query.md)
@@ -59,6 +60,7 @@
     * [工具类:DTO 与 POJO 互转](tools/utils.md)
     * [表元数据操作 TableApi](tools/table_api.md)
     * [扩展集成(报表/低代码)](tools/integration.md)
+    * [GraalVM Native Image 指引](tools/graalvm_native.md)
     * [其他特性](tools/other_features.md)
 * 必杀集锦
     * [必杀集锦](best/best_practices.md)
