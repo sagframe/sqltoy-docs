@@ -16,6 +16,10 @@ sqltoy 的主键分两类：**程序化主键**（框架或自定义生成器产
 
 > 关键字大小写不敏感，`defaultIdGenerator`、`snowflakeIdGenerator` 等写法同样可用（框架做了命名容错）。
 
+内置生成器实现（`plugins.id.impl`，截图早于 ULID 的加入）：
+
+![内置主键生成器实现](../_media/pk-strategy-overview.png)
+
 `ULID` 需要额外依赖：
 
 ```xml
@@ -45,6 +49,10 @@ sqltoy 的主键分两类：**程序化主键**（框架或自定义生成器产
 
 **自动推断**（不配置 `primary-key` 时）：`bigint` → 雪花算法；22 位字符 → `DefaultIdGenerator`；26 位字符 → `NanoTimeIdGenerator`；`identity` 列 → 由数据库生成，无需配置。
 
+真实的 sequence 配置示例：
+
+![quickvo.xml 中配置 sequence 策略](../_media/pk-quickvo-sequence.png)
+
 ## 三、生成的注解
 
 quickvo 依据上述配置在 POJO 主键字段上生成 `@Id`：
@@ -63,17 +71,28 @@ private Long id;
 
 > `@Id` 只描述生成策略，`@Column` 描述列；两者都要标在主键字段上。属性含义见[注解速查 · @Id](../appendix/annotations.md)。
 
+quickvo 实际生成的片段（截图）：
+
+![生成的 @Id 注解](../_media/pk-id-annotation.png)
+
 ## 四、redis 业务主键
 
 redis 策略属于**业务主键**范畴（订单号、单据号这类有规则的号）。quickvo 用 `business-primary-key` 声明：
 
 ```xml
-<!-- 宏：@substr(${field},startIndex,length) @case(value,case1,value1,...) @df(yyMMdd) -->
+<!-- 宏：@substr(${field},startIndex,length) @case(value,case1,value1,...) @df(yyMMdd)
+     不需要日期时用 @df('')；related-columns 是参与生成的来源字段 -->
 <business-primary-key>
     <table name="LESSON_DEVICE_ORDER" column="ORDER_ID"
            generator="redis" signature="PO@df(yyMMdd)" length="16" />
 </business-primary-key>
 ```
+
+一个更完整的真实配置（含宏组合与来源字段）：
+
+![quickvo.xml 中的 redis 业务主键配置](../_media/pk-quickvo-redis.png)
+
+> 若业务主键字段本身也是主键（`@Id`），它会**覆盖**原主键策略——即业务号直接作为物理主键；`length` 与流水位数决定号的形态。
 
 使用 redis 生成主键需要应用侧定义 `RedisTemplate`。
 
@@ -140,14 +159,19 @@ public interface IdGenerator {
 }
 ```
 
-然后在 quickvo.xml 里把 `generator` 写成**实现类的全限定名**（支持正则批量设置表）：
+然后在 quickvo.xml 里把 `generator` 指向实现类，支持**两种写法**：全限定类名，或 `@bean(beanName)`（生成器交给 Spring 容器管理，便于注入依赖）：
 
 ```xml
 <primary-key>
     <table name="SQLTOY_\w+" strategy="generator"
            generator="com.yourproject.MyIdGenerator" />
+    <!-- 或：交给 Spring 容器 -->
+    <table name="SQLTOY_\w+" strategy="generator"
+           generator="@bean(myIdGenerator)" />
 </primary-key>
 ```
+
+![quickvo.xml 自定义主键策略配置](../_media/pk-quickvo-custom.png)
 
 也可以直接在 POJO 上标注，绕过 quickvo：
 
