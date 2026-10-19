@@ -1,4 +1,4 @@
-﻿# Primary Key Strategies
+# Primary Key Strategies
 
 SqlToy primary keys fall into two families: **programmatic keys** (produced by the framework or a custom generator, independent of the database) and **database keys** (`sequence` / `identity`, produced by the database). Programmatic keys behave identically across databases and are the recommended choice for productized software.
 
