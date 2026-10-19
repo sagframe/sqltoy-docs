@@ -71,3 +71,90 @@ When the in-condition parameter array exceeds 1000 entries (e.g. the Oracle limi
 ## 7. Can sqltoy be used outside Spring and Solon?
 
 Yes. The core module `sagacity-sqltoy` can be used in pure Java: build `SqlToyContext` + a datasource + `DefaultLightDaoImpl` yourself, and use `DBTransUtils` for transactions. See [Pure Java Usage](../config/pure_java.md).
+
+## 8. Startup fails with a duplicate sqlId — or a later SQL overwrites an earlier one?
+
+By default `breakWhenSqlRepeat=true`: a duplicate `sqlId` **throws and aborts startup**. That is deliberate — when the same SQL name exists in two files, production may well execute the wrong one.
+
+Diagnosis:
+
+```properties
+# For temporary diagnosis only: false lets later definitions overwrite earlier ones (never ship this)
+spring.sqltoy.breakWhenSqlRepeat=false
+```
+
+- Usual cause: two `*.sql.xml` files reuse one `id` after a module split, or an `@Sql` annotation id collides with an xml id;
+- **Remember**: `sqlId` is a global namespace with no module prefix, so add a business prefix (e.g. `crm_staff_findlist`);
+- If you really need the same name per datasource, use `<sql dataSource="...">` or dialect variants (`xxx_mysql`) rather than two same-named files.
+
+See [Dynamic SQL Guide](../query/dynamic_sql.md).
+
+## 9. Cache translate does not work, or the page still shows old values
+
+Work through these in order:
+
+1. **Nothing was loaded**: `translateConfig` did not pick up your file (default `classpath:sqltoy-translate.xml;classpath:translates`); the startup log shows how many caches were loaded;
+2. **Parameters do not line up**: the `columns` of `<translate columns="POST_TYPE" cache="dictCache">` must be **result-set column names**, not property names;
+3. **Value types differ**: `1` (number) and `"1"` (string) do not match; normalize with the `to-string` filter;
+4. **No incremental update**: by default the cache loads once and never changes; to follow the table configure `cache-update-checker` (timestamp/version based) or `rest-checker` (external endpoint);
+5. **FIFO dynamic cache behaves as designed**: in `dynamic-cache` mode only keys **already present locally** are refreshed; a key that was never loaded naturally gets the new value on its next dynamic fetch — this is not a bug;
+6. **Several instances**: local caches (ehcache/caffeine) are per-instance, so instances can disagree briefly inside a check interval; for strongly consistent code tables shorten the interval or use `rest-checker`.
+
+See [Cache Translate](../quickstart/translates.md) and [Large-Scale Cache (FIFO)](../translate/sqltoy_FIFO_translate.md).
+
+## 10. The count and the data disagree after using `@fast`
+
+`@fast` means "**paginate the inner block to pageSize rows first, then join those rows to outer tables**", so its count **defaults to the inner @fast SQL** (the simplified form, skipping the join filters). If outer join conditions change the row count, the count no longer matches the data.
+
+Options, in order:
+
+1. **Push the filter into the @fast inner block** (anything the inner query can filter should not live in outer join conditions);
+2. Provide the count explicitly with `<count-sql>` (`QueryExecutor.countSql(...)` works too) — the most controllable option;
+3. Check for `union`: union counts have a dedicated union-all-count optimization (summing branches), and when combined with `@fast` the explicit `count-sql` wins.
+
+See [Pagination Optimize](../query/pagination.md).
+
+## 11. Pagination returns nothing, or raises "maximum records per page exceeded"
+
+Two safety mechanisms, both configurable:
+
+| Parameter | Default | Behaviour |
+| --- | --- | --- |
+| `pageFetchSizeLimit` | 100000 | Maximum records per page; `pageNo=-1` (full extraction) trips it (`-1` disables the limit) |
+| `overPageToFirst` | unset | Whether a page number beyond the last page returns to the first page; when unset the framework's built-in behaviour applies, so set it explicitly |
+
+```properties
+# Raise it only for a deliberate large-page export (watch memory)
+spring.sqltoy.pageFetchSizeLimit=500000
+# Send out-of-range page numbers back to the first page
+spring.sqltoy.overPageToFirst=true
+```
+
+> For large exports prefer `fetchStream` (streaming callbacks) or batched `findTop` over pagination. See [Pagination Optimize](../query/pagination.md).
+
+## 12. Why does lambda's `getOne()` throw?
+
+That is the **strict semantics** introduced in 6.0.8: 0 rows returns `null`, **more than one row throws `DataAccessException` (carrying the match count)**. The point is to stop a defective condition from being silently masked into "take the first row".
+
+How to proceed:
+
+- If the condition really should be unique, check for missing tenant/status conditions;
+- If several rows are legitimate but you only want one, use `find()` and take the first, or add `orderBy` + `findTop(1)`;
+- Likewise, **`update()/delete()` with no where condition throws by default**; use an explicit `.matchAll()` when a whole-table operation is truly intended.
+
+See [Lambda Conditions](../query/lambda_query.md).
+
+## 13. Lambda conditions are unavailable in a native image, or startup reports missing reflection
+
+Lambda relies on `SerializedLambda` and serialization mirroring to extract property names, so a closed-world native image must register them explicitly:
+
+- **On the application side**, register by "lambda defining class" (Spring: `lambdaCapturingTypes` in `META-INF/native-image/**/serialization-config.json`, or `registerLambda(definingClass, b -> b.withInterfaces(LambdaFn.class))`; Solon: `registerLambdaSerialization(definingClass)`);
+- Without registration the whole lambda system is unavailable under native (JVM mode is unaffected);
+- Separately, **`updateSaveFetch` under native needs `native-entity-proxies`** to pre-generate the proxy, otherwise that branch is unavailable.
+
+The complete checklist (entity scanning, DTO reflection, extension classes, function classes, JSON/vector/geometry driver classes) is in the [GraalVM Native Image Guide](../tools/graalvm_native.md).
+
+## 14. What must change when migrating from sqltoy-plus or MyBatis?
+
+- **sqltoy-plus**: 6.0.8 folds the lambda capability into core. Drop the plugin dependency and `@EnableSqlToyPlus`, then follow the mapping table in [upgrade guide section 10.2](../introduction/upgrade_6.0.md) for package/class renames, and regression-test the two behaviour changes (`getOne()` with multiple matches, unconditional update/delete);
+- **MyBatis / MyBatis-Plus**: `<if>` → `#[]`, `QueryWrapper` → `EntityQuery` or lambda, `ResultMap` → result type/VO mapping, pagination plugin → `findPage`. The full mapping and rollout order are in [Migrating from MyBatis](../introduction/migration.md).

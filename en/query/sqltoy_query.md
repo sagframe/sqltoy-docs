@@ -112,7 +112,7 @@ boolean unique = lightDao.isUnique(staffInfo, "staffCode");
 
 ```java
 /**
- * @TODO fetch query results as a stream
+ * fetch query results as a stream
  * @param queryExecutor       use queryExecutor.showsql() to toggle SQL log output
  * @param streamResultHandler
  */

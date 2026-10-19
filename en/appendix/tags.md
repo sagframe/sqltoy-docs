@@ -198,13 +198,13 @@ Formats a date into a string and splices it into the SQL — **no knowledge of t
 
 - The default format is `yyMMdd`;
 - An empty or `null` format **emits an empty string** (`@df('')` is a way to omit a whole condition);
-- The parameter may be a named parameter (`@df(:beginDate, yyyy-MM-dd)`) or a literal.
+- The parameter may be a named parameter (`@df(beginDate, yyyy-MM-dd)`) or the `${beginDate}` form, or a literal; **do not write `:beginDate`** — macro arguments are looked up in the parameter map, whose keys carry no colon.
 
 ```xml
 <sql id="query_by_month">
 	select * from sqltoy_order_info t
 	where t.trans_month = '@df(yyyyMM)'
-	#[and t.trans_date >= '@df(:beginDate, yyyy-MM-dd)']
+	#[and t.trans_date >= '@df(beginDate, yyyy-MM-dd)']
 </sql>
 ```
 
@@ -218,7 +218,7 @@ A `decode`-like value mapping that turns a parameter value into the matching str
 @case(param, value1, result1, value2, result2, ..., defaultResult)
 ```
 
-- The parameter may be a named parameter (`@case(:orderType, ...)`) or the `${paramName}` form;
+- The parameter may be a named parameter (`@case(orderType, ...)`) or the `${orderType}` form;
 - Fewer than three parameters emits an empty string;
 - **The last parameter is the default result** (emitted when nothing matches).
 
@@ -226,7 +226,7 @@ A `decode`-like value mapping that turns a parameter value into the matching str
 <!-- splice a different ORDER BY per order type -->
 select * from sqltoy_order_info t
 where t.status=1
-order by @case(:orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.create_time desc')
+order by @case(orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.create_time desc')
 ```
 
 > The same macro is used for business keys — see [Primary Key Strategies · @BusinessId](../primarykey/sqltoy_primarykey.md).
@@ -244,7 +244,7 @@ order by @case(:orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.c
 ```xml
 <!-- use the first two characters of the order id as the business line -->
 select * from sqltoy_order_info t
-where t.biz_line = '@substr(:orderId,0,2)'
+where t.biz_line = '@substr(orderId,0,2)'
 ```
 
 ## 12. @virtualTable() (cross-database dummy table)

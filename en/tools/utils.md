@@ -58,3 +58,39 @@ private String postType;
 This way `convertType` maps fields with different names correctly.
 
 > For a complete example of strict layering, see the project https://github.com/sagframe/sqltoy-strict , where POJOs/VOs are generated into different packages by [quickvo](../prepare/quickvo.md).
+
+## 4. Common utility classes
+
+Under `org.sagacity.sqltoy.utils` there is a set of helpers you would otherwise rewrite in every project (plus `org.sagacity.sqltoy.plugins.utils.CalculateUtils` for precision/rounding-aware arithmetic):
+
+| Class | What it gives you |
+| --- | --- |
+| `IdUtil` | Identifier generation: `getUUID()` (UUIDv7), `getNanoTimeId(workerId)` / `getShortNanoTimeId(...)` (26-digit ordered numbers, returning `BigDecimal`), `getId(distributeIdGenerator, tableName, signature, ...)` (business keys from a distributed generator), `getDebugId()` |
+| `SnowflakeIdWorker` / `StandardUUIDv7Generator` | Standalone snowflake / UUIDv7 implementations you can hold as instances |
+| `DBTransUtils` | Manual transactions: `doTrans(dataSource, transactionHandler)` wraps a block in a transaction, `getCurrentConnection()` returns the thread-bound connection |
+| `StringUtil` | Blank checks, camelCase↔underscore conversion, symbol-aware splitting (brackets excluded), placeholder replacement, `splitExcludeSymMark` |
+| `DateUtil` | Formatting/parsing, month-end/quarter-end, date stepping, `getIntervalDays` (used by sharding strategies) |
+| `NumberUtil` | Number formatting (thousands separators, percentages), `toCapitalMoney` (Chinese uppercase amounts), parsing, `getProbabilityIndex(int[])` (weighted random index, used by weighted sharding), `getRandomNum` |
+| `CalculateUtils` | Add/subtract/multiply/divide with explicit precision and `RoundingMode` |
+| `CollectionUtil` | Collection splitting, grouping, empty checks, type conversion |
+| `BeanUtil` | Property read/write, object↔Map conversion, enum value extraction, type conversion (the engine behind `convertType`) |
+| `SqlUtil` | SQL fragment inspection and rewriting (strip order by, detect union/group, etc.) — handy in custom interceptors |
+| `ResultUtils` | Result-set to Map/VO mapping and extended-type normalization (consult when taking over result processing) |
+| `MapperUtils` | See section 2: VO↔POJO/Map mapping |
+| `ReservedWordsUtil` | Quotes reserved words per dialect (used internally by `@joinFields`) |
+
+```java
+// Generate identifiers without a dao
+String uuid = IdUtil.getUUID();                                   // UUIDv7
+BigDecimal nanoId = IdUtil.getNanoTimeId("0");                    // 26-digit ordered number (workerId separates instances)
+
+// Manual transaction (plain Java): run a block atomically
+Object result = DBTransUtils.doTrans(lightDao.getDataSource(), () -> {
+    lightDao.updateByQuery(StaffInfo.class,
+            EntityUpdate.create().set("sexType", "F").where("staffId=?").values("S0001"));
+    return lightDao.find("select * from staff_info where status=:status",
+            MapKit.map("status", "1"), StaffInfo.class);
+});
+```
+
+> These utilities are almost all **stateless static methods** (except instance-based ones such as `SnowflakeIdWorker`) and are safe to call from multiple threads; `DBTransUtils` transaction state is bound to the current thread. For more entry points see the [API Cheat Sheet](../appendix/api.md).

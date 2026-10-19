@@ -5,6 +5,7 @@
     * [Database Migration Guide](introduction/xinchuang.md)
     * [Technical Architecture](introduction/architecture.md)
     * [Upgrade to 6.0.x](introduction/upgrade_6.0.md)
+    * [Migrating from MyBatis](introduction/migration.md)
 * Environment Setup
     * [Environment & Dependencies](prepare/environment.md)
     * [quickvo Code Generator](prepare/quickvo.md)

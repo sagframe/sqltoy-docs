@@ -5,6 +5,7 @@
     * [换库迁移适配指引](introduction/xinchuang.md)
     * [技术架构](introduction/architecture.md)
     * [6.0 升级指南](introduction/upgrade_6.0.md)
+    * [从 MyBatis 迁移](introduction/migration.md)
 * 环境准备
     * [开发环境与依赖](prepare/environment.md)
     * [quickvo 代码生成工具](prepare/quickvo.md)

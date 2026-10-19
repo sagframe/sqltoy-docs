@@ -49,7 +49,7 @@ public class SqlToyUnifyFieldsHandler implements IUnifyFieldsHandler {
 	private String defaultUserName = "system-auto";
 
 	 /**
-	  * @TODO 设置创建记录时需要赋值的字段和对应的值(弹性模式:即以传递的值优先，为null再填充)
+	  * 设置创建记录时需要赋值的字段和对应的值(弹性模式:即以传递的值优先，为null再填充)
 	  */
 	 public Map<String, Object> createUnifyFields() {
 		LocalDateTime nowTime = LocalDateTime.now();
@@ -61,7 +61,7 @@ public class SqlToyUnifyFieldsHandler implements IUnifyFieldsHandler {
 	 }
 
 	/**
-	 * @TODO 设置修改记录时需要赋值的字段和对应的值(弹性)
+	 * 设置修改记录时需要赋值的字段和对应的值(弹性)
 	 */
 	@Override
 	public Map<String, Object> updateUnifyFields() {
@@ -69,7 +69,7 @@ public class SqlToyUnifyFieldsHandler implements IUnifyFieldsHandler {
 	}
 
 	/**
-	 * @TODO 強制修改的字段(一般针对updateTime属性)
+	 * 強制修改的字段(一般针对updateTime属性)
 	 */
 	@Override
 	public IgnoreCaseSet forceUpdateFields() {
@@ -79,7 +79,7 @@ public class SqlToyUnifyFieldsHandler implements IUnifyFieldsHandler {
 	}
 
 	/**
-	 * @todo 获取当前用户Id信息
+	 * 获取当前用户Id信息
 	 * @return
 	 */
 	private String getUserId() {

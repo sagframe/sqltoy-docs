@@ -58,3 +58,39 @@ private String postType;
 这样 `convertType` 即可正确映射名称不同的字段。
 
 > 严格分层的完整示例参见项目 https://github.com/sagframe/sqltoy-strict ，POJO/VO 由 [quickvo](../prepare/quickvo.md) 生成到不同包。
+
+## 四、常用工具类
+
+sqltoy 的 `org.sagacity.sqltoy.utils` 下有一批"项目里总要自己写一遍"的工具，直接复用即可（`org.sagacity.sqltoy.plugins.utils.CalculateUtils` 提供按精度/舍入方式的计算）：
+
+| 工具类 | 常用能力 |
+| --- | --- |
+| `IdUtil` | 主键/标识生成：`getUUID()`（UUIDv7）、`getNanoTimeId(workerId)` / `getShortNanoTimeId(...)`（26 位有序数字，返回 `BigDecimal`）、`getId(distributeIdGenerator, tableName, signature, ...)`（基于分布式生成器的业务主键）、`getDebugId()` |
+| `SnowflakeIdWorker` / `StandardUUIDv7Generator` | 雪花、UUIDv7 的独立实现，可自行持有实例 |
+| `DBTransUtils` | 手动事务：`doTrans(dataSource, transactionHandler)` 把一段逻辑包在事务里、`getCurrentConnection()` 取当前线程绑定的连接 |
+| `StringUtil` | 空白判断、驼峰/下划线互转、按符号切分（可排除括号内内容）、占位符替换、`splitExcludeSymMark` |
+| `DateUtil` | 日期格式化/解析、月末/季末、按间隔取日期、`getIntervalDays`（分片策略用到） |
+| `NumberUtil` | 数字格式化（千分位/百分比）、`toCapitalMoney`（中文大写金额）、解析、`getProbabilityIndex(int[])`（按权重取随机下标，权重分库用到）、`getRandomNum` |
+| `CalculateUtils` | 带精度与舍入方式的加减乘除（`RoundingMode` 可控） |
+| `CollectionUtil` | 集合切分、分组、判空、类型转换 |
+| `BeanUtil` | 属性读写、对象与 Map 互转、枚举取值、类型转换（`convertType` 的底层） |
+| `SqlUtil` | SQL 片段识别与处理（剥离 order by、判断 union/group 等），自定义拦截器常用 |
+| `ResultUtils` | 结果集到 Map/VO 的映射与扩展类型归一（自行接管结果处理时参考） |
+| `MapperUtils` | 见第二节，VO↔POJO/Map 映射 |
+| `ReservedWordsUtil` | 保留字按方言加引用符（`@joinFields` 内部使用） |
+
+```java
+// 不依赖 dao 生成标识
+String uuid = IdUtil.getUUID();                                   // UUIDv7
+BigDecimal nanoId = IdUtil.getNanoTimeId("0");                    // 26 位有序数字(workerId 用于多实例区分)
+
+// 手动事务（纯 Java 场景）：把一段逻辑整体放进事务
+Object result = DBTransUtils.doTrans(lightDao.getDataSource(), () -> {
+    lightDao.updateByQuery(StaffInfo.class,
+            EntityUpdate.create().set("sexType", "F").where("staffId=?").values("S0001"));
+    return lightDao.find("select * from staff_info where status=:status",
+            MapKit.map("status", "1"), StaffInfo.class);
+});
+```
+
+> 这些工具类基本都是**无状态静态方法**（除 `SnowflakeIdWorker` 等需实例的以外），可多线程直接调用；`DBTransUtils` 的事务状态绑定在当前线程。更多工具入口见[API 速查](../appendix/api.md)。

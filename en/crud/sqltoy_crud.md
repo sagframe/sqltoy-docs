@@ -17,14 +17,14 @@ sqltoy's object-oriented CRUD is quite similar to JPA. Its main features:
 
 ```java
 /**
- * @todo Save an object and return the primary key value
+ * Save an object and return the primary key value
  * @param entity
  * @return Object returns the primary key value
  */
 public Object save(Serializable entity);
 
 /**
- * @TODO Chainable mode for saving a collection of objects, e.g.:
+ * Chainable mode for saving a collection of objects, e.g.:
  *       lightDao.save().dataSource(xxx).one(entity)
  * @return
  */
@@ -100,7 +100,7 @@ public void testSaveCascade() {
 
 ```java
 /**
- * @TODO Save objects in batch and return the number of records updated
+ * Save objects in batch and return the number of records updated
  * @param <T>
  * @param entities
  * @return Long number of records changed in the database
@@ -108,7 +108,7 @@ public void testSaveCascade() {
 public <T extends Serializable> Long saveAll(List<T> entities);
 
 /**
- * @TODO Save objects in batch, ignoring records that already exist
+ * Save objects in batch, ignoring records that already exist
  * @param <T>
  * @param entities
  * @return Long number of records changed in the database
@@ -116,7 +116,7 @@ public <T extends Serializable> Long saveAll(List<T> entities);
 public <T extends Serializable> Long saveAllIgnoreExist(List<T> entities);
 
 /**
- * @TODO Chainable mode for saving a collection of objects, e.g.:
+ * Chainable mode for saving a collection of objects, e.g.:
  *       lightDao.save().dataSource(xxx).many(entities)
          lightDao.save().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities)
  * @return
@@ -130,7 +130,7 @@ public Save save();
 
 ```java
 /**
- * @todo Update data and return the number of records changed in the database (non-forced properties with null values do not participate in the update)
+ * Update data and return the number of records changed in the database (non-forced properties with null values do not participate in the update)
  * @param entity
  * @param forceUpdateProps properties to update forcibly
  * @return Long number of records changed in the database
@@ -138,14 +138,14 @@ public Save save();
 public Long update(Serializable entity, String... forceUpdateProps);
 
 /**
- * @todo Deep update: all fields are updated forcibly regardless of whether they are null
+ * Deep update: all fields are updated forcibly regardless of whether they are null
  * @param entity
  * @return Long number of records changed in the database
  */
 public Long updateDeeply(Serializable entity);
 
 /**
- * @TODO Chainable mode for updating records
+ * Chainable mode for updating records
  *       <li>lightDao.update().dataSource(xxx).forceUpdateProps("status").one(entity)</li>
  *       <li>lightDao.update().dataSource(xxx).forceUpdateProps("status").many(entities)</li>
  *       <li>Large-scale parallel: lightDao.update().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).forceUpdateProps("status").many(entities)</li>
@@ -154,7 +154,7 @@ public Long updateDeeply(Serializable entity);
 public Update update();
 
 /**
- * @todo Cascade update data and return the number of records changed in the database
+ * Cascade update data and return the number of records changed in the database
  * @param entity
  * @param forceUpdateProps
  * @param forceCascadeClasses when the cascade objects are null or empty, whether this means forcibly deleting the cascade records
@@ -190,7 +190,7 @@ lightDao.update().dataSource(crmDataSource).forceUpdateProps("status").cascadeFo
 
 ```java
 /**
- * @TODO Batch update, with optional properties to update forcibly (non-forced properties with null values do not participate in the update)
+ * Batch update, with optional properties to update forcibly (non-forced properties with null values do not participate in the update)
  * @param <T>
  * @param entities
  * @param forceUpdateProps
@@ -199,7 +199,7 @@ lightDao.update().dataSource(crmDataSource).forceUpdateProps("status").cascadeFo
 public <T extends Serializable> Long updateAll(List<T> entities, String... forceUpdateProps);
 
 /**
- * @TODO Batch deep update, i.e. all fields participate in the update (including null properties)
+ * Batch deep update, i.e. all fields participate in the update (including null properties)
  * @param <T>
  * @param entities
  * @return Long number of records changed in the database
@@ -223,7 +223,7 @@ lightDao.update().dataSource(crmDataSource).forceUpdateProps("status")
 
 ```java
 /**
- * @TODO Update data based on a single-table query
+ * Update data based on a single-table query
  * @param entityClass entity class
  * @param entityUpdate organizes the set fields and where conditions via EntityUpdate
  * @return Long number of records changed in the database
@@ -320,7 +320,7 @@ Exclude logically deleted records when querying (just add the status condition i
 
 ```java
 /**
- * @TODO Chainable mode for delete operations, examples:
+ * Chainable mode for delete operations, examples:
  *       <li>lightDao.delete().dataSource(xxxx).one(entity);</li>
  *       <li>lightDao.delete().batchSize(1000).autoCommit(true).many(entities);</li>
  *       <li>lightDao.delete().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);</li>
@@ -329,21 +329,21 @@ Exclude logically deleted records when querying (just add the status condition i
 public Delete delete();
 	
 /**
- * @todo Delete a single object and return the number of records affected in the database
+ * Delete a single object and return the number of records affected in the database
  * @param entity
  * @return Long number of records changed in the database (number of deleted records)
  */
 public Long delete(final Serializable entity);
 
 /**
- * @todo Delete objects in batch and return the number of records affected in the database
+ * Delete objects in batch and return the number of records affected in the database
  * @param entities
  * @return Long number of records changed in the database (number of deleted records)
  */
 public <T extends Serializable> Long deleteAll(final List<T> entities);
 
 /**
- * @TODO Batch delete by a collection of ids
+ * Batch delete by a collection of ids
  * @param entityClass
  * @param ids
  * @return
@@ -351,7 +351,7 @@ public <T extends Serializable> Long deleteAll(final List<T> entities);
 public Long deleteByIds(Class entityClass, Object... ids);
 
 /**
- * @TODO Delete based on a single-table query, providing a shortcut operation in code
+ * Delete based on a single-table query, providing a shortcut operation in code
  * @param entityClass
  * @param entityQuery e.g.: lightDao.deleteByQuery(DictDetail.class,EntityQuery.create().where("status=?").values(0));
  * @return Long number of records changed in the database (number of inserted records)
@@ -380,14 +380,14 @@ lightDao.deleteByQuery(DictDetail.class,EntityQuery.create().dataSource(xxxx).wh
 
 ```java
 /**
- * @TODO Chainable mode for saving a collection of objects, e.g.:
+ * Chainable mode for saving a collection of objects, e.g.:
  *    <li>lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE).many(entities)</li>
  * @return
  */
 public Save save();
 	
 /**
- * @todo Save or update data and return the number of records changed in the database
+ * Save or update data and return the number of records changed in the database
  * @param entity
  * @param forceUpdateProps fields to update forcibly
  * @return Long number of records changed in the database
@@ -395,7 +395,7 @@ public Save save();
 public Long saveOrUpdate(Serializable entity, String... forceUpdateProps);
 
 /**
- * @TODO Batch save or update (updates when the record already exists)
+ * Batch save or update (updates when the record already exists)
  * @param <T>
  * @param entities
  * @param forceUpdateProps fields to update forcibly
@@ -421,7 +421,7 @@ lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE)
 
 ```java
 /**
- * @TODO Chainable mode for object loading operations
+ * Chainable mode for object loading operations
  *    <li>lightDao.load().dataSource(xxxx).lock(LockMode.UPGRADE_NOWAIT).one(new StaffInfo("S0001"));</li>
  *    <li>lightDao.load().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);</li>
  *    <li>Load the main objects and cascade-load the child objects: lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).many(entities);</li>
@@ -431,14 +431,14 @@ lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE)
 public Load load();
 
 /**
- * @todo Load the details of an object by its primary key value
+ * Load the details of an object by its primary key value
  * @param entity
  * @return entity
  */
 public <T extends Serializable> T load(final T entity);
 
 /**
- * @TODO Load a single entity object by primary key
+ * Load a single entity object by primary key
  * @param <T>
  * @param entityClass
  * @param id
@@ -447,7 +447,7 @@ public <T extends Serializable> T load(final T entity);
 public <T extends Serializable> T loadById(final Class<T> entityClass, Object id);
 
 /**
- * @todo Load an object by primary key, with a read lock setting
+ * Load an object by primary key, with a read lock setting
  * @param entity
  * @param lockMode LockMode.UPGRADE or LockMode.UPGRADE_NOWAIT, etc.
  * @return entity
@@ -455,7 +455,7 @@ public <T extends Serializable> T loadById(final Class<T> entityClass, Object id
 public <T extends Serializable> T load(final T entity, final LockMode lockMode);
 
 /**
- * @todo Load an object while specifying the child classes to load, achieving cascade loading
+ * Load an object while specifying the child classes to load, achieving cascade loading
  * @param entity
  * @param lockMode
  * @param cascadeTypes
@@ -464,14 +464,14 @@ public <T extends Serializable> T load(final T entity, final LockMode lockMode);
 public <T extends Serializable> T loadCascade(final T entity, final LockMode lockMode, final Class... cascadeTypes);
 
 /**
- * @todo Load entity details by the primary keys in the collection (optimized under the hood with batch loading, while handling the in-1000 issue)
+ * Load entity details by the primary keys in the collection (optimized under the hood with batch loading, while handling the in-1000 issue)
  * @param entities
  * @return entities
  */
 public <T extends Serializable> List<T> loadAll(List<T> entities);
 
 /**
- * @todo Batch loading with record locking
+ * Batch loading with record locking
  * @param <T>
  * @param entities
  * @param lockMode
@@ -480,7 +480,7 @@ public <T extends Serializable> List<T> loadAll(List<T> entities);
 public <T extends Serializable> List<T> loadAll(List<T> entities, final LockMode lockMode);
 
 /**
- * @TODO Batch load objects by a collection of ids
+ * Batch load objects by a collection of ids
  * @param <T>
  * @param entityClass
  * @param ids
@@ -489,7 +489,7 @@ public <T extends Serializable> List<T> loadAll(List<T> entities, final LockMode
 public <T extends Serializable> List<T> loadByIds(final Class<T> entityClass, Object... ids);
 
 /**
- * @TODO Batch load objects by a collection of ids, with locking
+ * Batch load objects by a collection of ids, with locking
  * @param <T>
  * @param entityClass
  * @param lockMode
@@ -500,7 +500,7 @@ public <T extends Serializable> List<T> loadByIds(final Class<T> entityClass, fi
 		Object... ids);
 
 /**
- * @todo Selectively load child table information
+ * Selectively load child table information
  * @param entities
  * @param cascadeTypes
  * @return
@@ -508,7 +508,7 @@ public <T extends Serializable> List<T> loadByIds(final Class<T> entityClass, fi
 public <T extends Serializable> List<T> loadAllCascade(List<T> entities, final Class... cascadeTypes);
 
 /**
- * @TODO Lock the main table records and cascade-load the child table data
+ * Lock the main table records and cascade-load the child table data
  * @param <T>
  * @param entities
  * @param lockMode
@@ -606,7 +606,7 @@ List result = lightDao.updateFetch(
 ```java
 // api 
 /**
- * @TODO Designed for high-concurrency, strongly transactional scenarios such as inventory ledgers and customer fund accounts; a single database interaction accomplishes:
+ * Designed for high-concurrency, strongly transactional scenarios such as inventory ledgers and customer fund accounts; a single database interaction accomplishes:
  *       <p>
  *       <li>1. locking query;</li>
  *       <li>2. update if the record exists;</li>

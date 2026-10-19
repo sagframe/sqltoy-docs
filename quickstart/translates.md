@@ -336,7 +336,7 @@ public class TranslateTest {
 
 ```java
 /**
- * @todo 获取sqltoy中用于翻译的缓存,方便用于页面下拉框选项、checkbox选项、suggest组件等
+ * 获取sqltoy中用于翻译的缓存,方便用于页面下拉框选项、checkbox选项、suggest组件等
  * @param cacheName
  * @param cacheType 如是数据字典,则传入字典类型否则为null即可
  * @return
@@ -344,7 +344,7 @@ public class TranslateTest {
 public HashMap<String, Object[]> getTranslateCache(String cacheName, String cacheType);
 
 /**
- * @TODO 将缓存数据以对象形式获取
+ * 将缓存数据以对象形式获取
  * @param <T>
  * @param cacheName
  * @param cacheType  如是数据字典,则传入字典类型否则为null即可
@@ -358,7 +358,7 @@ public <T> List<T> getTranslateCache(String cacheName, String cacheType, Class<T
 
 ```java
 /**
- * @todo 对数据集合通过反调函数对具体属性进行翻译
+ * 对数据集合通过反调函数对具体属性进行翻译
  * @param dataSet        数据集合
  * @param cacheName      缓存名称
  * @param cacheType      例如数据字典存在分类的缓存填写字典分类，其它的如员工、机构等填null
@@ -385,7 +385,7 @@ lightDao.translate(staffVOs<StaffInfoVO>, "staffIdName",	1， new TranslateHandl
 
 ```java
 /**
- * @TODO 通过缓存将名称进行模糊匹配取得key的集合
+ * 通过缓存将名称进行模糊匹配取得key的集合
  * @param cacheMatchFilter
  * @param matchRegexes     数组
  * @return

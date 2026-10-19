@@ -26,7 +26,22 @@ spring.sqltoy.redoDataSources[0]=pgdb
 
 > 提示：`redoDataSources` 仅用于**适配验证**，重放查询不影响主查询结果。生产环境可关闭。
 
-## 三、相关
+## 三、配套工具与验证工程
+
+| 工具 | 用途 |
+| --- | --- |
+| [sagacity-db-diversity](https://github.com/sagframe/sagacity-db-diversity) | **库表结构差异对比**：分别连接参考库与目标库，导出表/字段/主键/外键/索引/注释到 xml 后离线比对，支持单边连接（开发环境只能跳板机访问）、也支持对比不同时间点的导出；换库迁移前先跑一遍，把结构差异清干净 |
+| [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify) | **native 构建验证矩阵**（spring + solon 双栈，PostgreSQL pgvector + postgis），同时覆盖方言函数转换与缓存翻译的双实现 |
+| [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) | 各数据库实测与特性演示工程 |
+
+`redoDataSources` 的注意事项：
+
+- 重放的是**查询**，写操作不会重放；因此它在开发/测试阶段用，生产环境建议关闭；
+- 每次查询都会额外打一次库，**测试环境的耗时与连接数是翻倍的**，压测时不要开；
+- 重放暴露的是"方言写法不兼容"，**不能替代业务结果校验**（同一 SQL 在不同库上语义可能有细微差异，如大小写、排序、null 排序位置）。
+
+## 四、相关
 
 - 函数替换与方言 sqlId：[方言自适配与函数扩展](sqltoy_function.md)
 - 未列出的 PostgreSQL 系数据库适配（dialect/dialectMap）：[常见 SQL 案例](../query/sql_showcase.md)
+- 换库迁移的完整评估清单：[换库迁移适配指引](../introduction/xinchuang.md)

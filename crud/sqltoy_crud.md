@@ -15,14 +15,14 @@
 
 ```java
 /**
- * @todo 保存对象,并返回主键值
+ * 保存对象,并返回主键值
  * @param entity
  * @return Object 返回主键值
  */
 public Object save(Serializable entity);
 
 /**
- * @TODO 提供链式操作模式保存操作集合,如:
+ * 提供链式操作模式保存操作集合,如:
  *       lightDao.save().dataSource(xxx).one(entity)
  * @return
  */
@@ -98,7 +98,7 @@ public void testSaveCascade() {
 
 ```java
 /**
- * @TODO 批量保存对象，并返回数据更新记录量
+ * 批量保存对象，并返回数据更新记录量
  * @param <T>
  * @param entities
  * @return Long 数据库发生变更的记录量
@@ -106,7 +106,7 @@ public void testSaveCascade() {
 public <T extends Serializable> Long saveAll(List<T> entities);
 
 /**
- * @TODO 批量保存对象并忽视已经存在的记录
+ * 批量保存对象并忽视已经存在的记录
  * @param <T>
  * @param entities
  * @return Long 数据库发生变更的记录量
@@ -114,7 +114,7 @@ public <T extends Serializable> Long saveAll(List<T> entities);
 public <T extends Serializable> Long saveAllIgnoreExist(List<T> entities);
 
 /**
- * @TODO 提供链式操作模式保存操作集合,如:
+ * 提供链式操作模式保存操作集合,如:
  *       lightDao.save().dataSource(xxx).many(entities)
          lightDao.save().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities)
  * @return
@@ -128,7 +128,7 @@ public Save save();
 
 ```java
 /**
- * @todo 修改数据并返回数据库记录变更数量(非强制修改属性，当属性值为null不参与修改)
+ * 修改数据并返回数据库记录变更数量(非强制修改属性，当属性值为null不参与修改)
  * @param entity
  * @param forceUpdateProps 强制修改的字段属性
  * @return Long 数据库发生变更的记录量
@@ -136,14 +136,14 @@ public Save save();
 public Long update(Serializable entity, String... forceUpdateProps);
 
 /**
- * @todo 深度修改,不管是否为null全部字段强制修改
+ * 深度修改,不管是否为null全部字段强制修改
  * @param entity
  * @return Long 数据库发生变更的记录量
  */
 public Long updateDeeply(Serializable entity);
 
 /**
- * @TODO 提供链式操作模式修改记录
+ * 提供链式操作模式修改记录
  *       <li>lightDao.update().dataSource(xxx).forceUpdateProps("status").one(entity)</li>
  *       <li>lightDao.update().dataSource(xxx).forceUpdateProps("status").many(entities)</li>
  *       <li>大批量并行:lightDao.update().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).forceUpdateProps("status").many(entities)</li>
@@ -152,7 +152,7 @@ public Long updateDeeply(Serializable entity);
 public Update update();
 
 /**
- * @todo 级联修改数据并返回数据库记录变更数量
+ * 级联修改数据并返回数据库记录变更数量
  * @param entity
  * @param forceUpdateProps
  * @param forceCascadeClasses 级联对象为null或空时，是否表示强制删除级联记录
@@ -188,7 +188,7 @@ lightDao.update().dataSource(crmDataSource).forceUpdateProps("status").cascadeFo
 
 ```java
 /**
- * @TODO 批量修改操作，并可以指定强制修改的属性(非强制修改属性，当属性值为null不参与修改)
+ * 批量修改操作，并可以指定强制修改的属性(非强制修改属性，当属性值为null不参与修改)
  * @param <T>
  * @param entities
  * @param forceUpdateProps
@@ -197,7 +197,7 @@ lightDao.update().dataSource(crmDataSource).forceUpdateProps("status").cascadeFo
 public <T extends Serializable> Long updateAll(List<T> entities, String... forceUpdateProps);
 
 /**
- * @TODO 批量深度修改，即全部字段参与修改(包括为null的属性)
+ * 批量深度修改，即全部字段参与修改(包括为null的属性)
  * @param <T>
  * @param entities
  * @return Long 数据库发生变更的记录量
@@ -221,7 +221,7 @@ lightDao.update().dataSource(crmDataSource).forceUpdateProps("status")
 
 ```java
 /**
- * @TODO 基于单表查询完成数据修改
+ * 基于单表查询完成数据修改
  * @param entityClass 实体类
  * @param entityUpdate 通过 EntityUpdate 组织 set 修改字段与 where 条件
  * @return Long 数据库发生变更的记录量
@@ -317,7 +317,7 @@ lightDao.updateByQuery(OrderInfo.class,
 
 ```java
 /**
- * @TODO 提供链式操作模式删除操作集合 示例:
+ * 提供链式操作模式删除操作集合 示例:
  *       <li>lightDao.delete().dataSource(xxxx).one(entity);</li>
  *       <li>lightDao.delete().batchSize(1000).autoCommit(true).many(entities);</li>
  *       <li>lightDao.delete().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);</li>
@@ -326,21 +326,21 @@ lightDao.updateByQuery(OrderInfo.class,
 public Delete delete();
 	
 /**
- * @todo 删除单条对象并返回数据库记录影响的数量
+ * 删除单条对象并返回数据库记录影响的数量
  * @param entity
  * @return Long 数据库发生变更的记录量(删除数据量)
  */
 public Long delete(final Serializable entity);
 
 /**
- * @todo 批量删除对象并返回数据库记录影响的数量
+ * 批量删除对象并返回数据库记录影响的数量
  * @param entities
  * @return Long 数据库记录变更量(删除数据量)
  */
 public <T extends Serializable> Long deleteAll(final List<T> entities);
 
 /**
- * @TODO 根据id集合批量删除
+ * 根据id集合批量删除
  * @param entityClass
  * @param ids
  * @return
@@ -348,7 +348,7 @@ public <T extends Serializable> Long deleteAll(final List<T> entities);
 public Long deleteByIds(Class entityClass, Object... ids);
 
 /**
- * @TODO 基于单表查询进行删除操作,提供在代码中进行快捷操作
+ * 基于单表查询进行删除操作,提供在代码中进行快捷操作
  * @param entityClass
  * @param entityQuery 例如:lightDao.deleteByQuery(DictDetail.class,EntityQuery.create().where("status=?").values(0));
  * @return Long 数据库记录变更量(插入数据量)
@@ -376,14 +376,14 @@ lightDao.deleteByQuery(DictDetail.class,EntityQuery.create().dataSource(xxxx).wh
 
 ```java
 /**
- * @TODO 提供链式操作模式保存操作集合,如:
+ * 提供链式操作模式保存操作集合,如:
  *    <li>lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE).many(entities)</li>
  * @return
  */
 public Save save();
 	
 /**
- * @todo 保存或修改数据并返回数据库记录变更数量
+ * 保存或修改数据并返回数据库记录变更数量
  * @param entity
  * @param forceUpdateProps 强制修改的字段
  * @return Long 数据库发生变更的记录量
@@ -391,7 +391,7 @@ public Save save();
 public Long saveOrUpdate(Serializable entity, String... forceUpdateProps);
 
 /**
- * @TODO 批量保存或修改操作(当已经存在就执行修改)
+ * 批量保存或修改操作(当已经存在就执行修改)
  * @param <T>
  * @param entities
  * @param forceUpdateProps 强制修改的字段
@@ -417,7 +417,7 @@ lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE)
 
 ```java
 /**
- * @TODO 提供链式操作模式对象加载操作集合
+ * 提供链式操作模式对象加载操作集合
  *    <li>lightDao.load().dataSource(xxxx).lock(LockMode.UPGRADE_NOWAIT).one(new StaffInfo("S0001"));</li>
  *    <li>lightDao.load().parallelConfig(ParallelConfig.create().groupSize(5000).maxThreads(10)).many(entities);</li>
  *    <li>加载主对象，同时级联加载子对象:lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).many(entities);</li>
@@ -427,14 +427,14 @@ lightDao.save().dataSource(xxx).saveMode(SaveMode.UPDATE)
 public Load load();
 
 /**
- * @todo 根据实体对象的主键值获取对象的详细信息
+ * 根据实体对象的主键值获取对象的详细信息
  * @param entity
  * @return entity
  */
 public <T extends Serializable> T load(final T entity);
 
 /**
- * @TODO 根据主键获取单个实体对象
+ * 根据主键获取单个实体对象
  * @param <T>
  * @param entityClass
  * @param id
@@ -443,7 +443,7 @@ public <T extends Serializable> T load(final T entity);
 public <T extends Serializable> T loadById(final Class<T> entityClass, Object id);
 
 /**
- * @todo 根据主键获取对象,提供读取锁设定
+ * 根据主键获取对象,提供读取锁设定
  * @param entity
  * @param lockMode LockMode.UPGRADE 或LockMode.UPGRADE_NOWAIT等
  * @return entity
@@ -451,7 +451,7 @@ public <T extends Serializable> T loadById(final Class<T> entityClass, Object id
 public <T extends Serializable> T load(final T entity, final LockMode lockMode);
 
 /**
- * @todo 对象加载同时指定加载子类，实现级联加载
+ * 对象加载同时指定加载子类，实现级联加载
  * @param entity
  * @param lockMode
  * @param cascadeTypes
@@ -460,14 +460,14 @@ public <T extends Serializable> T load(final T entity, final LockMode lockMode);
 public <T extends Serializable> T loadCascade(final T entity, final LockMode lockMode, final Class... cascadeTypes);
 
 /**
- * @todo 根据集合中的主键获取实体的详细信息(底层是批量加载优化了性能,同时控制了in 1000个问题)
+ * 根据集合中的主键获取实体的详细信息(底层是批量加载优化了性能,同时控制了in 1000个问题)
  * @param entities
  * @return entities
  */
 public <T extends Serializable> List<T> loadAll(List<T> entities);
 
 /**
- * @todo 提供带锁记录的批量加载功能
+ * 提供带锁记录的批量加载功能
  * @param <T>
  * @param entities
  * @param lockMode
@@ -476,7 +476,7 @@ public <T extends Serializable> List<T> loadAll(List<T> entities);
 public <T extends Serializable> List<T> loadAll(List<T> entities, final LockMode lockMode);
 
 /**
- * @TODO 根据id集合批量加载对象
+ * 根据id集合批量加载对象
  * @param <T>
  * @param entityClass
  * @param ids
@@ -485,7 +485,7 @@ public <T extends Serializable> List<T> loadAll(List<T> entities, final LockMode
 public <T extends Serializable> List<T> loadByIds(final Class<T> entityClass, Object... ids);
 
 /**
- * @TODO 根据id集合批量加载对象,并加锁
+ * 根据id集合批量加载对象,并加锁
  * @param <T>
  * @param entityClass
  * @param lockMode
@@ -496,7 +496,7 @@ public <T extends Serializable> List<T> loadByIds(final Class<T> entityClass, fi
 		Object... ids);
 
 /**
- * @todo 选择性的加载子表信息
+ * 选择性的加载子表信息
  * @param entities
  * @param cascadeTypes
  * @return
@@ -504,7 +504,7 @@ public <T extends Serializable> List<T> loadByIds(final Class<T> entityClass, fi
 public <T extends Serializable> List<T> loadAllCascade(List<T> entities, final Class... cascadeTypes);
 
 /**
- * @TODO 锁住主表记录并级联加载子表数据
+ * 锁住主表记录并级联加载子表数据
  * @param <T>
  * @param entities
  * @param lockMode
@@ -602,7 +602,7 @@ List result = lightDao.updateFetch(
 ```java
 //api 
 /**
- * @TODO 适用于库存台账、客户资金账等高并发强事务场景，一次数据库交互实现：
+ * 适用于库存台账、客户资金账等高并发强事务场景，一次数据库交互实现：
  *       <p>
  *       <li>1、锁查询；</li>
  *       <li>2、记录存在则修改；</li>

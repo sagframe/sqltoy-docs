@@ -229,6 +229,30 @@ spring.sqltoy.elastic.endpoints[0].sqlPath=_nlpcn/sql
 
 > MongoDB 复用 spring-data 的 `spring.data.mongodb.*` 配置，见 [MongoDB 支持](../nosql/sqltoy_mongo.md)。
 
+## 十一、GraalVM native 构建期参数（6.0.8 起）
+
+这三个参数**只在 native 镜像构建期生效**，JVM 运行模式完全忽略它们。它们用于补齐"框架无法从配置推断"的反射与代理需求，完整背景与验证结果见 [GraalVM Native Image 指引](../tools/graalvm_native.md)。
+
+```properties
+# 非实体 DTO/VO 的反射登记（packagesToScan 只识别 @Entity，DTO/VO 扫不到）
+# 按包批量登记：递归扫描包下所有 class
+spring.sqltoy.native-reflection-packages[0]=com.yourcorp.project.dto
+spring.sqltoy.native-reflection-packages[1]=com.yourcorp.project.vo
+# 按类登记：少量特殊类、按类名引用的类
+spring.sqltoy.native-reflection-classes[0]=com.yourcorp.project.report.TreeModel
+# 为使用 updateSaveFetch(EntityUpdateCallback) 的实体在构建期预生成代理子类
+# 需应用自行引入 net.bytebuddy:byte-buddy（starter 中为 optional，不传递）
+spring.sqltoy.native-entity-proxies[0]=com.yourcorp.project.entity.StockVO
+```
+
+| 参数 | 取值 | 作用 |
+| --- | --- | --- |
+| `native-reflection-packages` | 包路径数组 | 递归登记包内所有类的反射（普通 DTO/VO、record、enum 均可） |
+| `native-reflection-classes` | 全限定类名数组 | 单独登记个别类（DTO/VO、按类名引用的类） |
+| `native-entity-proxies` | 全限定类名数组 | 为列出的实体在构建期预生成 `updateSaveFetch` 代理（实体不能是 `final`，需可访问无参构造器） |
+
+> Solon 侧前缀为 `solon.sqltoy.*`，参数名相同。yaml 形态与双栈完整示例见 [GraalVM Native Image 指引](../tools/graalvm_native.md) 第 3 节。
+
 ---
 
 ## 常规项目用法

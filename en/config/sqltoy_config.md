@@ -236,6 +236,32 @@ spring.sqltoy.elastic.endpoints[0].sqlPath=_nlpcn/sql
 
 ---
 
+## 11. GraalVM native build-time parameters (since 6.0.8)
+
+These three parameters **only take effect while building a native image**; JVM mode ignores them entirely. They fill in the reflection and proxy needs the framework cannot infer from configuration. Background and verification results are in the [GraalVM Native Image Guide](../tools/graalvm_native.md).
+
+```properties
+# Reflection registration for non-entity DTO/VOs (packagesToScan only sees @Entity)
+# Register by package: every class under the package is scanned recursively
+spring.sqltoy.native-reflection-packages[0]=com.yourcorp.project.dto
+spring.sqltoy.native-reflection-packages[1]=com.yourcorp.project.vo
+# Register by class: a few special classes, classes referenced by name
+spring.sqltoy.native-reflection-classes[0]=com.yourcorp.project.report.TreeModel
+# Pre-generate proxy subclasses at build time for entities that use updateSaveFetch(EntityUpdateCallback)
+# The application must add net.bytebuddy:byte-buddy itself (optional, not transitive, in the starter)
+spring.sqltoy.native-entity-proxies[0]=com.yourcorp.project.entity.StockVO
+```
+
+| Parameter | Value | Purpose |
+| --- | --- | --- |
+| `native-reflection-packages` | array of packages | Registers reflection for every class in the package recursively (plain DTO/VOs, records, enums) |
+| `native-reflection-classes` | array of fully qualified class names | Registers individual classes (DTO/VOs, classes referenced by name) |
+| `native-entity-proxies` | array of fully qualified class names | Pre-generates the `updateSaveFetch` proxy for the listed entities at build time (the entity must not be `final` and needs an accessible no-arg constructor) |
+
+> On Solon the prefix is `solon.sqltoy.*` with the same parameter names. For YAML forms and complete examples on both stacks see section 3 of the [GraalVM Native Image Guide](../tools/graalvm_native.md).
+
+---
+
 ## Typical Project Usage
 
 Don't be intimidated by the long list — the vast majority of projects only need to set 3~5 parameters:

@@ -112,7 +112,7 @@ boolean unique = lightDao.isUnique(staffInfo, "staffCode");
 
 ```java
 /**
- * @TODO 流式获取查询结果
+ * 流式获取查询结果
  * @param queryExecutor       可通过queryExecutor.showsql()开关sql输出日志
  * @param streamResultHandler
  */

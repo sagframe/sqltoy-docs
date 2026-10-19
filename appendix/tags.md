@@ -196,13 +196,13 @@ List result = lightDao.find("report_columns",
 
 - 默认格式 `yyMMdd`；
 - 格式为空串或 `null` 时**输出空串**（`@df('')` 可实现"某段条件整体省略"的写法）；
-- 参数可以是命名参数（`@df(:beginDate, yyyy-MM-dd)`）或字面量。
+- 参数可以是命名参数（`@df(beginDate, yyyy-MM-dd)`）或 `${beginDate}` 形式，也可直接用字面量；**不要写成 `:beginDate`**——宏的取值来自传入的参数 Map，键名不带冒号。
 
 ```xml
 <sql id="query_by_month">
 	select * from sqltoy_order_info t
 	where t.trans_month = '@df(yyyyMM)'
-	#[and t.trans_date >= '@df(:beginDate, yyyy-MM-dd)']
+	#[and t.trans_date >= '@df(beginDate, yyyy-MM-dd)']
 </sql>
 ```
 
@@ -216,7 +216,7 @@ List result = lightDao.find("report_columns",
 @case(参数, 值1, 结果1, 值2, 结果2, ..., 默认结果)
 ```
 
-- 参数可以是命名参数（`@case(:orderType, ...)`）或 `${参数名}` 形式；
+- 参数可以是命名参数（`@case(orderType, ...)`）或 `${orderType}` 形式；
 - 参数少于 3 个时输出空串；
 - **最后一个参数是默认结果**（没有匹配项时输出）。
 
@@ -224,7 +224,7 @@ List result = lightDao.find("report_columns",
 <!-- 按订单类型拼不同的排序规则 -->
 select * from sqltoy_order_info t
 where t.status=1
-order by @case(:orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.create_time desc')
+order by @case(orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.create_time desc')
 ```
 
 > 业务主键场景同样使用该宏，见 [主键策略 · @BusinessId](../primarykey/sqltoy_primarykey.md)。
@@ -242,7 +242,7 @@ order by @case(:orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.c
 ```xml
 <!-- 用订单号前两位区分业务线 -->
 select * from sqltoy_order_info t
-where t.biz_line = '@substr(:orderId,0,2)'
+where t.biz_line = '@substr(orderId,0,2)'
 ```
 
 ## 十二、@virtualTable()（跨库虚表）

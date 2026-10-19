@@ -26,7 +26,22 @@ Once configured, whenever any query feature is executed, sqltoy replays (redo) t
 
 > Tip: `redoDataSources` is for **adaptation verification** only; replayed queries do not affect the primary query result. It can be turned off in production.
 
-## 3. Related
+## 3. Supporting Tools and Verification Projects
+
+| Tool | Purpose |
+| --- | --- |
+| [sagacity-db-diversity](https://github.com/sagframe/sagacity-db-diversity) | **Schema difference comparison**: connect to a reference database and a target database separately, export tables/columns/primary keys/foreign keys/indexes/comments to xml, then compare offline. It supports one-sided connections (a dev environment reachable only through a bastion) and comparing exports taken at different times. Run it before a database migration and clear the schema differences first |
+| [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify) | **Native-build verification matrix** (Spring + Solon, PostgreSQL pgvector + postgis) that also covers dialect function conversion and both cache-translate implementations |
+| [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) | Demo project for per-database verification and feature walkthroughs |
+
+Caveats for `redoDataSources`:
+
+- Only **queries** are replayed; writes are not. Use it in development/testing and switch it off in production;
+- Every query hits the database one extra time, so **test-environment latency and connection usage roughly double** — do not enable it during load tests;
+- It exposes **dialect incompatibilities**, and is no substitute for business result validation (the same SQL can differ subtly per database: case sensitivity, ordering, null ordering).
+
+## 4. Related
 
 - Function auto-replacement and dialect sqlId: [Dialect Adaptation & Functions](sqltoy_function.md)
 - Adapting unlisted PostgreSQL-family databases (dialect/dialectMap): [SQL Showcase](../query/sql_showcase.md)
+- The full migration assessment checklist: [Database Migration Guide](../introduction/xinchuang.md)

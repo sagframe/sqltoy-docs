@@ -1,30 +1,22 @@
 # 主键策略介绍
 
-## sqltoy默认的主键策略实现(可以自行扩展)
+sqltoy 的主键分两类：**程序化主键**（框架或自定义生成器产出，不依赖数据库）与**数据库主键**（`sequence` / `identity`，由数据库产生）。前者跨库无差异，是产品化推荐做法。
 
-<img width="435" height="454" alt="image" src="https://github.com/user-attachments/assets/263a382a-0172-4064-a398-33c00fbbd4da" />
+## 一、策略总览
 
-## 支持以下主键策略
+| 策略关键字（quickvo `generator` / `@Id.generator` 的取值） | 实现类（`org.sagacity.sqltoy.plugins.id.impl`） | 形态 |
+| --- | --- | --- |
+| `default` | `DefaultIdGenerator` | 22 位有序数字：13 位当前毫秒 + 6 位纳秒 + 3 位主机 ID，如 `1592214184072221900219` |
+| `nanotime` | `NanoTimeIdGenerator` | 26 位有序数字：15 位 `yyMMddHHmmssSSS` + 6 位纳秒 + 2 位（线程 Id + 随机数）+ 3 位主机 ID |
+| `snowflake` | `SnowflakeIdGenerator` | 雪花算法，有序数字 |
+| `uuid` | `UUIDGenerator` | 32 位 UUIDv7（有序版本） |
+| `ulid` | `ULIDGenerator` | 26 位有序字符：时间戳 10 位 + 随机熵 16 位（需引入 `ulid-creator`） |
+| `redis` | `RedisIdGenerator` | 业务主键：按规则生成，如订单号「年月日 + 流水」 |
+| `sequence` / `identity` / `assign` | 由数据库或调用方负责 | 数据库序列 / 自增列 / 手工赋值 |
 
-1. sequence：数据库自身需要定义一个sequence名称，目前支持的数据库有oracle、postgresql、sqlserver等
-> 在quickvo.xml中定义表的主键策略
+> 关键字大小写不敏感，`defaultIdGenerator`、`snowflakeIdGenerator` 等写法同样可用（框架做了命名容错）。
 
-<img width="798" height="56" alt="image" src="https://github.com/user-attachments/assets/2215566f-d185-4d4c-be5f-0b0156a9354b" />
-
-> 产生的AbstractVO中@Id()注解体现sequence策略
-
-<img width="696" height="141" alt="image" src="https://github.com/user-attachments/assets/fcc1a6d2-81e3-442f-9945-359eb69e940f" />
-
-2. identity: identity策略sqltoy无需通过quickvo.xml中额外指定，会自动根据数据库判断出是否是identity。
-
-3. default:22位有序不重复数字:13位当前毫秒+6位纳秒+3位主机ID实现类：
-org.sagacity.sqltoy.plugins.id.impl.DefaultIdGenerator
-例如: 1592214184072221900219.
-
-4. nanotime:26位有序不重复数字，格式:15位:yyMMddHHmmssSSS+后6位纳秒+2位(线程Id+随机数)+3位主机ID
-5. snowflake:雪花算法16位有序不重复数字。
-6. UUID:32位UUIDv7(sqltoy5.6.59版本升级为UUIDv7有序版本)
-7. ULID:26位有序字符，时间戳10位 + 随机熵16位，项目需要引入
+`ULID` 需要额外依赖：
 
 ```xml
 <dependency>
@@ -35,19 +27,59 @@ org.sagacity.sqltoy.plugins.id.impl.DefaultIdGenerator
 </dependency>
 ```
 
-8. redis:基于redis进行统一生成有序主键，一般用于有规则的主键生成，如订单号:年月日+几位流水。
+## 二、在 quickvo.xml 中指定策略
 
-> sqltoy使用redis生成主键需要定义RedisTemplate
-> redis主键属于业务主键范畴，在quickvo.xml中定义方式
+```xml
+<!-- 主键策略：identity 列会自动识别，其余按类型/长度自动推断；
+     strategy: sequence(需 sequence 名) | assign(手工) |
+               generator(default 22位 | nanotime 26位 | snowflake | uuid | ulid | redis | 自定义类) -->
+<primary-key>
+    <!-- 可用正则批量匹配表名 -->
+    <table name="SQLTOY_\w+|LESSON_\w+|SYS_\w+" strategy="generator" generator="default" />
+    <!-- 指定数据库序列 -->
+    <table name="XXX_TABLE" strategy="sequence" sequence="SEQ_XXXX" />
+    <!-- 指定雪花算法 -->
+    <table name="sys_staff_info" strategy="generator" generator="snowflake" />
+</primary-key>
+```
 
-<img width="806" height="222" alt="image" src="https://github.com/user-attachments/assets/7aa1da10-8e26-445d-a951-57f8ab7b48b0" />
+**自动推断**（不配置 `primary-key` 时）：`bigint` → 雪花算法；22 位字符 → `DefaultIdGenerator`；26 位字符 → `NanoTimeIdGenerator`；`identity` 列 → 由数据库生成，无需配置。
 
+## 三、生成的注解
 
-## redis 业务主键：@BusinessId 注解与 generateBizId
+quickvo 依据上述配置在 POJO 主键字段上生成 `@Id`：
 
-redis 策略属于**业务主键**范畴（如订单号：年月日+几位流水）。除通过 quickvo / `@Id` 配置单个业务主键外，当一个表涉及**多个业务主键**时（配置层面只支持单个），可用 `@BusinessId` 注解 + `generateBizId` API 自行生成后赋值。
+```java
+// strategy="generator" + generator 关键字
+@Id(strategy = "generator", generator = "org.sagacity.sqltoy.plugins.id.impl.NanoTimeIdGenerator")
+@Column(name = "ID", type = java.sql.Types.VARCHAR, length = 26, nullable = false)
+private String id;
 
-* 1、在 POJO 字段上用 `@BusinessId` 声明业务主键策略
+// strategy="sequence" 时指向序列名
+@Id(strategy = "sequence", sequence = "SEQ_XXXX")
+@Column(name = "ID", type = java.sql.Types.BIGINT, nullable = false)
+private Long id;
+```
+
+> `@Id` 只描述生成策略，`@Column` 描述列；两者都要标在主键字段上。属性含义见[注解速查 · @Id](../appendix/annotations.md)。
+
+## 四、redis 业务主键
+
+redis 策略属于**业务主键**范畴（订单号、单据号这类有规则的号）。quickvo 用 `business-primary-key` 声明：
+
+```xml
+<!-- 宏：@substr(${field},startIndex,length) @case(value,case1,value1,...) @df(yyMMdd) -->
+<business-primary-key>
+    <table name="LESSON_DEVICE_ORDER" column="ORDER_ID"
+           generator="redis" signature="PO@df(yyMMdd)" length="16" />
+</business-primary-key>
+```
+
+使用 redis 生成主键需要应用侧定义 `RedisTemplate`。
+
+### @BusinessId 注解与 generateBizId
+
+配置层面**一张表只支持一个**业务主键。当一个表涉及多个业务主键时，用 `@BusinessId` 注解 + `generateBizId` 自行生成后赋值：
 
 ```java
 /** 订单编号（业务主键） */
@@ -67,7 +99,7 @@ private String orderId;
 | `relatedColumns` | 参与主键生成的关联字段 |
 | `start` | 流水初始值，默认 1 |
 
-* 2、通过 LightDao 的 generateBizId 生成
+通过 `LightDao` 生成：
 
 ```java
 // 1) 基于实体对象配置的 @BusinessId 策略，提取属性值生成业务主键
@@ -84,21 +116,64 @@ long id = lightDao.generateBizId("ORDER", 1);
 
 > 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `BusinessIdAndDataVersionTest.java`（含 @BusinessId 注解用法；运行依赖 redis，已标注 @Disabled 作为参考实现）。
 
-## 使用自定义主键策略
+## 五、使用自定义主键策略
 
-1. 自定义主键策略：实现IdGenarator类
-<img width="461" height="278" alt="image" src="https://github.com/user-attachments/assets/7cb0b9cf-3304-45e0-918a-b088f3ed8750" />
+实现 `IdGenerator` 接口（包 `org.sagacity.sqltoy.plugins.id`；旧资料里常写成 `IdGenarator`，属笔误）：
 
-2. quickvo.xml 针对具体表(可以用正则表达式批量设置)进行设置
-<img width="838" height="143" alt="image" src="https://github.com/user-attachments/assets/337f16b7-3726-407c-97a9-74ff78029fd2" />
+```java
+public interface IdGenerator {
+    /**
+     * @param tableName       表名（部分策略需要按表隔离）
+     * @param signature       识别区分符号
+     * @param relatedColumns  关联字段名
+     * @param relatedColValue 关联字段值
+     * @param bizDate         当前日期
+     * @param idJavaType      主键 Java 类型
+     * @param length          主键长度
+     * @param sequenceSize    流水号长度（如 20210709[001] 后三位为流水）
+     */
+    public Object getId(String tableName, String signature, String[] relatedColumns, Object[] relatedColValue,
+            Date bizDate, String idJavaType, int length, int sequenceSize);
 
-## 主键重复处理
+    /** 可选：初始化（框架启动时回调） */
+    public default void initialize(SqlToyContext sqlToyContext) throws Exception { }
+}
+```
 
-Sqltoy的default、nanotime、snowflake 三种主键策略在单个IP服务器上部署多个应用，就会出现重复现象，原理：默认会获取IP地址来区分不同的worker。解决方法：
-1. default、nanotime：java -Dsqltoy.server.id=112(三位数字)
-2. snowflake：则需要设置2个参数，数字形式，且小于32
+然后在 quickvo.xml 里把 `generator` 写成**实现类的全限定名**（支持正则批量设置表）：
+
+```xml
+<primary-key>
+    <table name="SQLTOY_\w+" strategy="generator"
+           generator="com.yourproject.MyIdGenerator" />
+</primary-key>
+```
+
+也可以直接在 POJO 上标注，绕过 quickvo：
+
+```java
+@Id(strategy = "generator", generator = "com.yourproject.MyIdGenerator")
+```
+
+> 自定义生成器若依赖 Spring 的 bean（如 redis 模板），用 `initialize(SqlToyContext)` 拿上下文，或在实现类内部自行获取；native 镜像下该实现类需要反射注册，见 [GraalVM Native Image 指引](../tools/graalvm_native.md)。
+
+## 六、主键重复处理
+
+`default`、`nanotime`、`snowflake` 三种策略依赖**主机 ID** 区分 worker。同一台 IP 的服务器部署多个应用实例时会重复，需显式指定：
+
 ```shell
+# default、nanotime：三位数字
+java -Dsqltoy.server.id=112
+
+# snowflake：两个参数，数字形式且小于 32
 java -Dsqltoy.snowflake.workerId=11
 java -Dsqltoy.snowflake.dataCenterId=20
 ```
 
+> 容器化/云环境（Pod IP 动态变化）建议：显式配置上述参数，或改用 `redis` 策略/自定义生成器集中发号。
+
+## 七、相关
+
+- `@Id`/`@BusinessId` 属性表：[注解速查](../appendix/annotations.md)
+- 主键插入返回值的方言差异：[方言自适配与函数扩展](../dialect/sqltoy_function.md)
+- 换库迁移时的主键评估：[换库迁移适配指引](../introduction/xinchuang.md)
