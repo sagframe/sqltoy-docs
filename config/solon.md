@@ -69,6 +69,6 @@ public class TestController {
 
 ## 四、GraalVM Native
 
-solon-plugin 内置 `org.sagacity.sqltoy.solon.integration.aot.SqltoyRuntimeNativeRegistrar`（实现 Solon 的 `RuntimeNativeRegistrar` 接口），构建 native image 时自动注册 sqltoy 配置资源（`sqltoy-translate.xml` 等）与实体类反射元数据，无需手工追加 reflect-config；6.0.8 起同样按配置动态注册资源 pattern 与扩展类反射。
+solon-plugin 内置 `org.sagacity.sqltoy.solon.integration.aot.SqltoyRuntimeNativeRegistrar`（实现 Solon 的 `RuntimeNativeRegistrar` 接口），构建 native image 时自动注册 sqltoy 配置资源（`sqltoy-translate.xml` 等）与实体类反射元数据，无需手工追加 reflect-config；6.0.8 起同样按配置动态注册资源 pattern、扩展类反射，并支持用 `native-reflection-packages` / `native-reflection-classes` 登记非实体 DTO/VO 的反射。
 
 > Spring Boot 侧的 AOT 说明与完整 native 指引见 [GraalVM Native Image 指引](../tools/graalvm_native.md)。

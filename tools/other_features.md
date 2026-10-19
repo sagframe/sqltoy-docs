@@ -4,7 +4,7 @@
 
 ## 一、GraalVM Native Image（AOT 原生支持）
 
-`sagacity-sqltoy-spring-starter` 内置 Spring AOT 支持（经 `META-INF/spring/aot.factories` 自动注册 `SqltoyRuntimeHintsRegistrar` 与 `SqltoyBeanFactoryInitializationAotProcessor`），`sagacity-sqltoy-solon-plugin` 对称内置 `SqltoyRuntimeNativeRegistrar`，按 Spring Boot 官方方式构建原生镜像即可；6.0.8 起按实际配置动态注册资源 pattern 与扩展类反射，native 场景只需配置 `packagesToScan`：
+`sagacity-sqltoy-spring-starter` 内置 Spring AOT 支持（经 `META-INF/spring/aot.factories` 自动注册 `SqltoyRuntimeHintsRegistrar` 与 `SqltoyBeanFactoryInitializationAotProcessor`），`sagacity-sqltoy-solon-plugin` 对称内置 `SqltoyRuntimeNativeRegistrar`，按 Spring Boot 官方方式构建原生镜像即可；6.0.8 起按实际配置动态注册资源 pattern 与扩展类反射，native 场景实体需配置 `packagesToScan`，非实体 DTO/VO 可用 `native-reflection-packages`（按包）或 `native-reflection-classes`（按类名）登记：
 
 ```bash
 # 按 Spring Boot 标准方式构建 native image，sqltoy 的 hints 自动生效

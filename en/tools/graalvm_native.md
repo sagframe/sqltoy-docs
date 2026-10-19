@@ -8,7 +8,7 @@ Both the sqltoy spring-starter and solon-plugin ship with built-in AOT/native su
 
 | Module | AOT component | Registration | Purpose |
 | --- | --- | --- | --- |
-| `sagacity-sqltoy-spring-starter` | `SqltoyRuntimeHintsRegistrar` | auto-registered via `META-INF/spring/aot.factories` | fixed resource patterns (`sqltoy-translate.xml`, `translates/**`, `sqltoy/**`) + reflection for the config-property classes and the 5 built-in id generators |
+| `sagacity-sqltoy-spring-starter` | `SqltoyRuntimeHintsRegistrar` | auto-registered via `META-INF/spring/aot.factories` | fixed resource patterns (`sqltoy-translate.xml`, `translates/**`, `sqltoy/**`) + reflection for the config-property classes and the 6 built-in id generators (Default/UUID/ULID/NanoTime/Redis/Snowflake) |
 | `sagacity-sqltoy-spring-starter` | `SqltoyBeanFactoryInitializationAotProcessor` | same | entity reflection plus configuration-driven resource patterns and extension-class reflection (since 6.0.8, see section 3) |
 | `sagacity-sqltoy-solon-plugin` | `SqltoyRuntimeNativeRegistrar` | mounted automatically by `SqlToyPluginImpl` in AOT mode | symmetric with the Spring side (solon's AOT build runs the real startup flow, so configuration beans are genuinely available) |
 
@@ -53,6 +53,8 @@ spring:
 
 > On a regular JVM this property is optional (entities are parsed on demand); setting it only means eager parsing at startup, with no behavioral difference.
 
+> `packagesToScan` only covers `@Entity`; plain DTO/VOs returned by queries are registered with `native-reflection-packages` / `native-reflection-classes` in section 3.1.
+
 ### 2. Resource and extension-class registration (automatic since 6.0.8)
 
 **Since 6.0.8**, `SqltoyBeanFactoryInitializationAotProcessor` binds the `spring.sqltoy` configuration straight from the Environment (during AOT build processing the container does not instantiate/bind beans, so the old bean-snapshot implementation saw an empty configuration) and registers automatically:
@@ -60,6 +62,8 @@ spring:
 | Registered | Configuration source |
 | --- | --- |
 | Entity reflection | `packagesToScan` / `annotatedClasses` scan |
+| Id-generator reflection | the 6 built-in generators are always registered (Default/UUID/ULID/NanoTime/Redis/Snowflake); custom generator classes referenced by `@Id(generator/strategy)` or `@BusinessId(generator)` on scanned entities are registered automatically |
+| Nested config-property classes | `Elastic`, `ElasticConfig` (needed by solon's runtime `cfg().toBean(...)` binding for nested endpoints) |
 | Sql file resource patterns | `sqlResourcesDir` (multi-directory splitting), `sqlResources` |
 | Translate config resources | `translateConfig` (`.xml` as files, directories as `/**`) |
 | Key resources | `securePublicKey` / `securePrivateKey` |
@@ -69,7 +73,7 @@ spring:
 | JsonProvider reflection | **all** built-in implementations whose JSON library is on the classpath (fastjson2/jackson3/jackson2, by their markers) plus an explicitly configured custom implementation class name |
 | Lambda serialization base | java-serialization registration for `SerializedLambda` and sqltoy's mirror class (fixed; the app side must additionally register lambda defining classes, see next section) |
 
-In other words: **applications that use sqltoy through its configuration conventions need zero extra code for a native build since 6.0.8**.
+In other words: **with entities, resources and extensions configured by convention, a native build needs no extra AOT code since 6.0.8**; non-entity DTO/VOs are registered with `native-reflection-classes` / `native-reflection-packages` in the next section.
 
 > [!WARNING]
 > The built-in implementation behind `sqlFormater` (`DefaultSqlFormater`) hard-depends on druid (optional in core): applications configuring `sqlFormater` must add druid themselves, otherwise the debug-statistics path (`SqlExecuteStat`) throws `NoClassDefFoundError` when it formats SQL (not triggered while debug is off).
@@ -84,7 +88,7 @@ Five categories the framework cannot infer — complete runnable examples: [sqlt
 1. **classpath resources loaded by application code itself**: e.g. startup schema scripts (the showcase's `mock/schema-*.sql`, read by `DataSourceConfig`);
 2. **classes referenced BY NAME from SQL/third-party mechanisms**: e.g. H2's `CREATE ALIAS ... FOR 'com.x.Procedures.listStaff'` (loaded via `Class.forName` by H2 at runtime);
 3. **`@Bean` methods declared with an interface return type that carry `initMethod`/transactional proxies**: Spring AOT pre-determines bean types from the declaration, and an interface declaration hides the concrete class (the native runtime then fails with a missing init method or "CGLIB runtime enhancement not supported") — **declare the `@Bean` with the concrete return type** and no hints are needed (the showcase's sharding-strategy beans and the 6.0.8 starter's DAO beans are declared this way);
-4. **DTO/VO classes used as query resultType**: not `@Entity` (so `packagesToScan` does not see them) yet instantiated reflectively by sqltoy at runtime — register them for reflection;
+4. **DTO/VO classes used as query resultType**: not `@Entity` (so `packagesToScan` does not see them) yet instantiated reflectively by sqltoy at runtime — since 6.0.8 use `native-reflection-classes` / `native-reflection-packages` (see 3.1) instead of writing `RuntimeHints` by hand;
 5. **classes that use lambda conditions (lambdaQuery/lambdaUpdate/lambdaDelete)**: property extraction goes through writeReplace/serialization mirroring, which in a native image requires registration by "lambda defining class" — on spring declare `lambdaCapturingTypes` in `META-INF/native-image/**/serialization-config.json` (or `hints.reflection().registerLambda(definingClass, b -> b.withInterfaces(LambdaFn.class))`), on solon `metadata.registerLambdaSerialization(definingClass)`; without it the whole lambda system is unavailable under native (JVM mode is unaffected).
 
 ```java
@@ -108,13 +112,91 @@ public class ShowcaseApplication { ... }
 > [!TIP]
 > Keeping sql files under `classpath:sqltoy/` (the solon default convention) hits the built-in fixed patterns — no resource registration code needed on any version.
 
+#### 3.1 Registering DTO/VO reflection (since 6.0.8)
+
+`packagesToScan` only recognizes `@Entity`; plain resultType DTO/VOs are not covered. Since 6.0.8 both starters expose two build-time properties, and the AOT processor registers the reflection metadata automatically — no hand-written `RuntimeHints` needed:
+
+| Property | Value | Use case |
+| --- | --- | --- |
+| `native-reflection-classes` | list of fully-qualified class names | a few special classes, classes referenced by name, individual DTO/VOs |
+| `native-reflection-packages` | list of package paths | many DTO/VOs, register them by package |
+
+```yaml
+# Spring Boot
+spring:
+  sqltoy:
+    # recursively register every class under the package(s)
+    native-reflection-packages:
+      - com.yourcorp.project.dto
+      - com.yourcorp.project.vo
+    # add special classes individually
+    native-reflection-classes:
+      - com.yourcorp.project.report.TreeModel
+```
+
+```yaml
+# Solon
+solon:
+  sqltoy:
+    native-reflection-packages:
+      - com.yourcorp.project.dto
+      - com.yourcorp.project.vo
+    native-reflection-classes:
+      - com.yourcorp.project.report.TreeModel
+```
+
+Rules:
+
+- `native-reflection-packages` recursively scans all `.class` files under each package and registers `MemberCategory.values()`; plain DTO/VOs, records, enums and entity classes are all registered.
+- Interfaces, annotations, anonymous/local/synthetic classes and `package-info` are skipped; a class that fails to load is logged and skipped without failing the AOT build.
+- Both properties may be used together; duplicate registrations are harmless.
+- Package scanning registers every class under the package, which slightly increases image size — keep DTO/VO packages free of unrelated classes rather than adding broad application packages.
+- These properties are build-time only and do not affect JVM mode; they do not replace `packagesToScan` — `@Entity` classes still need `packagesToScan` / `annotatedClasses`.
+
+> [!NOTE]
+> Verified in real native builds of `sqltoy-aot-verify` on both Spring and Solon: with the application-side DTO reflection code removed and only `native-reflection-packages` configured, the B1 DTO translate query still passes; that round did not configure `native-entity-proxies`, so both native smoke runs report **16 PASS + 0 FAIL + 1 KNOWN-LIMITATION** (with proxies configured, see 3.2: 17 PASS + 0 KNOWN). The generated `reachability-metadata.json`/`reflect-config.json` contains the DTO types.
+
+#### 3.2 updateSaveFetch entity proxies (`native-entity-proxies`)
+
+The "row exists" branch of `updateSaveFetch(entity, EntityUpdateCallback, ...)` needs a proxy that intercepts entity getters/setters: getters read the current `ResultSet` row and setters write to it. On the JVM this subclass is generated at runtime by ByteBuddy; a native image is closed-world and **cannot define new classes at runtime**, so that branch is unavailable by default.
+
+Since 6.0.8, `native-entity-proxies` makes the AOT build pre-generate proxy subclasses (including ByteBuddy auxiliary classes) only for the listed entities, writes them into the image and registers their reflection metadata. At runtime `EntityResultSetProxy` first loads `<entity class name>$$SqltoyEntityProxy`; only if it is missing does it fall back to JVM dynamic generation:
+
+```yaml
+# Spring Boot: list only entities that actually use EntityUpdateCallback
+spring:
+  sqltoy:
+    native-entity-proxies:
+      - com.yourcorp.project.entity.StockVO
+      - com.yourcorp.project.entity.AccountVO
+```
+
+```yaml
+# Solon
+solon:
+  sqltoy:
+    native-entity-proxies:
+      - com.yourcorp.project.entity.StockVO
+      - com.yourcorp.project.entity.AccountVO
+```
+
+Constraints:
+
+- The entity must be subclassable: not `final` and with an accessible no-arg constructor; otherwise AOT logs a warning and the entity still fails at runtime with "not pre-generated".
+- `byte-buddy` is optional in the starter/plugin and is not transitive; applications using `native-entity-proxies` must add `net.bytebuddy:byte-buddy` explicitly. Without it, the AOT build logs a clear warning and skips proxy generation; the entity remains unavailable at runtime.
+- Only the listed entities are covered; unlisted entities keep the "unavailable under native" limitation and never silently fall back to runtime generation.
+- Both the proxy and its auxiliary classes are added to the image; more entities slightly increase image size, so do not list every entity indiscriminately.
+
+> [!NOTE]
+> Verified in real native builds of `sqltoy-aot-verify` on both stacks: with `native-entity-proxies: com.sqltoy.aotverify.entity.AotUsfVO`, C1 (`updateSaveFetch` with `EntityUpdateCallback`) changes from KNOWN-LIMITATION to **PASS**, and both smoke runs report **17 PASS + 0 FAIL + 0 KNOWN-LIMITATION**.
+
 > **Historical note (6.0.7 and earlier)**: the starter's AOT entity registration did not work under Spring AOT processing (configuration beans are not bound at build time, so the entity snapshot came out empty), and the built-in fixed patterns only span the `sqltoy/**`, `translates/**`, `sqltoy-translate.xml` conventions. Applications had to cover five things themselves: ① resource patterns for custom sql directories; ② reflection for class-name configured extensions; ③ entity reflection (scanning the same package as `packagesToScan` for `@Entity`); ④ reflection for sqltoy's 8 XML parsing model classes (without them the attributes of `<unpivot>`/`<tree-sort>`/chain-relative tags are **silently dropped** and parsing dies with an NPE); ⑤ re-declaring the DAO beans with concrete return types. The full 6.0.7-era recipe is in the showcase repository history.
 
 ## 4. Known Limitations
 
 | Limitation | Cause | Scope |
 | --- | --- | --- |
-| `updateSaveFetch` (`EntityUpdateCallback`) is unavailable | `EntityResultSetProxy` generates entity subclasses at runtime via byte-buddy; native image does not support runtime class generation (observed failure: `IllegalArgumentException: Could not create type`) | that feature only; regular CRUD/queries are unaffected; the insert branch (row does not exist) bypasses the proxy and works under native (verified) |
+| `updateSaveFetch` (`EntityUpdateCallback`) is unavailable by default | `EntityResultSetProxy` generates entity subclasses at runtime via byte-buddy; native image does not support runtime class generation (observed failure: `IllegalArgumentException: Could not create type`) | that feature only; **configuring `native-entity-proxies` for the entity pre-generates the proxy at build time and makes C1 PASS (verified)**; unlisted entities remain unavailable; regular CRUD/queries and the insert branch are unaffected |
 | Sql hot reload is disabled | sql files are baked into the image and loaded as a resource list — there is no File to watch | debug hot reload only; use JVM mode during development |
 | The startup warning "no entity classes ... matched in the sqltoy pojo scan path" is expected | `EntityScanner` enumerates directories via the file/jar protocol, which is unavailable inside the image, so the `packagesToScan` startup scan comes out empty under native | no functional impact: entity reflection metadata is registered at build time and entities are parsed lazily on first use at runtime (CRUD + translate cache verified by the native smoke run) |
 | Third-party components rely on their own metadata | native support for mongo/ES/redis/ehcache clients comes from their official reachability metadata | check the respective library's documentation when using them. Known example: **fastjson2**'s bundled native-image.properties misses nested classes (`JSONFactory$CacheItem` etc.), which fails GraalVM 25's image-heap validation — add the build argument `--initialize-at-build-time=com.alibaba.fastjson2` (already wired in sqltoy-aot-verify); even then its `JDKUtils` Unsafe field-offset recomputation fails at build time, so runtime detection **silently skips fastjson2 and degrades to jackson3/jackson2** by design (functionality unaffected) — prefer jackson2/jackson3 for JSON columns under native (both verified) |
@@ -122,14 +204,14 @@ public class ShowcaseApplication { ... }
 
 ## 5. Solon Integration
 
-The solon-plugin ships `SqltoyRuntimeNativeRegistrar` (implementing solon's `RuntimeNativeRegistrar` interface, mounted automatically by `SqlToyPluginImpl` in AOT mode). Its registrations are symmetric with the Spring side: fixed resource patterns, reflection for config-property classes and id generators, entity reflection — and since 6.0.8, configuration-driven resource patterns and extension-class reflection as well. Solon's default `sqlResourcesDir=classpath:sqltoy` hits the built-in patterns, so it works with zero configuration. For the build flow see the official solon native documentation and the [Solon Integration Reference](../config/solon.md).
+The solon-plugin ships `SqltoyRuntimeNativeRegistrar` (implementing solon's `RuntimeNativeRegistrar` interface, mounted automatically by `SqlToyPluginImpl` in AOT mode). Its registrations are symmetric with the Spring side: fixed resource patterns, reflection for config-property classes and the 6 built-in id generators, entity reflection — and since 6.0.8, configuration-driven resource patterns, extension-class reflection, and the DTO/VO and special classes listed by `native-reflection-classes` / `native-reflection-packages`, plus `native-entity-proxies` for pre-generated updateSaveFetch proxies. Solon's default `sqlResourcesDir=classpath:sqltoy` hits the built-in patterns, so it works with zero configuration. For the build flow see the official solon native documentation and the [Solon Integration Reference](../config/solon.md).
 
 > [!NOTE]
 > When solon binds a yml **scalar** to a `String[]`, the elements come out quoted (`packagesToScan: com.x.entity` binds as `"com.x.entity"`), and a quoted package name makes the entity scan come out silently empty. Since 6.0.8 the plugin strips surrounding quotes, so both the scalar and the yaml-list forms work; on 6.0.7 and earlier use the yaml-list form.
 
 ## 6. Demo & Verification
 
-**Dedicated verification project [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify)** (spring + solon stacks sharing one verification matrix, PostgreSQL pgvector+postgis): the matrix covers CRUD × json/vector/geometry in three shapes (String / float[] / JTS Geometry), cache translate on both ehcache and caffeine, the updateSaveFetch proxy path, and lambda single-table/join/setExpr/matchAll-guard/delete. JVM full matrix: 16/16 PASS on both stacks; native smoke: 15 PASS + 1 KNOWN-LIMITATION (the updateSaveFetch proxy path, expected) on both stacks.
+**Dedicated verification project [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify)** (spring + solon stacks sharing one verification matrix, PostgreSQL pgvector+postgis): the matrix covers CRUD × json/vector/geometry in three shapes (String / float[] / JTS Geometry), cache translate on both ehcache and caffeine, the updateSaveFetch proxy path, and lambda single-table/join/setExpr/matchAll-guard/delete. JVM full matrix: 17/17 PASS on both stacks; with `native-entity-proxies` configured, native smoke: **17 PASS + 0 KNOWN-LIMITATION** on both stacks (C1 resolved by the pre-generated proxy).
 
 The demo project [sqltoy-showcase](https://github.com/sagframe/sqltoy-showcase) provides two verification layers:
 

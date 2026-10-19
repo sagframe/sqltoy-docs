@@ -69,6 +69,6 @@ The datasource-selection mechanism (the `datasource` attribute in sql, the lazyD
 
 ## 4. GraalVM Native
 
-The solon-plugin ships `org.sagacity.sqltoy.solon.integration.aot.SqltoyRuntimeNativeRegistrar` (implementing Solon's `RuntimeNativeRegistrar` interface). When building a native image it automatically registers sqltoy's configuration resources (`sqltoy-translate.xml`, etc.) and entity-class reflection metadata — no manual reflect-config additions needed; since 6.0.8 it also registers resource patterns and extension-class reflection dynamically from the configuration.
+The solon-plugin ships `org.sagacity.sqltoy.solon.integration.aot.SqltoyRuntimeNativeRegistrar` (implementing Solon's `RuntimeNativeRegistrar` interface). When building a native image it automatically registers sqltoy's configuration resources (`sqltoy-translate.xml`, etc.) and entity-class reflection metadata — no manual reflect-config additions needed; since 6.0.8 it also registers resource patterns and extension-class reflection dynamically from the configuration, and supports `native-reflection-packages` / `native-reflection-classes` for non-entity DTO/VO reflection.
 
 > For the Spring Boot side of AOT and the full native guide, see the [GraalVM Native Image Guide](../tools/graalvm_native.md).

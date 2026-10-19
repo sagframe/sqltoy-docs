@@ -4,7 +4,7 @@ This page summarizes a few less frequently used capabilities that are quite valu
 
 ## 1. GraalVM Native Image (AOT Support)
 
-`sagacity-sqltoy-spring-starter` ships with built-in Spring AOT support (`SqltoyRuntimeHintsRegistrar` and `SqltoyBeanFactoryInitializationAotProcessor`, auto-registered via `META-INF/spring/aot.factories`), mirrored by `SqltoyRuntimeNativeRegistrar` in `sagacity-sqltoy-solon-plugin`. Build the native image the standard Spring Boot way; since 6.0.8 resource patterns and extension-class reflection are registered dynamically from the actual configuration, and native scenarios only require `packagesToScan`:
+`sagacity-sqltoy-spring-starter` ships with built-in Spring AOT support (`SqltoyRuntimeHintsRegistrar` and `SqltoyBeanFactoryInitializationAotProcessor`, auto-registered via `META-INF/spring/aot.factories`), mirrored by `SqltoyRuntimeNativeRegistrar` in `sagacity-sqltoy-solon-plugin`. Build the native image the standard Spring Boot way; since 6.0.8 resource patterns and extension-class reflection are registered dynamically from the actual configuration. In native scenarios entities still need `packagesToScan`, while non-entity DTO/VOs can be registered with `native-reflection-packages` (by package) or `native-reflection-classes` (by class name):
 
 ```bash
 # Build the native image the standard Spring Boot way; sqltoy's hints take effect automatically
