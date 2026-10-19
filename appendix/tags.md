@@ -184,6 +184,81 @@ List result = lightDao.find("report_columns",
         MapKit.keys("cols", "status").values("organ_id,dept_id", 1));
 ```
 
+## 九、@df() / @day()（日期格式化）
+
+把日期格式化成字符串后拼进 SQL，**不需要**关心目标库的日期函数（这是**字符串拼接**，不是数据库函数替换）。
+
+```text
+@df(格式)                 → 取当前时间按格式输出
+@df(参数, 格式)           → 把参数值按格式输出
+@day(...)                 → 与 @df 完全等价（历史别名）
+```
+
+- 默认格式 `yyMMdd`；
+- 格式为空串或 `null` 时**输出空串**（`@df('')` 可实现"某段条件整体省略"的写法）；
+- 参数可以是命名参数（`@df(:beginDate, yyyy-MM-dd)`）或字面量。
+
+```xml
+<sql id="query_by_month">
+	select * from sqltoy_order_info t
+	where t.trans_month = '@df(yyyyMM)'
+	#[and t.trans_date >= '@df(:beginDate, yyyy-MM-dd)']
+</sql>
+```
+
+> 与 [filter 的 `<to-date>`](../query/dynamic_sql.md) 区别：`@df` 是把**值格式化后拼进 SQL 文本**（会形成字面量），`<to-date>` 是把**参数转成日期类型后仍以 `?` 绑定**。涉及外部输入时优先用 `<to-date>`，`@df` 更适合报表拼接期间、分区表名等场景。
+
+## 十、@case()（decode 式枚举判断）
+
+类似 Oracle `decode` 的取值映射，把参数值按枚举翻译成对应的字符串或 SQL 片段：
+
+```text
+@case(参数, 值1, 结果1, 值2, 结果2, ..., 默认结果)
+```
+
+- 参数可以是命名参数（`@case(:orderType, ...)`）或 `${参数名}` 形式；
+- 参数少于 3 个时输出空串；
+- **最后一个参数是默认结果**（没有匹配项时输出）。
+
+```xml
+<!-- 按订单类型拼不同的排序规则 -->
+select * from sqltoy_order_info t
+where t.status=1
+order by @case(:orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.create_time desc')
+```
+
+> 业务主键场景同样使用该宏，见 [主键策略 · @BusinessId](../primarykey/sqltoy_primarykey.md)。
+
+## 十一、@substr() / @substring()（子串截取）
+
+```text
+@substr(参数, 起始位置, 长度)
+```
+
+- 起始位置从 0 开始；**为负数表示从尾部截取**；
+- 起始位置大于等于字符串长度时输出空串；
+- 参数为空时输出空串；`@substring` 与 `@substr` 等价。
+
+```xml
+<!-- 用订单号前两位区分业务线 -->
+select * from sqltoy_order_info t
+where t.biz_line = '@substr(:orderId,0,2)'
+```
+
+## 十二、@virtualTable()（跨库虚表）
+
+"select 常量行 union 真实查询"类写法（字典下拉兜底行、报表固定合计行等）在 oracle/db2/hana 上必须挂伪表，而 mysql/pg/sqlserver 等写 `from dual` 反而报错。用该宏在解析期按方言自动展开：
+
+```sql
+select '0' id,'全局公共' name @virtualTable()
+union
+select id,name from sqltoy_dict_detail where status=1
+```
+
+- oracle 系（oracle/oracle11/dm/oceanbase）→ `from dual`；db2 → `from sysibm.sysdummy1`；hana → `from dummy`；其余方言直接剔除；
+- 兼容别名 `@dual()` / `@dummyTable()`，三者等价、大小写不敏感、括号内空白容错；一条 SQL 可出现多次；
+- 不含该宏的 SQL 零影响；详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)。
+
 ---
 
-> 相关：[`#[]` 与 filters 过滤器](../query/dynamic_sql.md)、[常见 SQL 案例](../query/sql_showcase.md)、[分页优化](../query/pagination.md)。
+> 相关：[`#[]` 与 filters 过滤器](../query/dynamic_sql.md)、[常见 SQL 案例](../query/sql_showcase.md)、[分页优化](../query/pagination.md)、[注解速查](annotations.md)。

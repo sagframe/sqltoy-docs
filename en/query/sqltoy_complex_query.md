@@ -294,6 +294,32 @@ For tree tables with hierarchical relationships (organization structures, accoun
 
 ---
 
+## 6b. Reversing the Result Set (reverse)
+
+`<reverse>` reverses the result set **in place** (the whole set by default, or only a given row range). The typical case is "the SQL takes the most recent N rows in descending time order, but the page must display them in ascending order" — no extra sub-query needed.
+
+```xml
+<sql id="recent_orders">
+    <value><![CDATA[
+        select t.order_id,t.trans_date from sqltoy_order_info t
+        order by t.trans_date desc
+    ]]></value>
+    <!-- reverse only the first 10 rows (0-based): "latest 10, displayed in ascending order" -->
+    <reverse start-row="0" end-row="9" />
+</sql>
+```
+
+Attributes:
+
+| Attribute | Notes |
+| --- | --- |
+| `start-row` | First row to reverse, **0-based**, defaults to 0 |
+| `end-row` | Last row (inclusive), defaults to the last row; **a negative value counts from the end** (-1 is the last row) |
+
+> With fewer than 2 rows, a `start-row` beyond the last row, or an invalid range, the result is returned unchanged — no exception.
+
+---
+
 ## 7. Java API (QueryExecutor)
 
 All of the XML analytics tags above have corresponding `QueryExecutor` fluent methods that can be built dynamically in code: `summary()`, `pivot()`, `unpivot()`, `colsChainRatio()`, `rowsChainRatio()`, `treeSort()`, `groupConcat()`, plus formatting `numFmt()`/`dateFmt()`, masking `secureMask()`, and more.

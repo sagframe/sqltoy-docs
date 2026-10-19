@@ -186,6 +186,81 @@ List result = lightDao.find("report_columns",
         MapKit.keys("cols", "status").values("organ_id,dept_id", 1));
 ```
 
+## 9. @df() / @day() (date formatting)
+
+Formats a date into a string and splices it into the SQL — **no knowledge of the target database's date functions required** (this is **string concatenation**, not database function replacement).
+
+```text
+@df(format)               → current time rendered with the format
+@df(param, format)        → the parameter value rendered with the format
+@day(...)                 → exactly equivalent to @df (historical alias)
+```
+
+- The default format is `yyMMdd`;
+- An empty or `null` format **emits an empty string** (`@df('')` is a way to omit a whole condition);
+- The parameter may be a named parameter (`@df(:beginDate, yyyy-MM-dd)`) or a literal.
+
+```xml
+<sql id="query_by_month">
+	select * from sqltoy_order_info t
+	where t.trans_month = '@df(yyyyMM)'
+	#[and t.trans_date >= '@df(:beginDate, yyyy-MM-dd)']
+</sql>
+```
+
+> Difference from the [`<to-date>`](../query/dynamic_sql.md) filter: `@df` formats the **value into SQL text** (producing a literal), while `<to-date>` converts the **parameter to a date type and still binds it as `?`**. Prefer `<to-date>` for external input; `@df` suits report concatenation and partition-table names.
+
+## 10. @case() (decode-style enumeration)
+
+A `decode`-like value mapping that turns a parameter value into the matching string or SQL fragment:
+
+```text
+@case(param, value1, result1, value2, result2, ..., defaultResult)
+```
+
+- The parameter may be a named parameter (`@case(:orderType, ...)`) or the `${paramName}` form;
+- Fewer than three parameters emits an empty string;
+- **The last parameter is the default result** (emitted when nothing matches).
+
+```xml
+<!-- splice a different ORDER BY per order type -->
+select * from sqltoy_order_info t
+where t.status=1
+order by @case(:orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.create_time desc')
+```
+
+> The same macro is used for business keys — see [Primary Key Strategies · @BusinessId](../primarykey/sqltoy_primarykey.md).
+
+## 11. @substr() / @substring() (substring)
+
+```text
+@substr(param, startIndex, length)
+```
+
+- `startIndex` is 0-based; **a negative value means taking from the tail**;
+- A start index at or beyond the string length emits an empty string;
+- A blank parameter emits an empty string; `@substring` and `@substr` are equivalent.
+
+```xml
+<!-- use the first two characters of the order id as the business line -->
+select * from sqltoy_order_info t
+where t.biz_line = '@substr(:orderId,0,2)'
+```
+
+## 12. @virtualTable() (cross-database dummy table)
+
+"select constant rows union real query" SQL (dictionary dropdown fallback rows, fixed report total rows, etc.) needs a pseudo-table on oracle/db2/hana, while mysql/pg/sqlserver error out on `from dual`. This macro expands per dialect at parse time:
+
+```sql
+select '0' id,'Global' name @virtualTable()
+union
+select id,name from sqltoy_dict_detail where status=1
+```
+
+- oracle family (oracle/oracle11/dm/oceanbase) → `from dual`; db2 → `from sysibm.sysdummy1`; hana → `from dummy`; stripped for every other dialect;
+- Compatible aliases `@dual()` / `@dummyTable()` — all three equivalent, case-insensitive, tolerant of spaces inside the parentheses; may appear several times in one SQL;
+- SQL without the macro is completely unaffected; see [Dialect Adaptation & Functions](../dialect/sqltoy_function.md).
+
 ---
 
-> Related: [`#[]` and filters](../query/dynamic_sql.md), [Common SQL Examples](../query/sql_showcase.md), [Pagination Optimize](../query/pagination.md).
+> Related: [`#[]` and filters](../query/dynamic_sql.md), [Common SQL Examples](../query/sql_showcase.md), [Pagination Optimize](../query/pagination.md), [Annotations Cheat Sheet](annotations.md).

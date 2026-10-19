@@ -10,6 +10,7 @@ sqltoy 的核心思路：
 - **对象与表映射**：POJO/VO 通过注解（`@SqlToyEntity`/`@Entity`/`@Id`/`@Column`）与数据库表建立映射，由 `EntityManager` 统一管理。
 - **方言隔离**：所有数据库差异收敛到 `dialect` 包，通过 `DialectFactory` 自动识别数据库类型并路由到对应实现，业务 SQL 保持跨库一致。
 - **内存算法增强**：分页优化、行列转换、汇总、同比环比、树形排序、缓存翻译等，大量在应用内存中以算法完成，既减轻数据库压力又实现跨库一致。
+- **三种查询组织方式**：SQL 模式（sqlId + `#[...]`，适合复杂动态与配置化）、`EntityQuery`/`EntityUpdate`（单表字符串条件）、[Lambda 条件](../query/lambda_query.md)（属性方法引用，单表与 join 共用一套构建器）——三者共用同一条执行链路，可按场景混用。
 
 ## 二、核心包结构
 
@@ -23,10 +24,11 @@ sqltoy 的核心思路：
 | `support.SqlToyDaoSupport` | 所有数据库交互操作的**基类实现**（框架真正的"干活"类） |
 | `service.SqlToyCRUDService` | 通用 CRUD Service，简单增删改查无需自己写 Service |
 | `link` | **链式 API**：`Query`/`Save`/`Update`/`Delete`/`Load`/`Store`/`Unique`/`Execute`/`Batch`/`Elastic`/`Mongo`/`TreeTable`/`TableApi`，均继承 `BaseLink` |
+| `lambda` | **Lambda 条件体系**（6.0.8 起）：`LambdaQuery`/`LambdaUpdate`/`LambdaDelete` 与 `JoinCol`/`ExcludeCols`/`LambdaFn`/`OuterRef`；`engine`（条件段合并、参数取号、延迟组装）、`join`（join 上下文、表别名、可移植 EXISTS 改写）、`condition`（比较/聚合/逻辑条件）、`toolkit`（属性元数据提取、序列化镜像） |
 | `model` | 数据模型：`Page`、`QueryExecutor`、`EntityQuery`/`EntityUpdate`、`ParallelQuery`、`QueryResult`、`StoreResult`、`TreeTableModel`、`Summary`、`ColsChainRatio`/`RowsChainRatio`、`CacheArg`、`TableMeta`/`ColumnMeta`、`LockMode`/`SaveMode`/`MaskType` 等 |
 | `config` | SQL/实体加载与解析：`EntityManager`、`EntityScanner`、`SqlScriptLoader`（解析 `*.sql.xml`）、`SqlXMLConfigParse`、`SqlFileModifyWatcher`（debug 热加载）；`config.annotation`（各类注解）、`config.model`（解析后的配置模型） |
 | `dialect` | 数据库方言：`Dialect` 接口 + `DialectFactory`；`impl` 下 25 种方言实现（6.0 新增 SAP HANA，6.0.5 新增瀚高 HighGo）；`executor`（并行查询执行器、`ParallelUtils`）；根级 `PageOptimizeUtils`（分页/count 优化引擎）、`QueryExecutorBuilder`、`CrossDbAdapter` |
-| `plugins` | 扩展点：`calculator`（汇总/同环比/树排序/列转行等内存算法）、`datasource`（动态数据源选择）、`ddl`（POJO→DDL）、`function`（28 个跨库函数适配）、`id`（主键策略）、`interceptors`（多租户过滤）、`nosql`（ES）、`overtime`（慢 SQL）、`secure`（加解密/脱敏）、`sharding`（分库分表）；根级还有 `SqlInterceptor`、`TypeHandler`、`CrossDbAdapter`、`IUnifyFieldsHandler` |
+| `plugins` | 扩展点：`calculator`（汇总/同环比/树排序/列转行等内存算法）、`datasource`（动态数据源选择）、`ddl`（POJO→DDL）、`function`（28 个跨库函数适配）、`id`（主键策略；`id.macro` 为 `@if/@loop/@include/@case/@df/@substr` 等宏指令实现）、`interceptors`（多租户过滤）、`json`（`JsonProvider` 可插拔 JSON 库）、`nosql`（ES）、`overtime`（慢 SQL）、`secure`（加解密/脱敏）、`sharding`（分库分表）；根级还有 `SqlInterceptor`、`TypeHandler`、`CrossDbAdapter`、`IUnifyFieldsHandler` |
 | `translate` | 缓存翻译子系统：`TranslateManager`、`TranslateFactory`、`TranslateConfigParse`（解析 `sqltoy-translate.xml`）、`CacheUpdateWatcher`、`DynamicCacheFetch`；`cache`（ehcache/caffeine/FIFO 动态缓存实现） |
 | `callback` | 22 个 SPI 回调接口：`RowCallbackHandler`、`StreamResultHandler`、`TransactionHandler`、`UpdateRowHandler`、`EntityUpdateCallback`、`DecryptHandler` 等 |
 | `integration` | 框架无关 SPI：`AppContext`、`ConnectionFactory`、`DistributeIdGenerator`、`MongoQuery` |

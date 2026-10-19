@@ -291,6 +291,32 @@ sqltoy 提供一组**在内存中对结果集做二次计算**的分析能力：
 
 ---
 
+## 六之二、结果集反转（reverse）
+
+`<reverse>` 把结果集**就地反转**（默认整体反转，也可只反转指定行区间），典型场景是"SQL 按时间倒序取最近 N 条，但页面要按时间正序显示"——省掉在 SQL 里再套一层子查询。
+
+```xml
+<sql id="recent_orders">
+    <value><![CDATA[
+        select t.order_id,t.trans_date from sqltoy_order_info t
+        order by t.trans_date desc
+    ]]></value>
+    <!-- 只反转前 10 行(0 基)，实现"取最近10条再按正序展示" -->
+    <reverse start-row="0" end-row="9" />
+</sql>
+```
+
+属性：
+
+| 属性 | 说明 |
+| --- | --- |
+| `start-row` | 起始行，**从 0 开始**，缺省 0 |
+| `end-row` | 截止行（含），缺省为最后一行；**负数表示倒数第几行**（-1 即最后一行） |
+
+> 行数小于 2、`start-row` 超过最后一行、或区间不合法时**原样返回**，不抛异常。
+
+---
+
 ## 七、Java 代码方式（QueryExecutor）
 
 上述所有 XML 分析标签都有对应的 `QueryExecutor` 链式方法，可在代码中动态构建：`summary()`、`pivot()`、`unpivot()`、`colsChainRatio()`、`rowsChainRatio()`、`treeSort()`、`groupConcat()`，以及格式化 `numFmt()`/`dateFmt()`、脱敏 `secureMask()` 等。
