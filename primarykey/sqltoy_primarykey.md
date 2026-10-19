@@ -159,6 +159,8 @@ public interface IdGenerator {
 }
 ```
 
+![IdGenerator 接口定义](../_media/pk-id-generator.png)
+
 然后在 quickvo.xml 里把 `generator` 指向实现类，支持**两种写法**：全限定类名，或 `@bean(beanName)`（生成器交给 Spring 容器管理，便于注入依赖）：
 
 ```xml
