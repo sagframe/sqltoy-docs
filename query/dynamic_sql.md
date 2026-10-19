@@ -2,7 +2,7 @@
 
 sqltoy 的动态 SQL 设计目标：**让 SQL 保持整洁、可直接在数据库客户端运行**，同时把 mybatis 中夹杂在 SQL 里的 `<if>` 等动态逻辑剥离出来。
 
-- SQL 可以写在 `*.sql.xml` 中（推荐，便于维护、支持热加载），也可以直接在 Java 代码中传入，还支持第三方 lambda 插件（sqltoy-plus）。
+- SQL 可以写在 `*.sql.xml` 中（推荐，便于维护、支持热加载），也可以直接在 Java 代码中传入；条件查询还可用 [Lambda 条件体系](lambda_query.md)（6.0.8 起内置，原第三方 sqltoy-plus 已并入核心）。
 - 简单场景直接用 `lightDao` 的显式接口；复杂场景用 `findByQuery`/`findPageByQuery` 配合 `QueryExecutor` 或 `EntityQuery` 组织参数。所有显式接口底层都基于 `QueryExecutor`，理解它即可灵活运用。
 
 ---

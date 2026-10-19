@@ -33,7 +33,6 @@
     * [并行查询](query/parallel_query.md)
     * [存储过程调用](query/store_procedure.md)
     * [常见 SQL 案例](query/sql_showcase.md)
-    * [标签与表达式参考](appendix/tags.md)
 * 缓存翻译
     * [缓存翻译使用](quickstart/translates.md)
     * [超大规模主数据缓存(FIFO)](translate/sqltoy_FIFO_translate.md)
@@ -62,6 +61,11 @@
     * [扩展集成(报表/低代码)](tools/integration.md)
     * [GraalVM Native Image 指引](tools/graalvm_native.md)
     * [其他特性](tools/other_features.md)
+* 参考手册
+    * [标签与表达式](appendix/tags.md)
+    * [注解速查](appendix/annotations.md)
+    * [API 速查](appendix/api.md)
+    * [版本更新日志](introduction/changelog.md)
 * 必杀集锦
     * [必杀集锦](best/best_practices.md)
 * 常见问题

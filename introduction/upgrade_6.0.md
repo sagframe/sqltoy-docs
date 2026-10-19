@@ -1,13 +1,13 @@
 # 6.0 升级指南
 
-从 5.6.x 升级到 6.0.7（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
+从 5.6.x 升级到 6.0.8（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
 
 ## 一、环境要求
 
 | 项 | 要求 |
 | --- | --- |
 | JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.96.jre8`（最终 jre8 版本，支持 quickvo-maven-plugin 插件） |
-| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.7 |
+| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.8 |
 | 配置参数 | `spring.sqltoy.*` 在 6.0.2 的 58 个参数基础上新增 2 个：`realDialectFirst`（6.0.3 新增）、`ddlLowerOrUpper`（6.0.3 起暴露为 starter 属性），其余参数无增减，存量配置无需调整 |
 
 ## 二、API 变更（需要改代码）
@@ -156,10 +156,63 @@
 - 只受理纯标识符，`sum(col)`、`col as alias` 这类表达式仍用 `@value`（安全自负）；运算符写法（`a % b`、`a || b`）不是函数调用，同样不在受理范围；
 - 已在 PostgreSQL、MySQL 9、SQL Server 2025 三个真实数据库上完成端到端验证（普通列、default 回退、group by 聚合、保留字列、注入拦截）。
 
-## 十、升级步骤建议
+**`#[]` 剔除后自动清理括号组内悬挂的 and/or**
 
-1. 依赖版本号统一升级为 6.0.7（starter / spring / solon-plugin 与 core 同版本）；
+- 形如 `#[and ( #[t.a=:a] #[or t.b=:b] )]` 的写法，在 `a` 为 null 时既往会展开成 `and ( or t.b=:b )` 的残缺 SQL；现剔除完成后统一清理括号内 trim 后的、以 `and`/`or` 开头或结尾的悬挂连接符，使括号组各成员可独立可选（`and|or` 后紧跟 `\s+` 或 `)` 才命中，`( order by ...)` 这类以 `or` 开头的关键字不受影响），详见[动态 SQL 编写规范](../query/dynamic_sql.md)。
+
+## 十、6.0.8 更新说明
+
+6.0.8 是 6.0 线里**变更最重的一个版本**：lambda 条件体系并入核心、GraalVM AOT 重写。**纯 JVM 运行的项目无需改动代码**；使用 sqltoy-plus 的项目按第 2 条迁移；构建 native 镜像的项目需按第 4 条检查构建环境。
+
+**1. lambda 条件体系并入核心（详见[Lambda 条件查询与更新](../query/lambda_query.md)）**
+
+- 新增包 `org.sagacity.sqltoy.lambda`：`LambdaQuery` / `LambdaUpdate` / `LambdaDelete` + `JoinCol` / `ExcludeCols` / `LambdaFn` / `OuterRef` 等，以实体属性方法引用（`User::getStatus`）表达条件；
+- `LightDao` 新增三个 default 工厂 `lambdaQuery/lambdaUpdate/lambdaDelete(Class)`，执行全部由构建器终端完成（`find/getOne/findPage/count/exists/update/delete`），也可 `LambdaQuery.create(entityClass).bind(lightDao)` 先构建后执行；
+- **单表只是 join 的退化形态**：不调用 join 步骤即走单表通道（条件转 `EntityQuery`/`EntityUpdate`，复用 `findEntity`/`findPageEntity`/`getCount`/`deleteByQuery`/`updateByQuery` 链路，分片/缓存翻译/加解密脱敏/租户过滤全部继承）；调用 `leftJoin/rightJoin/innerJoin` + `on` 即切换 join 通道（生成完整 SQL 走 `find`/`findPage`/`getCount`，支持 `select/selectAll(ExcludeCols...)/JoinCol.of|avg|count|sum|min|max|distinct().as()`、CTE/`@fast` 下推/UNION）；
+- 行为差异（**需要留意**）：`getOne()` 严格语义——0 条返回 null、多于 1 条抛 `DataAccessException`（不再静默取第一条）；按条件 `update/delete` 无任何 where 时默认抛异常，需显式 `matchAll()` 放行；
+- 条件参数名由 sqltoy-plus 的 `type.valuePairs.MPG1` 形式改为全构建器唯一且跨嵌套共享序号的 `:p1…:pN`——**断言 SQL 文本的单元测试需同步**；`having`/`inSql` 的外部参数请避开 `p` + 纯数字形式；
+- 值过滤由 sqltoy-plus 的全局静态策略改为**构建器实例级** `valueFilter(...)`（默认滤 null，须在添加条件之前设置）；
+- `LambdaUpdate.setExpr(字段, 表达式[, value])` 支持基于字段当前值的表达式更新（如 `setExpr(User::getLoginCount, "loginCount + 1")`），复用 `updateByQuery` 既有的"字段=表达式"形态。
+
+**2. 自 sqltoy-plus 迁移清单**
+
+| 迁移点 | 动作 |
+| --- | --- |
+| 依赖 | 移除 `sqltoy-plus` 依赖（能力已内置 core），不再需要 `@EnableSqlToyPlus` 与映射策略 Bean |
+| import | `com.sagframe.sagacity.sqltoy.plus.*` → `org.sagacity.sqltoy.lambda.*` |
+| 类名 | `LambdaQueryWrapper`/`LambdaUpdateWrapper` → `LambdaQuery`/`LambdaUpdate`；`LambdaColumn` → `JoinCol`；`SFunction` → `LambdaFn`；`FiledNature` → `record FieldNature(entityClass, fieldName)` |
+| DAO | `SqlToyPlusDao.findList/findOne/findPage/count/exists/delete/update(wrapper)` → 构建器终端；`SqlToyHelperDao` 已删除 |
+| 入口 | `Wrappers.lambdaQuery(cls)` → `LambdaQuery.create(cls)` 或 `lightDao.lambdaQuery(cls)`；`lambdaQueryChain/lambdaUpdateChain` → `lightDao.lambdaQuery/lambdaUpdate` |
+| 多表 | `Wrappers.lambdaMultiWrapper(toClass).select(...).from(...)` → `lightDao.lambdaQuery(toClass)[.select(JoinCol...)].from(...).leftJoin(...).on(...)`；`lambdaUpdateMultiWrapper/lambdaDeleteMultiWrapper` → `lightDao.lambdaUpdate/lambdaDelete` + join 步骤 |
+| 参数名 | `type.valuePairs.MPG1` → `:p1…` |
+| 字符串 wrapper | `QueryWrapper` 等不再提供：单表字符串条件用 `EntityQuery`，复杂动态用 SQL 模式 |
+
+> 更完整的字段级对照见 [Lambda 条件查询与更新 · 九、自 sqltoy-plus 迁移对照](../query/lambda_query.md)。
+
+**3. 多表 join 更新与删除**
+
+join 更新/删除并入 `lambdaUpdate()/lambdaDelete()`（与查询同款"不调 join 即单表"判定）：join 更新生成 `UPDATE 主表 别名 JOIN ... SET 别名.字段=:p WHERE ...`、join 删除生成 `DELETE 别名[,...] FROM 主表 别名 JOIN ... WHERE ...`（`deleteTables` 缺省主表），均经 `executeSql` 执行。关系型库采用可移植的 EXISTS-over-derived 改写，已在 mysql/postgresql/sqlserver/oracle/db2 等真库验证；clickhouse/doris/starrocks 等无事务性行级 DML 能力的库不支持。**整对象并入更新不支持 join 通道**（用 `lightDao.update(entity)`）。
+
+**4. GraalVM native / AOT 重写（详见[GraalVM Native Image 指引](../tools/graalvm_native.md)）**
+
+- 修复 5.6 以来 **AOT 实体反射 hints 恒为空**的缺陷：AOT 期 Spring 不注册 `BeanPostProcessor`、不预实例化单例，原先从 `getBean` 拿到的 `SqlToyContextProperties` 是未绑定的空实例，导致实体 hints 全丢；现改为经 `Binder` 从 `Environment` 直接绑定 `spring.sqltoy` 配置，按 `packagesToScan`/`annotatedClasses` 用 `EntityScanner` 扫描实体。**native 场景必须配置 `packagesToScan`**；
+- 按配置**动态注册**：资源 pattern（`sqlResourcesDir` 多目录/`sqlResources`/`translateConfig`/密钥文件）、15 类扩展点反射（`unifyFieldsHandler`、`typeHandler`、`sqlInterceptors`、`sqlFormater`、`translateCacheManager`、`dataSourceSelector`、`connectionFactory`、`fieldsSecureProvider`、`desensitizeProvider`、`customFilterHandler`、`overTimeSqlHandler`、`dialectDDLGenerator`、`firstBizCodeTrace`、`dynamicCacheFetch`、`dynamicFecthCacheManager`）、经 `FunctionUtils.resolveFunctionClassNames` 解析后的 `functionConverts` 函数类、`lambda` 的 `SerializedLambda`/镜像类序列化，以及 XML 解析反射赋值的 8 个模型类（unpivot/环比/tree-sort 等标签属性，缺失时会**静默丢失**）；
+- 按 **classpath 条件注册**（native 镜像构建期冻结，运行期无法再切换）：`cacheType` 对应的 caffeine/ehcache 管理器、mongo/redis 集成类、JSON 三个 provider、PG 系 `PGobject` 的 5 个驱动同构类（postgresql/opengauss/vastbase/gaussdb/kingbase）、mssql `Geometry`/`Vector`、`oracle.jdbc.OracleTypes`；
+- 新增配置 `native-reflection-classes` / `native-reflection-packages`（登记非实体 DTO/VO）与 `native-entity-proxies`（构建期预生成 `updateSaveFetch` 代理，需应用自行引入 `net.bytebuddy:byte-buddy`）；
+- starter 的 `sqlToyLazyDao`/`sqlToyDao`/`lightDao`/`sqlToyCRUDService` 四个 `@Bean` 返回类型由接口改为**具体实现类**并显式 `@ConditionalOnMissingBean(接口.class)`：Spring AOT 按声明类型预判 bean 类型，接口声明会使事务 CGLIB 代理无法在构建期预生成，native 运行期报 "CGLIB runtime enhancement not supported on native image"；应用侧如有"接口返回类型 + `initMethod`"的 `@Bean`，同样应改为具体类型声明；
+- **构建环境要求 GraalVM 23+**：17 不识别新版 reachability-metadata schema（native-maven-plugin 直接拒绝），21 不支持 `typeReached` 条件元数据（条件恒真，spring-aop 的 AspectJ 序列化条目会被误注册）；
+- 已知限制：`updateSaveFetch` 的 `EntityUpdateCallback` 路径依赖 byte-buddy 运行期生成实体子类，native 下需配置 `native-entity-proxies` 预生成代理，未列出的实体不可用（insert 分支不受影响）。
+
+**5. 配套验证工程**
+
+新增 [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify)（spring + solon 双栈共用矩阵，PostgreSQL pgvector + postgis）：覆盖 CRUD × json/vector/geometry 三形态、`functionConverts` 方言转换、ehcache/caffeine 双缓存翻译、`updateSaveFetch` 代理路径、lambda 单表/join/setExpr/matchAll 守卫/删除；JVM 双框架 17/17 PASS，配置 `native-entity-proxies` 后 native 冒烟 17 PASS + 0 KNOWN-LIMITATION。
+
+## 十一、升级步骤建议
+
+1. 依赖版本号统一升级为 6.0.8（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；
-5. 启动验证：观察 debug 模式下 SQL 输出与业务回归（缓存翻译、分页、并行查询优先）。
+5. **使用 sqltoy-plus 的项目**：按第十节第 2 条清单迁移到 `org.sagacity.sqltoy.lambda`，移除 sqltoy-plus 依赖与 `@EnableSqlToyPlus`，并回归 `getOne()` 多处匹配、无条件 update/delete 两类行为变化；
+6. **构建 native 镜像的项目**：确认 GraalVM 23+、配置 `packagesToScan`、按需登记 `native-reflection-classes/packages`，用到 `updateSaveFetch` 的实体加入 `native-entity-proxies`；
+7. 启动验证：观察 debug 模式下 SQL 输出与业务回归（缓存翻译、分页、并行查询、lambda 条件优先）；断言 SQL 文本的单元测试需同步 `:p1…` 参数名。

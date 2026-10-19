@@ -2,7 +2,7 @@
 
 sqltoy's dynamic SQL design goal: **keep SQL clean and directly runnable in a database client**, while stripping out of the SQL the dynamic logic (such as `<if>`) that mybatis intermixes into it.
 
-- SQL can be written in `*.sql.xml` files (recommended: easy to maintain, supports hot reloading), passed in directly from Java code, or supplied through the third-party lambda plugin (sqltoy-plus).
+- SQL can be written in `*.sql.xml` files (recommended: easy to maintain, supports hot reloading), passed in directly from Java code, or expressed as conditions with the [Lambda condition API](lambda_query.md) (built in since 6.0.8; the former third-party sqltoy-plus has been merged into core).
 - For simple scenarios, use the explicit `lightDao` interfaces directly; for complex ones, organize parameters with `findByQuery`/`findPageByQuery` together with `QueryExecutor` or `EntityQuery`. All explicit interfaces are built on `QueryExecutor` underneath — understand it once and you can use them all flexibly.
 
 ---

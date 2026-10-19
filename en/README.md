@@ -31,6 +31,7 @@ SqlToy aims to **fill JPA's query gaps while solving MyBatis's daily pain points
 | Cross-database | SQL bound to a specific dialect | Object operations port, querying weak | **25 dialects** + function auto-replacement + dialect sqlId + multi-DB replay verification |
 | Analytics | Hand-written pivot/summary SQL | Not supported | Built-in in-memory algorithms: pivot/unpivot, group summary, YoY & MoM, tree sort & rollup |
 | Result packaging | Manual ResultMap | Object mapping | Auto mapping + **parent-child hierarchy packaging** (one join SQL packed into nested objects) |
+| Condition building | `QueryWrapper`/`LambdaQueryWrapper` (multi-table needs an extra plugin) | Criteria API, verbose | Built-in `LambdaQuery/LambdaUpdate/LambdaDelete`: one builder for single-table and joins, plus CTE / UNION / `@fast` pushdown |
 
 > Key differences only — see the feature list below and the [full catalog](./introduction/feature.md); side-by-side writing examples (SqlToy vs MyBatis) live in [Best Picks](./best/best_practices.md).
 
@@ -49,7 +50,7 @@ SqlToy provides efficient ORM operations including object CRUD, cascade loading 
 | Category | Highlights | Docs |
 | --- | --- | --- |
 | [Object operations](./crud/sqltoy_crud.md) | JPA-style CRUD, elastic update, updateFetch / updateSaveFetch, cascades, query hierarchy packaging, tree-table routes | [Object CRUD](./crud/sqltoy_crud.md) |
-| [SQL query](./query/dynamic_sql.md) | Dynamic SQL (`#[]` + filters), cache translate, four-layer pagination (count optimize / cached / fast / parallel), parallel query, stored procedures, stream query | [Dynamic SQL](./query/dynamic_sql.md) / [Pagination](./query/pagination.md) |
+| [SQL query](./query/dynamic_sql.md) | Dynamic SQL (`#[]` + filters), lambda conditions (one builder for single-table and joins), cache translate, four-layer pagination (count optimize / cached / fast / parallel), parallel query, stored procedures, stream query | [Dynamic SQL](./query/dynamic_sql.md) / [Lambda](./query/lambda_query.md) / [Pagination](./query/pagination.md) |
 | [Analytics](./query/sqltoy_complex_query.md) | Pivot / unpivot, group summary, YoY & MoM, tree sort & rollup, group concatenation, formatting | [Analytics](./query/sqltoy_complex_query.md) |
 | [Cross-database](./introduction/db_list.md) | 25 dialects (incl. SAP HANA, HighGo), function auto-replacement, dialect sqlId, multi-DB verification | [Dialects](./dialect/sqltoy_function.md) / [DB list](./introduction/db_list.md) |
 | [Enterprise](./enterprise/sqltoy_sharding.md) | Sharding, multi-tenancy, data permission, masking & encryption, data versioning, SQL interceptors, slow SQL | [Sharding](./enterprise/sqltoy_sharding.md) / [Security](./enterprise/sqltoy_security.md) |

@@ -13,7 +13,6 @@
     * [01 helloworld Project](quickstart/helloworld.md)
     * [02 helloworld with Solon](quickstart/helloworld_solon.md)
     * [03 Common-Field Auto-Fill](quickstart/helloworld_improve.md)
-    * [04 Cache Translate in Action](quickstart/translates.md)
 * Configuration
     * [sqltoy Configuration](config/sqltoy_config.md)
     * [Multi-Datasource & Transactions](config/dynamic_datasource.md)
@@ -28,13 +27,14 @@
     * [Dynamic SQL Guide](query/dynamic_sql.md)
     * [Query API](query/sqltoy_query.md)
     * [Link Chain API](query/link_api.md)
+    * [Lambda Conditions](query/lambda_query.md)
     * [Pagination Optimize](query/pagination.md)
     * [Complex Query & Analytics](query/sqltoy_complex_query.md)
     * [Parallel Query](query/parallel_query.md)
     * [Stored Procedures](query/store_procedure.md)
     * [SQL Showcase](query/sql_showcase.md)
-    * [Tags & Expressions](appendix/tags.md)
 * Cache Translate
+    * [Cache Translate in Action](quickstart/translates.md)
     * [Large-Scale Cache (FIFO)](translate/sqltoy_FIFO_translate.md)
     * [Dynamic Cache Control](translate/dynamic_cache.md)
 * Cross-DB & Dialect
@@ -61,6 +61,11 @@
     * [Platform Integration](tools/integration.md)
     * [GraalVM Native Image Guide](tools/graalvm_native.md)
     * [Other Features](tools/other_features.md)
+* Reference
+    * [Tags & Expressions](appendix/tags.md)
+    * [Annotations Cheat Sheet](appendix/annotations.md)
+    * [API Cheat Sheet](appendix/api.md)
+    * [Release Notes](introduction/changelog.md)
 * Best Picks
     * [Best Picks](best/best_practices.md)
 * FAQ

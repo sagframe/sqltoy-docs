@@ -1,13 +1,13 @@
 # Upgrade to 6.0.x
 
-Changes and notes for upgrading from 5.6.x to 6.0.7 (the 6.0 line). All changes have been verified against the 6.0 source code.
+Changes and notes for upgrading from 5.6.x to 6.0.8 (the 6.0 line). All changes have been verified against the 6.0 source code.
 
 ## 1. Environment Requirements
 
 | Item | Requirement |
 | --- | --- |
 | JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
-| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.7 |
+| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.8 |
 | Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged, and existing configuration files need no adjustment |
 
 ## 2. API Changes (Code Changes Required)
@@ -156,10 +156,63 @@ Changes and notes for upgrading from 5.6.x to 6.0.7 (the 6.0 line). All changes 
 - Plain identifiers only: expressions such as `sum(col)` or `col as alias` still belong to `@value` (safety then on you); operator forms (`a % b`, `a || b`) are not function calls and are likewise out of scope;
 - Verified end to end against three real databases — PostgreSQL, MySQL 9 and SQL Server 2025 (plain columns, default fallback, group-by aggregation, reserved-word columns, injection rejection).
 
-## 10. Recommended Upgrade Steps
+**Dangling and/or connectors inside brackets are cleaned up after `#[]` removal**
 
-1. Upgrade the dependency version numbers uniformly to 6.0.7 (starter / spring / solon-plugin use the same version as core);
+- For a construct like `#[and ( #[t.a=:a] #[or t.b=:b] )]`, when `a` is null the previous behaviour expanded to the broken `and ( or t.b=:b )`; after removal, a trimmed leading/trailing `and`/`or` inside brackets is now cleaned up, so each member of a bracket group is independently optional (`and|or` only matches when followed by `\s+` or `)`, so keywords such as `( order by ...)` that start with `or` are left alone). See [Dynamic SQL Guide](../query/dynamic_sql.md).
+
+## 10. What's New in 6.0.8
+
+6.0.8 is the **heaviest release in the 6.0 line**: the lambda condition API moved into core and the GraalVM AOT support was rewritten. **Projects running on the JVM need no code changes**; projects using sqltoy-plus should follow item 2; projects building native images should check their build environment against item 4.
+
+**1. The lambda condition API is now part of core (see [Lambda Conditions](../query/lambda_query.md))**
+
+- New package `org.sagacity.sqltoy.lambda`: `LambdaQuery` / `LambdaUpdate` / `LambdaDelete` plus `JoinCol` / `ExcludeCols` / `LambdaFn` / `OuterRef`, expressing conditions through entity property method references (`User::getStatus`);
+- `LightDao` gains three default factories `lambdaQuery/lambdaUpdate/lambdaDelete(Class)`; execution is driven by the builder terminals (`find/getOne/findPage/count/exists/update/delete`), or build first and execute later with `LambdaQuery.create(entityClass).bind(lightDao)`;
+- **A single-table query is just the degenerate form of a join**: without a join step the single-table channel converts conditions into `EntityQuery`/`EntityUpdate` and reuses `findEntity`/`findPageEntity`/`getCount`/`deleteByQuery`/`updateByQuery`, so sharding / cache translate / encryption-masking / tenant filtering are all inherited; calling `leftJoin/rightJoin/innerJoin` + `on` switches to the join channel, which assembles full SQL and goes through `find`/`findPage`/`getCount`, supporting `select/selectAll(ExcludeCols...)/JoinCol.of|avg|count|sum|min|max|distinct().as()` as well as CTE / `@fast` pushdown / UNION;
+- Behavioural differences to watch: `getOne()` now has **strict semantics** — 0 rows returns null, more than 1 row throws `DataAccessException` (it no longer silently takes the first row); a conditional `update/delete` with no where clause throws by default and requires an explicit `matchAll()`;
+- Condition parameters are renamed from sqltoy-plus's `type.valuePairs.MPG1` form to `:p1…:pN`, unique across the whole builder and shared across nesting — **unit tests that assert SQL text must be updated**; external parameters of `having`/`inSql` should avoid the `p` + pure-digit form;
+- Value filtering changes from sqltoy-plus's global static strategy to a **builder-instance** `valueFilter(...)` (nulls are filtered by default; set it before adding conditions);
+- `LambdaUpdate.setExpr(field, expression[, value])` supports expression updates based on the field's current value (e.g. `setExpr(User::getLoginCount, "loginCount + 1")`), reusing the existing "field = expression" form of `updateByQuery`.
+
+**2. Migration checklist for sqltoy-plus users**
+
+| Migration point | Action |
+| --- | --- |
+| Dependency | Remove the `sqltoy-plus` dependency (the capability is in core); `@EnableSqlToyPlus` and the mapping-strategy beans are no longer needed |
+| Imports | `com.sagframe.sagacity.sqltoy.plus.*` → `org.sagacity.sqltoy.lambda.*` |
+| Class names | `LambdaQueryWrapper`/`LambdaUpdateWrapper` → `LambdaQuery`/`LambdaUpdate`; `LambdaColumn` → `JoinCol`; `SFunction` → `LambdaFn`; `FiledNature` → `record FieldNature(entityClass, fieldName)` |
+| DAO | `SqlToyPlusDao.findList/findOne/findPage/count/exists/delete/update(wrapper)` → builder terminals; `SqlToyHelperDao` has been deleted |
+| Entry points | `Wrappers.lambdaQuery(cls)` → `LambdaQuery.create(cls)` or `lightDao.lambdaQuery(cls)`; `lambdaQueryChain/lambdaUpdateChain` → `lightDao.lambdaQuery/lambdaUpdate` |
+| Multi-table | `Wrappers.lambdaMultiWrapper(toClass).select(...).from(...)` → `lightDao.lambdaQuery(toClass)[.select(JoinCol...)].from(...).leftJoin(...).on(...)`; `lambdaUpdateMultiWrapper/lambdaDeleteMultiWrapper` → `lightDao.lambdaUpdate/lambdaDelete` plus join steps |
+| Parameter names | `type.valuePairs.MPG1` → `:p1…` |
+| String wrappers | `QueryWrapper` and friends are no longer provided: use `EntityQuery` for single-table string conditions and SQL mode for complex dynamic SQL |
+
+> For the full field-by-field table see [Lambda Conditions · 9. Migrating from sqltoy-plus](../query/lambda_query.md).
+
+**3. Multi-table join update and delete**
+
+Join updates and deletes are folded into `lambdaUpdate()/lambdaDelete()` (the same "no join means single table" rule as for queries): a join update generates `UPDATE main alias JOIN ... SET alias.column=:p WHERE ...`, a join delete generates `DELETE alias[,...] FROM main alias JOIN ... WHERE ...` (`deleteTables` defaults to the main table), and both run through `executeSql`. Relational databases use a portable EXISTS-over-derived rewrite, verified on real mysql/postgresql/sqlserver/oracle/db2 databases; clickhouse/doris/starrocks and other databases without transactional row-level DML do not support it. **Merging a whole entity into an update is not supported on the join channel** — use `lightDao.update(entity)`.
+
+**4. GraalVM native / AOT rewritten (see [GraalVM Native Image Guide](../tools/graalvm_native.md))**
+
+- Fixed the defect, present since 5.6, that **AOT entity reflection hints were always empty**: during AOT Spring registers no `BeanPostProcessor` and pre-instantiates no singletons, so the `SqlToyContextProperties` obtained from `getBean` was an unbound empty instance and every entity hint was lost. The processor now binds `spring.sqltoy` straight from the `Environment` through `Binder` and scans entities with `EntityScanner` according to `packagesToScan`/`annotatedClasses`. **`packagesToScan` is mandatory in native scenarios**;
+- Registers **dynamically from the configuration**: resource patterns (`sqlResourcesDir` with multiple directories / `sqlResources` / `translateConfig` / key files), reflection for 15 extension points (`unifyFieldsHandler`, `typeHandler`, `sqlInterceptors`, `sqlFormater`, `translateCacheManager`, `dataSourceSelector`, `connectionFactory`, `fieldsSecureProvider`, `desensitizeProvider`, `customFilterHandler`, `overTimeSqlHandler`, `dialectDDLGenerator`, `firstBizCodeTrace`, `dynamicCacheFetch`, `dynamicFecthCacheManager`), the `functionConverts` function classes resolved by `FunctionUtils.resolveFunctionClassNames`, lambda's `SerializedLambda`/mirror-class serialization, and the 8 model classes populated reflectively by XML parsing (without them `<unpivot>`/chain-relative/`<tree-sort>` tag attributes are **silently dropped**);
+- Registers **conditionally on the classpath** (a native image is frozen at build time, so nothing can be switched at runtime): the caffeine/ehcache manager for `cacheType`, the mongo/redis integration classes, the three JSON providers, the five driver-isomorphic `PGobject` classes for the PG family (postgresql/opengauss/vastbase/gaussdb/kingbase), mssql `Geometry`/`Vector`, and `oracle.jdbc.OracleTypes`;
+- New settings `native-reflection-classes` / `native-reflection-packages` (for non-entity DTO/VOs) and `native-entity-proxies` (pre-generates `updateSaveFetch` proxies at build time; the application must add `net.bytebuddy:byte-buddy`);
+- The four `@Bean`s `sqlToyLazyDao`/`sqlToyDao`/`lightDao`/`sqlToyCRUDService` in the starter changed their return types from interfaces to **concrete implementation classes**, with an explicit `@ConditionalOnMissingBean(interface.class)`: Spring AOT infers bean types from the declared type, and an interface declaration prevents the transactional CGLIB proxy from being pre-generated at build time, which fails at native runtime with "CGLIB runtime enhancement not supported on native image". Application-side `@Bean`s declared with an interface return type plus `initMethod` should likewise be switched to concrete types;
+- **The build environment requires GraalVM 23+**: 17 does not understand the new reachability-metadata schema (native-maven-plugin rejects it outright) and 21 does not support `typeReached` conditional metadata (the condition is treated as always true, so spring-aop's AspectJ serialization entries get registered wrongly);
+- Known limitation: the `EntityUpdateCallback` path of `updateSaveFetch` relies on byte-buddy generating entity subclasses at runtime; under native it needs `native-entity-proxies` to pre-generate the proxy, and entities not listed there remain unavailable (the insert branch is unaffected).
+
+**5. Companion verification project**
+
+Added [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify) (one matrix shared by the spring and solon stacks, PostgreSQL pgvector + postgis): it covers CRUD × json/vector/geometry in three shapes, `functionConverts` dialect conversion, cache translate on ehcache and caffeine, the `updateSaveFetch` proxy path, and lambda single-table/join/setExpr/matchAll-guard/delete; the JVM matrix is 17/17 PASS on both stacks and, with `native-entity-proxies` configured, the native smoke run is 17 PASS + 0 KNOWN-LIMITATION.
+
+## 11. Recommended Upgrade Steps
+
+1. Upgrade the dependency version numbers uniformly to 6.0.8 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);
 3. If you have custom `DataSourceCallbackHandler` implementations, adjust the `doConnection` signature to take a `DBProfile` parameter;
 4. If you reference the framework internal utility classes listed in the table above, adjust the imports to their new package locations;
-5. Startup verification: watch the SQL output in debug mode and run business regression tests (prioritize cache translate, pagination and parallel query).
+5. **Projects using sqltoy-plus**: migrate to `org.sagacity.sqltoy.lambda` following the checklist in section 10.2, remove the sqltoy-plus dependency and `@EnableSqlToyPlus`, and regression-test the two behaviour changes (`getOne()` with multiple matches, unconditional update/delete);
+6. **Projects building native images**: confirm GraalVM 23+, configure `packagesToScan`, register `native-reflection-classes/packages` as needed, and add entities that use `updateSaveFetch` to `native-entity-proxies`;
+7. Startup verification: watch the SQL output in debug mode and run business regression tests (prioritize cache translate, pagination, parallel query and lambda conditions); unit tests that assert SQL text must be updated to the `:p1…` parameter names.

@@ -10,7 +10,7 @@ sqltoy 提供三种组织查询的方式，按场景选择：
 | --- | --- | --- |
 | **Lambda 条件**（本文） | 单表/多表 join 的常规条件查询、按条件更新删除，条件以属性引用表达 | `lightDao.lambdaQuery/lambdaUpdate/lambdaDelete` |
 | **EntityQuery/EntityUpdate** | 单表字符串条件（where 文本 + 命名参数） | `lightDao.findEntity/updateByQuery` 等 |
-| **SQL 模式**（sqlId + `#[...]` 动态段 + `@if` 宏） | 复杂动态 SQL、多分支条件组合、方言差异、配置化报表 | `lightDao.find/findPage` + sqlId，见[动态 SQL 编写规范](query/dynamic_sql.md) |
+| **SQL 模式**（sqlId + `#[...]` 动态段 + `@if` 宏） | 复杂动态 SQL、多分支条件组合、方言差异、配置化报表 | `lightDao.find/findPage` + sqlId，见[动态 SQL 编写规范](dynamic_sql.md) |
 
 Lambda 层的动态化以 `IfPresent` 语法糖为推荐惯用法（见[动态化](#二动态化条件)）；**复杂动态场景不要试图在 lambda 层堆条件，直接走 SQL 模式**——动态段、宏、方言变体与热更新是 SQL 模式的既有能力。
 
@@ -409,10 +409,16 @@ join 场景的聚合写法相同，只是多一步 `leftJoin(...).on(...)`；`ha
 
 ## 六、多表 join 更新与删除
 
-join 更新/删除采用**可移植的 EXISTS-over-derived 改写**（非 MySQL 专用语法）：把 join 与 where 条件整体放入派生表，外层以主键关联做 EXISTS 限定，因此保留 LEFT JOIN 的完整语义，并覆盖 Oracle 等本身没有多表 UPDATE/DELETE 语法的数据库：
+join 更新/删除采用**可移植的 EXISTS-over-derived 改写**（非 MySQL 多表 DML 语法）：把 join 与 where 条件整体放入派生表，外层以主键做 EXISTS 关联限定，因此完整保留 LEFT JOIN 语义，并覆盖 Oracle/PostgreSQL 等本身没有多表 `UPDATE ... JOIN` / `DELETE ... JOIN` 语法的数据库：
 
 ```sql
-UPDATE 主表 SET 列 = :p1 WHERE EXISTS (SELECT 1 FROM (SELECT 主表别名.主键 AS LPK1 FROM 主表 别名 LEFT JOIN ... WHERE 条件) sqd WHERE sqd.LPK1 = 主表.主键)
+UPDATE 目标表 SET 列 = :p1 WHERE EXISTS (
+    SELECT 1 FROM (SELECT 别名.主键 AS LPK1 FROM 主表 别名 LEFT JOIN ... WHERE 条件) sqd
+    WHERE sqd.LPK1 = 目标表.主键)
+
+DELETE FROM 目标表 WHERE EXISTS (
+    SELECT 1 FROM (SELECT 别名.主键 AS LPK1 FROM 主表 别名 LEFT JOIN ... WHERE 条件) sqd
+    WHERE sqd.LPK1 = 目标表.主键)
 ```
 
 ```java
@@ -422,8 +428,11 @@ lightDao.lambdaUpdate(StaffInfo.class)
         .set(StaffInfo::getStatus, 2)
         .eq(OrganInfo::getOrganName, "研发部")
         .update();
-// UPDATE sqltoy_staff_info s1 LEFT JOIN sqltoy_organ_info o2 ON s1.ORGAN_ID = o2.ORGAN_ID
-// SET s1.STATUS = :p1 WHERE o2.ORGAN_NAME = :p2
+// UPDATE sqltoy_staff_info SET STATUS = :p1 WHERE EXISTS (
+//   SELECT 1 FROM (SELECT s1.STAFF_ID AS LPK1 FROM sqltoy_staff_info s1
+//                  LEFT JOIN sqltoy_organ_info o2 ON s1.ORGAN_ID = o2.ORGAN_ID
+//                  WHERE o2.ORGAN_NAME = :p2) sqd
+//   WHERE sqd.LPK1 = sqltoy_staff_info.STAFF_ID)
 
 // join 删除：deleteTables 指定删除目标（缺省主表）
 lightDao.lambdaDelete(StaffInfo.class)
@@ -431,12 +440,13 @@ lightDao.lambdaDelete(StaffInfo.class)
         .deleteTables(StaffInfo.class)
         .eq(OrganInfo::getOrganName, "市场部")
         .delete();
-// DELETE s1 FROM sqltoy_staff_info s1 LEFT JOIN sqltoy_organ_info o2 ON ... WHERE ...
+// DELETE FROM sqltoy_staff_info WHERE EXISTS (SELECT 1 FROM (SELECT s1.STAFF_ID AS LPK1 FROM ... ) sqd WHERE sqd.LPK1 = sqltoy_staff_info.STAFF_ID)
 ```
 
 - join 更新/删除的**主表隐式为构建器实体**，无需 `from()`；
-- 生成的是 **MySQL 方言多表 DML**，H2/PostgreSQL 等不支持该语法的库请使用子查询形式的 SQL 模式；跨库适配验证属发版门禁范围；
-- join 更新的 `setExpr` 表达式**原样输出**（单表通道的属性名自动转列不适用），字段请写实际列名，单个 `?` 仍可绑定值；
+- **目标实体必须有 `@Id` 主键**（复合主键按 `LPK1…LPKn` 逐一关联）：EXISTS 改写靠主键回连目标表，无主键实体在装配期抛 `DataAccessException`；
+- 改写被 mysql/postgresql/sqlserver/oracle/db2 等关系型库真库验证（属发版多库门禁范围）；clickhouse/doris/starrocks 等没有事务性行级 DML 能力的库不支持，需改走 SQL 模式；
+- join 更新的 `setExpr` 表达式**原样输出**（单表通道"属性名自动转列名"不适用），字段请写实际列名，单个 `?` 仍可绑定值；
 - join 通道同样受无条件守卫约束（`matchAll()` 放行）。
 
 ---

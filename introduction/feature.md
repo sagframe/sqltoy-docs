@@ -23,6 +23,8 @@ sqltoy 以直观的动态 sql 编写模式为起点，融合 JPA 对象化操作
 | 特性 | 说明 | 详见 |
 | --- | --- | --- |
 | 动态 SQL | `#[]` 条件片段 + `@if/@loop/@include/@joinFields` 宏 + filters 参数规整；带动态片段的 SQL 可直接在数据库客户端执行调试 | [动态 SQL](../query/dynamic_sql.md) |
+| Lambda 条件体系 | 以属性方法引用（`StaffInfo::getStatus`）组织查询/更新/删除，单表与多表 join 共用一套构建器；`getOne` 严格语义、`matchAll` 守卫、`setExpr` 表达式更新、CTE/`@fast` 下推/UNION 组合。6.0.8 起内置（原 sqltoy-plus 并入核心） | [Lambda 条件查询与更新](../query/lambda_query.md) |
+| Link 链式操作 | `query()/save()/update()/delete()/load()/unique()/execute()/batch()/store()/treeTable()/tableApi()/elastic()/mongo()` 等链式入口，可指定数据源、锁模式、批量大小、强制更新字段 | [Link 链式操作](../query/link_api.md) |
 | filters 过滤器 | eq/between/to-date/to-number/split/primary（首要参数）/cache-arg（缓存反向匹配替代 like）等 20+ 种 | [动态 SQL](../query/dynamic_sql.md) |
 | 多形态查询 API | findOne / find / findPage / findTop / findRandom / getValue / getCount / isUnique / loadByQuery / findEntity（单表 EntityQuery 快捷查询） | [常规查询 API](../query/sqltoy_query.md) |
 | 缓存翻译 | 码值→名称免 join；API 直取缓存供下拉框等组件；反向匹配 key；支持条件翻译、多值拆分、租户隔离、i18n；超大规模数据按需动态加载只保留常用数据 | [缓存翻译使用](../quickstart/translates.md) |
