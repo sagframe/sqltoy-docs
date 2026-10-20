@@ -63,6 +63,13 @@
 </quickvo>
 ```
 
+> **零安装变体**：演示项目 [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld) 的 datasource 直接指向内存 H2，url 携带 `INIT=RUNSCRIPT` 在连接建立时执行建表脚本，配合插件依赖里的 h2 驱动，`mvn quickvo:quickvo` 无需任何数据库即可体验；对着真实库生成时换回上面的 `${spring.datasource.url}` 引用形态即可。
+
+```xml
+<datasource name="helloworld" url="jdbc:h2:mem:quickvogen;INIT=RUNSCRIPT FROM 'src/main/resources/mock/h2/schema-h2.sql'"
+    driver="org.h2.Driver" schema="PUBLIC" catalog="" username="sa" password="" />
+```
+
 常用配置说明：
 
 | 配置 | 说明 |

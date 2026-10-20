@@ -4,7 +4,7 @@
 
 ## 演示项目
 
-- [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld)：sqltoy的开源演示项目。
+- [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld)：sqltoy 快速集成演示（H2 零安装，clone 后 `mvn test` 即跑），配套教程见 [helloworld 快速上手](quickstart/helloworld.md)。
 
 - [sqltoy-strict](https://gitee.com/sagacity/sqltoy-strict)：提供sqltoy 按照严格分层，dto、pojo 模式的项目演示。
 

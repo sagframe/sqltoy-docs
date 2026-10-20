@@ -4,7 +4,7 @@
 
 ## Demo Projects
 
-- [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld): the official SqlToy demo project.
+- [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld): the official SqlToy quick-integration demo (zero-install on H2 — clone and run `mvn test`), companion to the [helloworld Quick Start](quickstart/helloworld.md) tutorial.
 
 - [sqltoy-strict](https://gitee.com/sagacity/sqltoy-strict): demonstrates strict DTO/POJO layering with SqlToy.
 

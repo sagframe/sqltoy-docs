@@ -63,6 +63,13 @@ Create `quickvo.xml` under `src/main/resources`. It can directly reuse the datas
 </quickvo>
 ```
 
+> **Zero-install variant**: the demo project [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld) points the datasource straight at an in-memory H2 whose url carries `INIT=RUNSCRIPT` to create the tables when the connection opens; with the h2 driver added to the plugin dependencies, `mvn quickvo:quickvo` needs no database at all. Switch back to the `${spring.datasource.url}` reference form above when generating against a real database.
+
+```xml
+<datasource name="helloworld" url="jdbc:h2:mem:quickvogen;INIT=RUNSCRIPT FROM 'src/main/resources/mock/h2/schema-h2.sql'"
+    driver="org.h2.Driver" schema="PUBLIC" catalog="" username="sa" password="" />
+```
+
 Common configuration:
 
 | Configuration | Description |
