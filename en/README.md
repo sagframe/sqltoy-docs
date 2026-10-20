@@ -2,7 +2,7 @@
 
 #### SqlToy — a Java ORM combining JPA-style object CRUD with SQL-first querying
 
-SqlToy starts from an intuitive dynamic-SQL authoring model and provides **Cache Translate**, **Pagination Optimize**, **Fast Pagination** and automatic **cross-database function adaptation**, with systematic solutions for the complex scenarios found in real-world projects.
+SqlToy starts from an intuitive dynamic-SQL authoring model and provides **Cache Translate**, **Pagination Optimize**, **Fast Pagination** and automatic **cross-database function adaptation**, and compiles to a **GraalVM Native Image** for cloud-native and XinChuang (domestic-stack) deployments with instant startup and minimal memory footprint — with systematic solutions for the complex scenarios found in real-world projects.
 
 > Through open-source sharing we have gathered scenarios and wisdom from a broad community — join us in building a China-born intelligent ORM framework!
 
