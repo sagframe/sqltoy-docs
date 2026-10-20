@@ -8,7 +8,7 @@
 
 - An intuitive dynamic-SQL style — SQL you can run directly in any database client
 - Cache Translate · Pagination Optimize · Fast Pagination · Cross-DB Function Adaptation
-- Pivot/Unpivot · YoY & MoM · Tree Sort & Rollup · Sharding · Multi-Tenancy · Data Masking
+- Pivot/Unpivot · YoY & MoM · Tree Sort & Rollup · Sharding · Multi-Tenancy · Data Encryption & Masking
 - GraalVM Native Image · Instant Startup · Minimal Memory Footprint
 
 [GitHub](https://github.com/sagframe/sagacity-sqltoy)
