@@ -2,7 +2,7 @@
     * [What is sqltoy-orm](introduction/introduction.md)
     * [Key Features](introduction/feature.md)
     * [Supported Databases](introduction/db_list.md)
-    * [Database Migration Guide](introduction/xinchuang.md)
+    * [Database Migration Guide](introduction/db_migration.md)
     * [Technical Architecture](introduction/architecture.md)
     * [Upgrade to 6.0.x](introduction/upgrade_6.0.md)
     * [Migrating from MyBatis](introduction/migration.md)

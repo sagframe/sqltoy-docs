@@ -1,6 +1,6 @@
 # Database Migration Guide
 
-This chapter targets **database migration** projects (migrating from Oracle, MySQL, etc. to DM, Kingbase, HighGo, Oscar, MogDB, Vastbase, GaussDB, OpenGauss and other databases). It organizes sqltoy's cross-database adaptation capabilities into an executable six-step checklist — assess → configure → refactor → verify → perform → cut over; each step links to the chapter holding the full mechanism and parameters. For the selection rationale and overall introduction, see `docs/xinchuang-sqltoy.md` in the source repository (linked from the README's "Documentation & Resources" table).
+This chapter targets **database migration** projects (migrating from Oracle, MySQL, etc. to DM, Kingbase, HighGo, Oscar, MogDB, Vastbase, GaussDB, OpenGauss and other databases). It organizes sqltoy's cross-database adaptation capabilities into an executable six-step checklist — assess → configure → refactor → verify → perform → cut over; each step links to the chapter holding the full mechanism and parameters. For the selection rationale and overall introduction, see `docs/multi-db-adaptation.en.md` in the source repository (linked from the README's "Documentation & Resources" table).
 
 ## 1. Assess First: Map the Adaptation Surface
 

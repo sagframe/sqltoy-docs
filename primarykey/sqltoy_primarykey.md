@@ -202,4 +202,4 @@ java -Dsqltoy.snowflake.dataCenterId=20
 
 - `@Id`/`@BusinessId` 属性表：[注解速查](../appendix/annotations.md)
 - 主键插入返回值的方言差异：[方言自适配与函数扩展](../dialect/sqltoy_function.md)
-- 换库迁移时的主键评估：[换库迁移适配指引](../introduction/xinchuang.md)
+- 换库迁移时的主键评估：[换库迁移适配指引](../introduction/db_migration.md)

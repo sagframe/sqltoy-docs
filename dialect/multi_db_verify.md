@@ -44,4 +44,4 @@ spring.sqltoy.redoDataSources[0]=pgdb
 
 - 函数替换与方言 sqlId：[方言自适配与函数扩展](sqltoy_function.md)
 - 未列出的 PostgreSQL 系数据库适配（dialect/dialectMap）：[常见 SQL 案例](../query/sql_showcase.md)
-- 换库迁移的完整评估清单：[换库迁移适配指引](../introduction/xinchuang.md)
+- 换库迁移的完整评估清单：[换库迁移适配指引](../introduction/db_migration.md)

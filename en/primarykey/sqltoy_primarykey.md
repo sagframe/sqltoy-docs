@@ -202,4 +202,4 @@ java -Dsqltoy.snowflake.dataCenterId=20
 
 - Attribute tables for `@Id`/`@BusinessId`: [Annotations Cheat Sheet](../appendix/annotations.md)
 - Dialect differences when returning inserted keys: [Dialect Adaptation & Functions](../dialect/sqltoy_function.md)
-- Key strategy assessment during a database migration: [Database Migration Guide](../introduction/xinchuang.md)
+- Key strategy assessment during a database migration: [Database Migration Guide](../introduction/db_migration.md)

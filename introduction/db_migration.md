@@ -1,6 +1,6 @@
 # 换库迁移适配指引
 
-本章面向**数据库换库迁移**场景（从 Oracle、MySQL 等迁移到达梦、金仓、瀚高、神通、MogDB、Vastbase、GaussDB、OpenGauss 等国产数据库），把 sqltoy 的跨数据库适配能力整理为「评估 → 配置 → 改造 → 验证 → 性能 → 切换」六步可执行清单；每步的原理与完整参数说明见对应章节链接。选型论证与整体介绍见源码仓库 `docs/xinchuang-sqltoy.md`（README「文档与资源」表有入口）。
+本章面向**数据库换库迁移**场景（从 Oracle、MySQL 等迁移到达梦、金仓、瀚高、神通、MogDB、Vastbase、GaussDB、OpenGauss 等国产数据库），把 sqltoy 的跨数据库适配能力整理为「评估 → 配置 → 改造 → 验证 → 性能 → 切换」六步可执行清单；每步的原理与完整参数说明见对应章节链接。选型论证与整体介绍见源码仓库 `docs/multi-db-adaptation.md`（README「文档与资源」表有入口）。
 
 ## 一、评估先行：摸清适配面
 

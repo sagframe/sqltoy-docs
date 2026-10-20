@@ -44,4 +44,4 @@ Caveats for `redoDataSources`:
 
 - Function auto-replacement and dialect sqlId: [Dialect Adaptation & Functions](sqltoy_function.md)
 - Adapting unlisted PostgreSQL-family databases (dialect/dialectMap): [SQL Showcase](../query/sql_showcase.md)
-- The full migration assessment checklist: [Database Migration Guide](../introduction/xinchuang.md)
+- The full migration assessment checklist: [Database Migration Guide](../introduction/db_migration.md)
