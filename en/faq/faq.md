@@ -49,10 +49,10 @@ spring.sqltoy.defaultDataSource=primaryDB
 
 Several implementation options:
 
-1. **dynamic-datasource** (with transaction support): example https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource
+1. **dynamic-datasource** (with transaction support): see [Multi-datasource & transactions](../config/dynamic_datasource.md)
 2. **Define multiple `LightDao` beans**, injecting a different dataSource into each, and wire them by bean name in the service layer.
 3. **Query-level switching**: in the `QueryExecutor` of `findByQuery`/`findPageByQuery` etc. you can call `.dataSource(xxx)` directly; the chain API also supports `.dataSource(...)` (see [Link Chain API](../query/link_api.md)).
-4. When **multi-database transactions** are involved, JTA can be used; see https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-sharding
+4. When **multi-database transactions** are involved, JTA can be used (e.g. Atomikos/Narayana). For sqltoy's native named multi-datasource demo see `MultiDataSourceTest` in [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase).
 
 ## 5. Can sqltoy be combined with other ORM frameworks?
 

@@ -32,7 +32,7 @@ Once configured, whenever any query feature is executed, sqltoy replays (redo) t
 | --- | --- |
 | [sagacity-db-diversity](https://github.com/sagframe/sagacity-db-diversity) | **Schema difference comparison**: connect to a reference database and a target database separately, export tables/columns/primary keys/foreign keys/indexes/comments to xml, then compare offline. It supports one-sided connections (a dev environment reachable only through a bastion) and comparing exports taken at different times. Run it before a database migration and clear the schema differences first |
 | [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify) | **Native-build verification matrix** (Spring + Solon, PostgreSQL pgvector + postgis) that also covers dialect function conversion and both cache-translate implementations |
-| [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) | Demo project for per-database verification and feature walkthroughs |
+| [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) | Full-feature demo project (two H2 databases simulating a sharded topology + real Mongo/ES via Testcontainers); for **per-database verification** see Lesson 9 of [sqltoy-quickstart](https://github.com/sagframe/sqltoy-quickstart): the same function-conversion SQL run against dockerized PostgreSQL / SQL Server / Oracle / MySQL |
 
 Caveats for `redoDataSources`:
 

@@ -89,7 +89,7 @@ spring.sqltoy.securePrivateKey=classpath:mock/rsa_private.key
 spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 ```
 
-传统 Spring XML 模式在 `SqlToyContext` bean 上配置同名属性（演示项目 `sqltoy-showcase` 的 `spring-sqltoy.xml` 即此写法）：
+传统 Spring XML 模式在 `SqlToyContext` bean 上配置同名属性：
 
 ```xml
 <property name="securePrivateKey" value="classpath:mock/rsa_private.key" />

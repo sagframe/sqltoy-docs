@@ -8,11 +8,9 @@
 
 - [sqltoy-strict](https://gitee.com/sagacity/sqltoy-strict)：提供sqltoy 按照严格分层，dto、pojo 模式的项目演示。
 
-- [sqltoy-nosql](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-nosql)：mongo和elasticsearch演示项目。
+- [sqltoy-quickstart](https://github.com/sagframe/sqltoy-quickstart)：课程式快速入门工程，零安装即可运行（H2 内存库 + 嵌入式 Redis），从 CRUD 到跨数据库 SQL；第 9 课配套 docker-compose 在 PostgreSQL/SQL Server/Oracle/MySQL 真库上验证同一套 SQL。
 
-- [sqltoy-sharding](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-sharding)：提供分库分表示例代码。
-
-- [sqltoy-dynamic-datasource](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource)：提供动态数据源示例代码。
+- [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase)：全功能演示工程（单模块，原 trunk 下的 sqltoy-nosql / sqltoy-sharding / sqltoy-dynamic-datasource 子项目已并入）：分库分表、多数据源、数据加解密与脱敏、树形表、FIFO 动态缓存、流式/并行查询、层次封装、MongoDB/Elasticsearch（Testcontainers 真容器）、GraalVM native——每个演示都是可直接运行的测试。
 
 - [sqltoy-solon-demo](https://github.com/CoCoTeaNet/sqltoy-solon-demo)：Sqltoy ORM 框架集成到 Solon 的示例工程。
 

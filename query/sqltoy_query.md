@@ -166,7 +166,7 @@ private List<DictDetailVO> dictDetailVOs = new ArrayList<DictDetailVO>();
 | `fields` | 主表关联列（可多个，对应复合主键） |
 | `mappedFields` | 子表对象对应的关联属性 |
 | `notNullField` | 层次封装时用于判断子表数据是否存在的非空字段（for hiberarchy） |
-| `orderBy` | 级联加载/封装后的子表排序，如 `showIndex desc` |
+| `orderBy` | **级联加载**时的子表排序，如 `showIndex desc`；层次封装（hiberarchy）场景的子项顺序由 SQL 的 `ORDER BY` 决定 |
 | `load` | 自定义加载 sql（如 `enable=1` 或完整 sql：`select * from t where fkField=:fkField`） |
 | `delete` | 是否级联删除 |
 | `update` | 定制级联保存/修改时对子表的操作（`delete` 表示先删，`status=0` 表示置停用） |
@@ -210,7 +210,7 @@ public void testOneToMany() {
 > - `hiberarchyFieldsMap` 只针对**父子对象存在同名属性**的场景；无同名属性时仅需 `hiberarchy(true)`。
 > - 层次封装是"一条 join sql 直接打包"，与[对象化 CRUD](../crud/sqltoy_crud.md) 中的级联 load（按主键批量二次查询组装）是两种互补机制。
 
-> 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `HierarchyPackagingTest.java`（其 `AbstractDictTypeVO` 的 @OneToMany 已配置 `notNullField = "dictKey"`）。
+> 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `HierarchyPackagingTest.java`（其 `DictTypeVO` 的 @OneToMany 已配置 `notNullField = "dictKey"`；子项顺序由 join SQL 的 `ORDER BY` 决定）。
 
 #### 存储过程调用
 

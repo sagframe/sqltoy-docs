@@ -49,10 +49,10 @@ spring.sqltoy.defaultDataSource=primaryDB
 
 多种实现方式：
 
-1. **dynamic-datasource**（支持事务）：范例 https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource
+1. **dynamic-datasource**（支持事务）：详见[多数据源与事务](../config/dynamic_datasource.md)
 2. **定义多个 `LightDao`**，给不同的 lightDao 注入不同的 dataSource，在 service 中按 bean 名称引入。
 3. **查询级切换**：`findByQuery`/`findPageByQuery` 等的 `QueryExecutor` 中可直接 `.dataSource(xxx)`；链式 API 也支持 `.dataSource(...)`（见 [Link 链式操作](../query/link_api.md)）。
-4. 涉及**多数据库事务**时，可结合 JTA 实现，参照 https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-sharding
+4. 涉及**多数据库事务**时，可结合 JTA 实现（如 Atomikos/Narayana）。sqltoy 原生的命名多数据源演示见 [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) 的 `MultiDataSourceTest`。
 
 ## 五、可以跟其他 ORM 一起组合使用吗？
 

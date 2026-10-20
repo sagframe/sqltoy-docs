@@ -2,7 +2,7 @@
 
 sqltoy itself is not bound to any datasource. For multiple datasources you can directly reuse the mature community **dynamic-datasource** (baomidou) solution: the `@DS` annotation for datasource switching, `@Transactional` for single-database transactions, and `@DSTransactional` to bring operations across multiple datasources into the same transaction.
 
-> This article is adapted from the official demo project: <https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource> (the demo project is based on **sqltoy 6.0.x + Spring Boot 4.x**; the examples in this article target **sqltoy 6.0.4**)
+> This article is adapted from the former `trunk/sqltoy-dynamic-datasource` demo sub-project (since removed from the [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) repository during its single-module restructuring; the code examples in this article are self-contained). For sqltoy's native named multi-datasource approach see `MultiDataSourceTest` in the showcase. The examples in this article target **sqltoy 6.0.4**
 
 ## 1. Add Dependencies
 
@@ -125,8 +125,8 @@ public class DynamicServiceImpl implements DynamicService {
 | Multiple LightDao beans | Define multiple `LightDao` beans, each injected with a different dataSource, and reference them by bean name in Services |
 | Query-level switching | `QueryExecutor.dataSource(...)` and the chained `.dataSource(...)` (see [Link Chain API](../query/link_api.md)) |
 | Specified in xml | `<sql dataSource="...">` specifies the datasource for a single SQL (see [Dynamic SQL Guide](../query/dynamic_sql.md)) |
-| Multi-database transaction (JTA) | Implemented in combination with JTA; see the sqltoy-sharding demo |
+| Multi-database transaction (JTA) | Implemented in combination with JTA (e.g. Atomikos/Narayana) |
 
 > For more common questions (such as why sharding does not support cross-database join pagination, or how to combine sqltoy with other ORM frameworks), see the [FAQ](../faq/faq.md).
 
-> 🎬 Full example source code: `DynamicServiceImpl.java` (@DSTransactional cross-database transaction) and `OrderInfoServiceImpl.java` (@DS datasource switching) in the demo project `sqltoy-showcase`.
+> 🎬 The full example sources (`DynamicServiceImpl.java` / `OrderInfoServiceImpl.java`) were removed together with the former `trunk/sqltoy-dynamic-datasource` sub-project; the code examples in this article are self-contained. For sqltoy's native named multi-datasource demo see `MultiDataSourceTest` in [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase).

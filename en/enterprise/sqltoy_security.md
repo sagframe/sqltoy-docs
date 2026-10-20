@@ -90,7 +90,7 @@ spring.sqltoy.securePrivateKey=classpath:mock/rsa_private.key
 spring.sqltoy.securePublicKey=classpath:mock/rsa_public.key
 ```
 
-In traditional Spring XML mode, configure the properties of the same names on the `SqlToyContext` bean (the `spring-sqltoy.xml` of the demo project `sqltoy-showcase` uses exactly this style):
+In traditional Spring XML mode, configure the properties of the same names on the `SqlToyContext` bean:
 
 ```xml
 <property name="securePrivateKey" value="classpath:mock/rsa_private.key" />

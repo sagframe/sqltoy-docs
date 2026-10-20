@@ -8,11 +8,9 @@
 
 - [sqltoy-strict](https://gitee.com/sagacity/sqltoy-strict): demonstrates strict DTO/POJO layering with SqlToy.
 
-- [sqltoy-nosql](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-nosql): MongoDB and Elasticsearch demo project.
+- [sqltoy-quickstart](https://github.com/sagframe/sqltoy-quickstart): lesson-style quick-start project, runs zero-install (in-memory H2 + embedded Redis), from CRUD to cross-database SQL; Lesson 9 ships a docker-compose that verifies the same SQL against real PostgreSQL / SQL Server / Oracle / MySQL.
 
-- [sqltoy-sharding](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-sharding): sample code for database and table sharding.
-
-- [sqltoy-dynamic-datasource](https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource): sample code for dynamic data sources.
+- [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase): full-feature demo project (single module; the former trunk sub-projects sqltoy-nosql / sqltoy-sharding / sqltoy-dynamic-datasource have been merged into it): sharding, multi-datasource, field encryption & masking, tree tables, FIFO dynamic cache, streaming & parallel queries, hierarchy packaging, MongoDB/Elasticsearch (real containers via Testcontainers), GraalVM native — every demo is a runnable test.
 
 - [sqltoy-solon-demo](https://github.com/CoCoTeaNet/sqltoy-solon-demo): sample project integrating SqlToy ORM with the Solon framework.
 

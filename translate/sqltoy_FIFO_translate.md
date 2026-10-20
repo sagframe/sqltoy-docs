@@ -225,7 +225,7 @@ spring:
 
 ## 六、完整可运行示例
 
-> 🎬 完整示例见演示项目 `sqltoy-showcase`：`BigDictDynamicCacheFetch.java`（取数实现）、`DynamicCacheTest.java`（翻译 + FIFOMap 缓存量验证）、`sqltoy-translate.xml` 中的 `bigDictCache` 定义与 `spring-sqltoy.xml` 中的注册方式。
+> 🎬 完整示例见演示项目 `sqltoy-showcase`：`BigDictDynamicCacheFetch.java`（取数实现）、`DynamicCacheTest.java`（翻译 + FIFOMap 批量取数与淘汰验证）、`sqltoy-translate.xml` 中的 `bigDictCache` 定义与 `application.yml` 中 `spring.sqltoy.dynamicCacheFetch` 的注册方式。
 
 ## 相关页面
 

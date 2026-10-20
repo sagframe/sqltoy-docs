@@ -230,7 +230,7 @@ spring:
 
 ## 6. Complete Runnable Example
 
-> 🎬 For the complete example, see the demo project `sqltoy-showcase`: `BigDictDynamicCacheFetch.java` (the fetch implementation), `DynamicCacheTest.java` (translation + FIFOMap cache volume verification), the `bigDictCache` definition in `sqltoy-translate.xml`, and the registration in `spring-sqltoy.xml`.
+> 🎬 For the complete example, see the demo project `sqltoy-showcase`: `BigDictDynamicCacheFetch.java` (the fetch implementation), `DynamicCacheTest.java` (translation + FIFOMap batch-fetch and eviction verification), the `bigDictCache` definition in `sqltoy-translate.xml`, and the `spring.sqltoy.dynamicCacheFetch` registration in `application.yml`.
 
 ## Related Pages
 

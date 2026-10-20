@@ -2,7 +2,7 @@
 
 sqltoy 本身不绑定数据源，多数据源可直接复用社区成熟的 **dynamic-datasource**（baomidou）方案：`@DS` 注解切换数据源、`@Transactional` 处理单库事务、`@DSTransactional` 把多个数据源的操作纳入同一事务。
 
-> 本文整理自官方演示项目：<https://gitee.com/sagacity/sqltoy-showcase/tree/master/trunk/sqltoy-dynamic-datasource>（演示项目基于 **sqltoy 6.0.x + Spring Boot 4.x**，本文示例以 **sqltoy 6.0.4** 为准）
+> 本文整理自原演示子项目 `trunk/sqltoy-dynamic-datasource`（已随 [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) 单模块重构从仓库移除，本文代码示例自成一体、可直接落地）；sqltoy 自身的命名多数据源演示见 showcase 的 `MultiDataSourceTest`。本文示例以 **sqltoy 6.0.4** 为准
 
 ## 一、引入依赖
 
@@ -125,9 +125,9 @@ public class DynamicServiceImpl implements DynamicService {
 | 多个 LightDao | 定义多个 `LightDao` bean 分别注入不同 dataSource，Service 中按 bean 名称引入 |
 | 查询级切换 | `QueryExecutor.dataSource(...)` 与链式 `.dataSource(...)`（见 [Link 链式操作](../query/link_api.md)） |
 | xml 指定 | `<sql dataSource="...">` 在单条 SQL 上指定数据源（见[动态 SQL 规范](../query/dynamic_sql.md)） |
-| 多库事务(JTA) | 结合 JTA 实现，参见 sqltoy-sharding 演示 |
+| 多库事务(JTA) | 结合 JTA 实现（如 Atomikos/Narayana） |
 
 > 更多常见问题（如分库分表为什么不支持跨库 join 分页、与其他 ORM 组合使用等）见 [FAQ](../faq/faq.md)。
 
-> 🎬 完整示例源码：演示项目 `sqltoy-showcase` 的 `DynamicServiceImpl.java`（@DSTransactional 跨库事务）与 `OrderInfoServiceImpl.java`（@DS 切换数据源）。
+> 🎬 原完整示例源码（`DynamicServiceImpl.java` / `OrderInfoServiceImpl.java`）已随 `trunk/sqltoy-dynamic-datasource` 子项目移除，本文代码示例自成一体、可直接落地；sqltoy 自身的命名多数据源演示见 [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) 的 `MultiDataSourceTest`。
 

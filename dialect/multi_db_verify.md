@@ -32,7 +32,7 @@ spring.sqltoy.redoDataSources[0]=pgdb
 | --- | --- |
 | [sagacity-db-diversity](https://github.com/sagframe/sagacity-db-diversity) | **库表结构差异对比**：分别连接参考库与目标库，导出表/字段/主键/外键/索引/注释到 xml 后离线比对，支持单边连接（开发环境只能跳板机访问）、也支持对比不同时间点的导出；换库迁移前先跑一遍，把结构差异清干净 |
 | [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify) | **native 构建验证矩阵**（spring + solon 双栈，PostgreSQL pgvector + postgis），同时覆盖方言函数转换与缓存翻译的双实现 |
-| [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) | 各数据库实测与特性演示工程 |
+| [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) | 全功能特性演示工程（双 H2 库模拟分片拓扑 + Testcontainers 真 Mongo/ES）；**各数据库实测**见 [sqltoy-quickstart](https://github.com/sagframe/sqltoy-quickstart) 第 9 课：同一批函数转换 SQL 经 docker-compose 在 PostgreSQL/SQL Server/Oracle/MySQL 真库上运行 |
 
 `redoDataSources` 的注意事项：
 

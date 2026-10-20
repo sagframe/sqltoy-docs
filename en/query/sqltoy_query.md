@@ -166,7 +166,7 @@ private List<DictDetailVO> dictDetailVOs = new ArrayList<DictDetailVO>();
 | `fields` | Parent-table association columns (multiple allowed, corresponding to composite keys) |
 | `mappedFields` | Corresponding association properties on the child object |
 | `notNullField` | Non-null field used to decide whether child-table data exists during hierarchy packaging (for hiberarchy) |
-| `orderBy` | Child-table ordering after cascade load/packaging, e.g. `showIndex desc` |
+| `orderBy` | Child-table ordering for **cascade load**, e.g. `showIndex desc`; in hierarchy-packaging (hiberarchy) scenarios the child order follows the SQL's `ORDER BY` |
 | `load` | Custom load sql (e.g. `enable=1` or a full sql: `select * from t where fkField=:fkField`) |
 | `delete` | Whether to cascade delete |
 | `update` | Custom operation on the child table during cascade save/update (`delete` means delete first, `status=0` means disable) |
@@ -210,7 +210,7 @@ The packaged result looks like:
 > - `hiberarchyFieldsMap` only targets the scenario where **parent and child objects have same-named properties**; without name conflicts, `hiberarchy(true)` alone is enough.
 > - Hierarchy packaging means "packaging directly from a single join sql", which is complementary to the cascading load in [Object CRUD](../crud/sqltoy_crud.md) (batch secondary queries by primary key).
 
-> 🎬 Full runnable example: `HierarchyPackagingTest.java` in the demo project `sqltoy-showcase` (its `AbstractDictTypeVO` has `notNullField = "dictKey"` configured on @OneToMany).
+> 🎬 Full runnable example: `HierarchyPackagingTest.java` in the demo project `sqltoy-showcase` (its `DictTypeVO` has `notNullField = "dictKey"` configured on @OneToMany; the child order follows the join SQL's `ORDER BY`).
 
 #### Stored Procedure Calls
 

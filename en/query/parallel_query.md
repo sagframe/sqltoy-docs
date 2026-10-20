@@ -51,4 +51,4 @@ queries.add(ParallelQuery.create().sql("sys_order_find")
 
 > **Renamed since 6.0**: `parallQuery` / `ParallQuery` are renamed to `parallelQuery` / `ParallelQuery`; use the old names in version 5.6.x.
 
-> 🎬 Full runnable example: `ParallelQueryTest.java` in the demo project `sqltoy-showcase` (basic parallel execution, `ParallelConfig` thread configuration, and the three mixed pagination forms).
+> 🎬 Full runnable example: `ParallelQueryTest.java` in the demo project `sqltoy-showcase` (three forms: basic parallel execution, `ParallelConfig` thread configuration, and mixed pagination).
