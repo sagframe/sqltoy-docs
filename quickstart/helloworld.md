@@ -439,7 +439,7 @@ mvn test
 ```
 
 ```text
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
 ```
 
-除本文的 CRUD/分页用例外,演示项目还包含缓存翻译四种用法的 `TranslateTest`(xml `<translate>` 标签、`QueryExecutor.translates`、`EntityQuery.translates`、VO 属性 `@Translate` 注解),详见[缓存翻译使用](translates.md)与[公共字段赋值](helloworld_improve.md)。
+除本文的 CRUD/分页用例外,演示项目还包含:缓存翻译四种用法的 `TranslateTest`(xml `<translate>` 标签、`QueryExecutor.translates`、`EntityQuery.translates`、VO 属性 `@Translate` 注解,详见[缓存翻译使用](translates.md)与[公共字段赋值](helloworld_improve.md));以及 lambda 条件查询的 `LambdaQueryTest`(实体属性方法引用表达条件 + `setExpr` 表达式更新,详见[Lambda 条件查询与更新](../query/lambda_query.md))。

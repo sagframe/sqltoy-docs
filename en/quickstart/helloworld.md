@@ -447,7 +447,7 @@ mvn test
 ```
 
 ```text
-Tests run: 7, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
 ```
 
-Besides the CRUD/pagination tests above, the demo project ships `TranslateTest` covering the four cache-translate usages (the xml `<translate>` tag, `QueryExecutor.translates`, `EntityQuery.translates` and the `@Translate` annotation on VO properties) — see [Cache Translate in Action](translates.md) and [Common-Field Auto-Fill](helloworld_improve.md).
+Besides the CRUD/pagination tests above, the demo project ships `TranslateTest` covering the four cache-translate usages (the xml `<translate>` tag, `QueryExecutor.translates`, `EntityQuery.translates` and the `@Translate` annotation on VO properties — see [Cache Translate in Action](translates.md) and [Common-Field Auto-Fill](helloworld_improve.md)), and `LambdaQueryTest` for lambda conditions (entity-getter conditions plus `setExpr` expression updates — see [Lambda Queries and Updates](../../query/lambda_query.md)).
