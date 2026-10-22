@@ -52,8 +52,8 @@
 | `updateDeeply(entity)` | 深度更新：全部字段参与（含 null） | [对象化 CRUD](../crud/sqltoy_crud.md) |
 | `updateAll(List, forceUpdateProps...)` / `updateAllDeeply(List)` | 批量弹性/深度更新 | [对象化 CRUD](../crud/sqltoy_crud.md) |
 | `updateByQuery(Class, EntityUpdate)` | 按单表条件更新，支持 `set 字段=字段+?` 自更新 | [对象化 CRUD](../crud/sqltoy_crud.md) |
-| `updateFetch(QueryExecutor, UpdateRowHandler)` | 锁查询→校验→修改→返回，一次交互 | [对象化 CRUD](../crud/sqltoy_crud.md) |
-| `updateSaveFetch(...)` | 锁查询、不存在则插入、存在则修改，并返回结果（多组唯一键重载） | [对象化 CRUD](../crud/sqltoy_crud.md) |
+| `updateSaveFetch(...)` | 锁查询、不存在则插入、存在则修改，并返回结果（多组唯一键重载；台账类高并发场景首选） | [对象化 CRUD](../crud/sqltoy_crud.md) |
+| `updateFetch(QueryExecutor, UpdateRowHandler)` | 锁查询→校验→修改→返回，一次交互（记录必然存在、条件自由编写的场景） | [对象化 CRUD](../crud/sqltoy_crud.md) |
 | `updateCascade(entity, ...)` | 级联修改（含子表强制更新字段 Map） | [对象化 CRUD](../crud/sqltoy_crud.md) |
 
 ## 五、删除（5）

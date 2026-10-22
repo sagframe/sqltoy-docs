@@ -109,6 +109,7 @@ Page<StaffInfo> page = lightDao.lambdaQuery(StaffInfo.class)
 | `between / notBetween` | `字段 BETWEEN :p1 AND :p2` |
 | `like / notLike` | `字段 LIKE :p1` / `NOT LIKE :p1`，通配符 `%值%` 由框架补入参数值（包含匹配） |
 | `likeLeft / likeRight` | `LIKE :p1`，参数值分别为 `%值`（以值结尾）/ `值%`（以值开头） |
+| `likeExact / likeExactLeft / likeExactRight` | 同上三个方向，但值中的 `%` 先转义为字面量再补方向 `%`——用户输入含 `%` 时按普通字符匹配而非被当通配符（如搜 `"50%"` 折扣不会命中 `5xx…` 的任意串） |
 | `isNull / isNotNull` | `字段 IS NULL` / `IS NOT NULL` |
 | `in(Collection)` / `in(值...)` | `字段 IN (:p1)`，空集合/空数组自动跳过 |
 | `notIn(Collection)` / `notIn(值...)` | `字段 NOT IN (:p1)` |
@@ -119,6 +120,8 @@ Page<StaffInfo> page = lightDao.lambdaQuery(StaffInfo.class)
 List<StaffInfo> list = lightDao.lambdaQuery(StaffInfo.class)
         .eq(StaffInfo::getStatus, 1)
         .like(StaffInfo::getStaffName, "张")
+        // 值中的%按普通字符匹配:搜索"50%"不会把%当通配符命中"5"开头的任意串
+        .likeExactRight(StaffInfo::getStaffCode, "50%")
         .between(StaffInfo::getEntryTime, start, end)
         .in(StaffInfo::getOrganId, organIds)
         .orderByDesc(StaffInfo::getEntryTime)
@@ -555,6 +558,7 @@ q1.unionAll(q2).findPage(page);  // 包裹子查询后分页,count 同理
 | join 后缺 `on()` | 装配期抛异常 |
 | join 更新/删除缺主表 | 装配期抛异常（查询场景主表可缺省为结果类型） |
 | `setExpr` 表达式含 `=` | 调用时抛异常 |
+| `setExpr` 表达式引号内含字面量 `?` | 调用时抛异常（更新通道做全量 `?` 文本替换，引号内 `?` 会被误当参数位） |
 | `ExcludeCols` 字段不属于主表实体 | 装配期抛异常 |
 | `selectAll(ExcludeCols...)` 排除全部字段 | 装配期抛异常 |
 | 构建器未绑定 dao 调用终端 | 抛异常并提示创建方式 |

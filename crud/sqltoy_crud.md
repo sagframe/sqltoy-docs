@@ -5,7 +5,7 @@
 3) 提供显式快捷api和链式api 2种模式,链式API提供更多的参数,如指定数据源、设定并行、设定batchSize等参数,如  
    lightDao.update().dataSource(xxx).forceUpdateProps("status").batchSize(500).many(entities);  
 4) 没有逻辑删除的概念,在sqltoy中就是状态更新  
-5) 相比较于JPA，sqltoy主要优化了update(提供了弹性修改)，新增了updateFetch和updateSaveFetch  
+5) 相比较于JPA，sqltoy主要优化了update(提供了弹性修改)，新增了updateSaveFetch和updateFetch（一次数据库交互完成锁查询、修改或插入并返回结果，[详见](../crud/sqltoy_crud.md#9-updatesavefetch操作锁查询存在则修改不存在则插入返回结果一次交互)）  
 6) sqltoy支持:OneToOne 和 OneToMany 两种形式的级联(有部分改进,如:加载支持过滤等)，但只支持一级级联；查询结果依据注解自动分层封装(hiberarchy)见[常规查询 API](../query/sqltoy_query.md)  
 7) sqltoy在级联加载和级联删除等操作上底层做了优化,采用了id in (:ids)形式的查询和删除,用算法组织最终数据，减少数据库IO提升效率  
 8) 详细请参见:org.sagacity.sqltoy.dao.LightDao接口,其有详细备注
@@ -538,11 +538,78 @@ lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).onlyCascade().m
 
 ```
 
-# 9、updateFetch操作（锁查询→校验修改→返回结果，一次交互）
+# 9、updateSaveFetch操作（锁查询→存在则修改、不存在则插入→返回结果，一次交互）
+
+* 说明  
+  1) sqltoy 独有（JPA 没有）：**一次数据库交互**完成 锁查询+存在则修改/不存在则插入+返回修改或插入后的记录，四步一气呵成  
+  2) 适用场景：库存台账、客户资金账等高并发强事务环节——"存在则更新、不存在则初始化插入"的 upsert 语义天然规避并发首查竞争（两个请求同时发现记录不存在，只有一个 insert 成功，另一个走修改）  
+  3) **同类场景优先选它，而非 updateFetch**：基于实体 + 主键/唯一键检索，无需编写 sql；记录不存在自动补插，调用方不需要先判断存在性。updateFetch（见下节）面向"记录必然存在、且需要自由编写查询条件与锁策略"的场景
+
+* api（三个常用重载，均可省略 uniqueProps 按主键检索）
+
+```java
+/**
+ * 适用于库存台账、客户资金账等高并发强事务场景，一次数据库交互实现：
+ * 1、锁查询；2、记录存在则修改；3、记录不存在则执行insert；4、返回修改或插入的记录信息
+ */
+public <T extends Serializable> T updateSaveFetch(final T entity, final UpdateRowHandler updateRowHandler,
+        final String... uniqueProps);
+
+// 实体回调形态（推荐）：回调里只操作实体 get/set，无需触碰 ResultSet
+public <T extends Serializable> T updateSaveFetch(final T entity, final EntityUpdateCallback<T> callback,
+        final String... uniqueProps);
+
+// 带锁等待时长（单位秒）的形态
+public <T extends Serializable> T updateSaveFetch(final T entity, final EntityUpdateCallback<T> callback,
+        final int lockWaitTimeout, final String... uniqueProps);
+```
+
+* 使用范例
+
+```xml
+//引入依赖类（实体回调形态需要 byte-buddy 支撑代理实体）
+<dependency>
+    <groupId>net.bytebuddy</groupId>
+    <artifactId>byte-buddy</artifactId>
+    <version>1.18.11</version>
+</dependency>
+```
+
+```java
+@Test
+public void testUpdateSaveFetch() {
+    StaffInfoVO staffInfo = new StaffInfoVO();
+    staffInfo.setStaffId("S0001");
+    staffInfo.setBeginDate(LocalDate.parse("2019-01-01"));
+    staffInfo.setEndDate(LocalDate.now());
+    staffInfo.setStaffName("陈");
+    lightDao.updateSaveFetch(staffInfo, (entity, rowIndex) -> {
+        // 这里entity取值，实际通过代理，走的是rs.getString("tel_no")获取的值
+        String telNo = entity.getTelNo();
+        if (telNo != null) {
+            // 这里set，实际是rs.updateString("tel_no", telNo.substring(0, 3) + "#**#" +
+            // telNo.substring(7));
+            entity.setTelNo(telNo.substring(0, 3) + "#**#" + telNo.substring(7));
+        }
+    });
+}
+```
+
+> [!NOTE]
+> `EntityUpdateCallback` 回调里的 `entity` 是**代理对象**：`get` 自动读数据库当前值（`rs.getXxx`）、`set` 自动更新行（`rs.updateXxx`），无需手工同步 ResultSet。回调中抛出异常则整体回滚。
+
+* 注意  
+  1) 实体主键尽量不要使用 identity、sequence（记录不存在走 insert 时，主键由实体自带最直接）  
+  2) 业务唯一键场景（如"商品+日期"的台账，以商品编码+日期唯一定位记录而非主键）通过 `uniqueProps` 指定属性名，不设置则按主键检索  
+  3) 并发竞争激烈的场景建议用 `lockWaitTimeout` 重载显式设定锁等待时长（单位秒），锁等待超时会抛异常回滚  
+  4) GraalVM native 镜像下 `EntityUpdateCallback` 形态依赖 byte-buddy 生成代理子类，需配置 `native-entity-proxies` 在构建期预生成（未列出的实体不可用，insert 分支不受影响），详见 [GraalVM Native 指引](../tools/graalvm_native.md)
+
+# 10、updateFetch操作（sql化锁查询→校验修改→返回结果，一次交互）
 
 * 说明  
   1) sqltoy 独有（JPA 没有）：**一次数据库交互**完成 查询+锁定+逻辑校验+修改+返回修改后结果  
-  2) 适用场景：秒杀、库存台账、资金台账等高并发强事务环节——查询的目的是**锁住记录做逻辑校验**（如扣减后不能小于 0），校验通过才修改
+  2) 适用场景：记录**必然存在**、且查询条件需要自由编写（多表关联、复杂条件、指定锁策略）的强事务环节——查询的目的是**锁住记录做逻辑校验**（如扣减后不能小于 0），校验通过才修改  
+  3) 记录可能不存在、且以主键/唯一键定位的台账场景，优先用上节 `updateSaveFetch`（自动 upsert）
 
 > [!WARNING]
 > updateFetch 的核心目的是**数据逻辑校验**（如扣减后不能小于 0），**页面展示性查询不要用此方法**。
@@ -584,56 +651,5 @@ List result = lightDao.updateFetch(
 
 > `UpdateRowHandler` 提供三个可覆写方法：`updateRow(rs,index)`、`updateRow(rs,index,BiConsumer<属性,值>)`、`updateRow(rs,index,ThreeBiConsumer<属性,强制更新字段[],值>)`（第三个可指定强制更新字段）。
 >
-> 与下节 `updateSaveFetch` 互补：`updateFetch` 修改**已存在**的记录；`updateSaveFetch` 锁查询后**不存在则执行 insert**。
-
-# 10、updateSaveFetch操作
-
-* 锁查询，存在则修改、不存在则保存，适用于类似库存台账、资金台账业务场景
-
-```xml
-//引入依赖类
-<dependency>
-    <groupId>net.bytebuddy</groupId>
-    <artifactId>byte-buddy</artifactId>
-    <version>1.18.11</version>
-</dependency>
-```
-
-```java
-//api 
-/**
- * 适用于库存台账、客户资金账等高并发强事务场景，一次数据库交互实现：
- *       <p>
- *       <li>1、锁查询；</li>
- *       <li>2、记录存在则修改；</li>
- *       <li>3、记录不存在则执行insert；</li>
- *       <li>4、返回修改或插入的记录信息</li>
- *       </p>
- */
-public <T extends Serializable> T updateSaveFetch(final T entity, final EntityUpdateCallback<T> callback,
-			final String... uniqueProps);
-```
-
-
-```java
-//示例
-@Test
-public void testUpdateSaveFetch() {
-    StaffInfoVO staffInfo = new StaffInfoVO();
-    staffInfo.setStaffId("S0001");
-    staffInfo.setBeginDate(LocalDate.parse("2019-01-01"));
-    staffInfo.setEndDate(LocalDate.now());
-    staffInfo.setStaffName("陈");
-    lightDao.updateSaveFetch(staffInfo, (entity, rowIndex) -> {
-	// 这里entity取值，实际通过代理，走的是rs.getString("tel_no")获取的值
-	String telNo = entity.getTelNo();
-	if (telNo != null) {
-		// 这里set，实际是rs.updateString("tel_no", telNo.substring(0, 3) + "#**#" +
-		// telNo.substring(7));
-		entity.setTelNo(telNo.substring(0, 3) + "#**#" + telNo.substring(7));
-	}
-    });
-}
-```
-
+> 与上节 `updateSaveFetch` 互补：`updateSaveFetch` 以实体定位、不存在自动插入；`updateFetch` 修改**已存在**的记录，查询条件由 sql 自由定义。
 

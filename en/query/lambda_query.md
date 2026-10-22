@@ -109,6 +109,7 @@ Every condition method has a `(boolean condition, ...)` overload; when `conditio
 | `between / notBetween` | `column BETWEEN :p1 AND :p2` |
 | `like / notLike` | `column LIKE :p1` / `NOT LIKE :p1`; the `%value%` wildcards are wrapped into the parameter value (contains match) |
 | `likeLeft / likeRight` | `LIKE :p1` with the value as `%value` (ends with) / `value%` (starts with) |
+| `likeExact / likeExactLeft / likeExactRight` | Same three directions, but `%` inside the value is first escaped as a literal before the directional `%` is padded — user input containing `%` matches as an ordinary character instead of acting as a wildcard (searching `"50%"` won't hit arbitrary `5xx…` strings) |
 | `isNull / isNotNull` | `column IS NULL` / `IS NOT NULL` |
 | `in(Collection)` / `in(values...)` | `column IN (:p1)`; empty collections/arrays are skipped automatically |
 | `notIn(Collection)` / `notIn(values...)` | `column NOT IN (:p1)` |
@@ -119,6 +120,8 @@ Every condition method has a `(boolean condition, ...)` overload; when `conditio
 List<StaffInfo> list = lightDao.lambdaQuery(StaffInfo.class)
         .eq(StaffInfo::getStatus, 1)
         .like(StaffInfo::getStaffName, "Smith")
+        // % inside the value matches as an ordinary character: searching "50%" won't treat % as a wildcard hitting any "5…" string
+        .likeExactRight(StaffInfo::getStaffCode, "50%")
         .between(StaffInfo::getEntryTime, start, end)
         .in(StaffInfo::getOrganId, organIds)
         .orderByDesc(StaffInfo::getEntryTime)
@@ -555,6 +558,7 @@ q1.unionAll(q2).findPage(page);  // wrapped as a sub-query then paginated; count
 | A join without `on()` | Throws during assembly |
 | Join update/delete without a main table | Throws during assembly (a query may default the main table to the result type) |
 | `setExpr` expression contains `=` | Throws at call time |
+| `setExpr` expression contains a quoted literal `?` | Throws at call time (the update channel replaces `?` textually, so a quoted `?` would be mistaken for a parameter slot) |
 | `ExcludeCols` field not belonging to the main entity | Throws during assembly |
 | `selectAll(ExcludeCols...)` excludes every column | Throws during assembly |
 | Terminal called on a builder not bound to a dao | Throws, hinting at how it must be created |

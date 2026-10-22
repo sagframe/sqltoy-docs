@@ -1,13 +1,13 @@
 # 6.0 升级指南
 
-从 5.6.x 升级到 6.0.8（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
+从 5.6.x 升级到 6.0.9（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
 
 ## 一、环境要求
 
 | 项 | 要求 |
 | --- | --- |
 | JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.96.jre8`（最终 jre8 版本，支持 quickvo-maven-plugin 插件） |
-| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.8 |
+| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.9 |
 | 配置参数 | `spring.sqltoy.*` 在 6.0.2 的 58 个参数基础上新增 2 个：`realDialectFirst`（6.0.3 新增）、`ddlLowerOrUpper`（6.0.3 起暴露为 starter 属性），其余参数无增减，存量配置无需调整 |
 
 ## 二、API 变更（需要改代码）
@@ -207,9 +207,41 @@ join 更新/删除并入 `lambdaUpdate()/lambdaDelete()`（与查询同款"不�
 
 新增 [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify)（spring + solon 双栈共用矩阵，PostgreSQL pgvector + postgis）：覆盖 CRUD × json/vector/geometry 三形态、`functionConverts` 方言转换、ehcache/caffeine 双缓存翻译、`updateSaveFetch` 代理路径、lambda 单表/join/setExpr/matchAll 守卫/删除；JVM 双框架 17/17 PASS，配置 `native-entity-proxies` 后 native 冒烟 17 PASS + 0 KNOWN-LIMITATION。
 
-## 十一、升级步骤建议
+## 十一、6.0.9 更新说明
 
-1. 依赖版本号统一升级为 6.0.8（starter / spring / solon-plugin 与 core 同版本）；
+6.0.9 以跨库实证修补为主，无破坏性变更，升级只需改版本号。
+
+**1. CTE 物化 hint 按目标库保留/剔除**
+
+`WITH xx AS [NOT] MATERIALIZED (..)` 仅 PostgreSQL 系（含 openGauss/金仓/Vastbase/GAUSSDB/瀚高）原生支持；其余库（mysql/sqlserver/oracle/db2 等）执行时框架在解析期自动剔除 hint——只失去物化优化、不改查询语义，无需再按方言各写一份 sqlId。lambda 侧 `.with(name, q, Boolean.TRUE/FALSE)` 的渲染门禁与之同源（详见[Lambda 条件查询与更新](../query/lambda_query.md)）。
+
+**2. 函数适配真库实证修正**
+
+- `to_char`/`to_date`/`str_to_date` 的裸 `HH` 全库统一为 **24 小时制**口径（小写 `hh` 为 12 小时、`HH24` 恒为 24）——DB2/H2 真库实测原先按 12 小时输出致静默错值；
+- `to_date` 目标为 pg 系/HANA/ClickHouse 且格式含时间 token 时自动改写 `to_timestamp`/`toDateTime`，规避时间部分被静默截断（真库实证 pg 的 `to_date` 只返回 date）；
+- `trim(from x)`（省略剔除字符形态）在 mysql 9.3 报 1064、oracle 23ai 报 ORA-30000，自动改写为等价的 `trim(x)`/`ltrim`/`rtrim`；
+- `substr` 起点 0 统一按"从开头截取"；sqlite 目标下 `mid` 自动转 `substr`（sqlite 原生无 mid）；mysql 的 `left/right(str,0)` 与负数长度按"返回空串"对齐；
+- `instr` 支持四参形态 `instr(str,sub,pos,occurrence)`；
+- `find_in_set` 比较符扩展为任意位置口径：`=1/=2/>1/<3` 按整数位置表达式改写（原 `>0/=0` 布尔口径族不变）；
+- `datediff` 的 oceanbase 并入 oracle 分支（OB oracle 模式租户无 datediff；mysql 模式按约定配 `dialect=mysql`）。
+
+**3. 分页 count 缓存按方言隔离**
+
+`pageOptimize` 的总数缓存键由 sqlId 升级为 `sqlId@dialect`：同一 sql 经 `redoDataSources`/多数据源在不同方言库上执行时，count 结果分别缓存、不再互相串用；`PageOptimizeUtils.remove(sqlId)` 连带清除该 sql 全部方言缓存。配套修复跨库适配自定义 countSql 时直接改写共享 `SqlToyConfig` 实例、污染同 sqlId 后续查询的缺陷。
+
+**4. lambda 条件体系细化**
+
+- 新增 `likeExact/likeExactLeft/likeExactRight`：值中的 `%` 先转义为字面量再按方向补 `%`——用户输入含 `%` 时按普通字符匹配而非被当通配符放大命中范围（`like/likeLeft/likeRight` 语义不变）；
+- `setExpr` 表达式引号内含字面量 `?` 时快速失败（更新通道做全量 `?` 文本替换，引号内 `?` 会被误当参数位）；
+- 空 groupBy 列与空 having 条件跳过组装（原会生成 `GROUP BY `/`HAVING ` 非法片段）。
+
+**5. 其他**
+
+- SqlScriptLoader 初始化/销毁线程安全加固（标志 volatile 化、方法 synchronized）。
+
+## 十二、升级步骤建议
+
+1. 依赖版本号统一升级为 6.0.9（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；

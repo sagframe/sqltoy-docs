@@ -52,8 +52,8 @@ The chain API is for scenarios needing "many parameters + explicit datasource + 
 | `updateDeeply(entity)` | Deep update: every field participates (including nulls) | [Object CRUD](../crud/sqltoy_crud.md) |
 | `updateAll(List, forceUpdateProps...)` / `updateAllDeeply(List)` | Batch elastic/deep update | [Object CRUD](../crud/sqltoy_crud.md) |
 | `updateByQuery(Class, EntityUpdate)` | Single-table conditional update, supporting `set col = col + ?` | [Object CRUD](../crud/sqltoy_crud.md) |
-| `updateFetch(QueryExecutor, UpdateRowHandler)` | Lock-query → validate → modify → return in one interaction | [Object CRUD](../crud/sqltoy_crud.md) |
-| `updateSaveFetch(...)` | Lock-query, insert when absent, update when present, returning the result (overloads for several unique keys) | [Object CRUD](../crud/sqltoy_crud.md) |
+| `updateSaveFetch(...)` | Lock-query, insert when absent, update when present, returning the result (overloads for several unique keys; first choice for high-concurrency ledger scenarios) | [Object CRUD](../crud/sqltoy_crud.md) |
+| `updateFetch(QueryExecutor, UpdateRowHandler)` | Lock-query → validate → modify → return in one interaction (for scenarios where the record must exist and conditions are freely authored) | [Object CRUD](../crud/sqltoy_crud.md) |
 | `updateCascade(entity, ...)` | Cascade update (with a per-child-table forced-update-field map) | [Object CRUD](../crud/sqltoy_crud.md) |
 
 ## 5. Delete (5)

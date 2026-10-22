@@ -1,13 +1,13 @@
 # Upgrade to 6.0.x
 
-Changes and notes for upgrading from 5.6.x to 6.0.8 (the 6.0 line). All changes have been verified against the 6.0 source code.
+Changes and notes for upgrading from 5.6.x to 6.0.9 (the 6.0 line). All changes have been verified against the 6.0 source code.
 
 ## 1. Environment Requirements
 
 | Item | Requirement |
 | --- | --- |
 | JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
-| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.8 |
+| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.9 |
 | Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged, and existing configuration files need no adjustment |
 
 ## 2. API Changes (Code Changes Required)
@@ -207,9 +207,41 @@ Join updates and deletes are folded into `lambdaUpdate()/lambdaDelete()` (the sa
 
 Added [sqltoy-aot-verify](https://github.com/sagframe/sqltoy-aot-verify) (one matrix shared by the spring and solon stacks, PostgreSQL pgvector + postgis): it covers CRUD × json/vector/geometry in three shapes, `functionConverts` dialect conversion, cache translate on ehcache and caffeine, the `updateSaveFetch` proxy path, and lambda single-table/join/setExpr/matchAll-guard/delete; the JVM matrix is 17/17 PASS on both stacks and, with `native-entity-proxies` configured, the native smoke run is 17 PASS + 0 KNOWN-LIMITATION.
 
-## 11. Recommended Upgrade Steps
+## 11. What's New in 6.0.9
 
-1. Upgrade the dependency version numbers uniformly to 6.0.8 (starter / spring / solon-plugin use the same version as core);
+6.0.9 is mostly a batch of cross-database empirically verified fixes with no breaking changes — upgrading only requires the version bump.
+
+**1. CTE materialization hint kept/stripped by target database**
+
+`WITH xx AS [NOT] MATERIALIZED (..)` is only natively supported by the PostgreSQL family (including openGauss, Kingbase, Vastbase, GAUSSDB and HighGo); on other databases (mysql, sqlserver, oracle, db2, ...) the framework strips the hint at parse time — only the materialization optimization is lost, the query semantics are unchanged, so you no longer need one sqlId per dialect. The rendering gate of `.with(name, q, Boolean.TRUE/FALSE)` on the lambda side shares the same source (see [Lambda Queries and Updates](../../query/lambda_query.md)).
+
+**2. Function adaptation fixes verified on real databases**
+
+- The bare `HH` token of `to_char`/`to_date`/`str_to_date` is unified to the **24-hour** convention across databases (lowercase `hh` is 12-hour, `HH24` is always 24) — on DB2 and H2 it previously rendered as 12 hours, silently corrupting values (verified on real databases);
+- When `to_date` targets the pg family / HANA / ClickHouse and the format contains time tokens, it is rewritten to `to_timestamp`/`toDateTime` to avoid the time part being silently truncated (pg's `to_date` only returns a date, verified on a real database);
+- `trim(from x)` (the form omitting the trim character) raises error 1064 on mysql 9.3 and ORA-30000 on oracle 23ai; it is now rewritten to the equivalent `trim(x)`/`ltrim`/`rtrim`;
+- `substr` start position 0 is unified as "from the beginning"; `mid` targeting sqlite is converted to `substr` (sqlite has no native `mid`); mysql's `left/right(str,0)` and negative lengths align on "return an empty string";
+- `instr` supports the four-argument form `instr(str,sub,pos,occurrence)`;
+- `find_in_set` comparisons extend to any position convention: `=1/=2/>1/<3` are rewritten as integer-position expressions (the existing `>0/=0` boolean family is unchanged);
+- `datediff` for oceanbase joins the oracle branch (OB oracle-mode tenants have no datediff; mysql mode uses `dialect=mysql` by convention).
+
+**3. Pagination count cache isolated per dialect**
+
+The pageOptimize total-count cache key is upgraded from sqlId to `sqlId@dialect`: when the same sql runs on different dialect databases via `redoDataSources`/multiple datasources, the count results are cached separately instead of cross-contaminating; `PageOptimizeUtils.remove(sqlId)` also clears all dialect caches of that sql. The accompanying fix prevents the cross-db adapter from rewriting the shared `SqlToyConfig` instance when a custom countSql is present, which polluted subsequent queries of the same sqlId.
+
+**4. Lambda condition refinements**
+
+- Added `likeExact/likeExactLeft/likeExactRight`: `%` inside the value is first escaped as a literal and then padded by direction — user input containing `%` matches as an ordinary character instead of being treated as a wildcard that widens matches (`like/likeLeft/likeRight` semantics unchanged);
+- `setExpr` fails fast when a quoted literal `?` appears inside the expression (the update channel replaces `?` textually, so a quoted `?` would be mistaken for a parameter slot);
+- Empty groupBy columns and empty having conditions are skipped during assembly (previously illegal `GROUP BY `/`HAVING ` fragments could be produced).
+
+**5. Others**
+
+- SqlScriptLoader initialization/destruction thread-safety hardening (flags made volatile, methods synchronized).
+
+## 12. Recommended Upgrade Steps
+
+1. Upgrade the dependency version numbers uniformly to 6.0.9 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);
 3. If you have custom `DataSourceCallbackHandler` implementations, adjust the `doConnection` signature to take a `DBProfile` parameter;
 4. If you reference the framework internal utility classes listed in the table above, adjust the imports to their new package locations;

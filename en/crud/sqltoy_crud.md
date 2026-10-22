@@ -6,7 +6,7 @@ sqltoy's object-oriented CRUD is quite similar to JPA. Its main features:
 3) Two API modes are provided: explicit shortcut APIs and chainable APIs. The chain API exposes more parameters, such as specifying a datasource, enabling parallelism, setting batchSize, e.g.  
    lightDao.update().dataSource(xxx).forceUpdateProps("status").batchSize(500).many(entities);  
 4) There is no concept of logical delete; in sqltoy it is simply a status update  
-5) Compared with JPA, sqltoy mainly optimizes update (providing the elastic update) and adds updateFetch and updateSaveFetch  
+5) Compared with JPA, sqltoy mainly optimizes update (providing the elastic update) and adds updateSaveFetch and updateFetch (one database interaction completes the locking query, update-or-insert and result return)  
 6) sqltoy supports cascading in two forms, OneToOne and OneToMany (with some improvements, e.g. loading supports filtering), but only one level of cascading; query results are automatically packaged in layers based on annotations (hierarchy packaging), see [Query API](../query/sqltoy_query.md)  
 7) sqltoy optimizes cascade loading and cascade deletion under the hood, using id in (:ids) style queries and deletes, organizing the final data algorithmically to reduce database IO and improve efficiency  
 8) For details see the org.sagacity.sqltoy.dao.LightDao interface, which is thoroughly documented
@@ -542,11 +542,78 @@ lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).onlyCascade().m
 
 ```
 
-# 9. updateFetch (locking query → validate and update → return results, in one interaction)
+# 9. updateSaveFetch (locking query → update if exists / insert if not → return the result, in one interaction)
+
+* Description  
+  1) Unique to sqltoy (JPA does not have it): **a single database interaction** completes the locking query + update-if-exists / insert-if-not-exists + returning the updated or inserted record  
+  2) Applicable scenarios: high-concurrency, strongly transactional ledgers such as inventory and customer fund accounts — the "update if exists, initialize-and-insert if not" upsert semantics naturally avoids the concurrent first-query race (when two requests both find the record missing, only one insert succeeds; the other falls back to updating)  
+  3) **Prefer it over updateFetch for such scenarios**: it locates the record by entity + primary/unique key, no SQL needed; the insert happens automatically when the record does not exist, so callers never check existence first. updateFetch (next section) targets scenarios where the record **must already exist** and the query conditions and lock strategy need to be freely authored
+
+* API (three common overloads; uniqueProps can be omitted to query by primary key)
+
+```java
+/**
+ * Designed for high-concurrency, strongly transactional scenarios such as inventory ledgers and customer fund accounts; a single database interaction accomplishes:
+ * 1. locking query; 2. update if the record exists; 3. insert if the record does not exist; 4. return the updated or inserted record information
+ */
+public <T extends Serializable> T updateSaveFetch(final T entity, final UpdateRowHandler updateRowHandler,
+        final String... uniqueProps);
+
+// entity-callback form (recommended): inside the callback you only touch entity getters/setters, no ResultSet
+public <T extends Serializable> T updateSaveFetch(final T entity, final EntityUpdateCallback<T> callback,
+        final String... uniqueProps);
+
+// form with lock wait timeout (in seconds)
+public <T extends Serializable> T updateSaveFetch(final T entity, final EntityUpdateCallback<T> callback,
+        final int lockWaitTimeout, final String... uniqueProps);
+```
+
+* Usage example
+
+```xml
+// add the dependency class (the entity-callback form relies on byte-buddy to back the proxied entity)
+<dependency>
+    <groupId>net.bytebuddy</groupId>
+    <artifactId>byte-buddy</artifactId>
+    <version>1.18.11</version>
+</dependency>
+```
+
+```java
+@Test
+public void testUpdateSaveFetch() {
+    StaffInfoVO staffInfo = new StaffInfoVO();
+    staffInfo.setStaffId("S0001");
+    staffInfo.setBeginDate(LocalDate.parse("2019-01-01"));
+    staffInfo.setEndDate(LocalDate.now());
+    staffInfo.setStaffName("Chen");
+    lightDao.updateSaveFetch(staffInfo, (entity, rowIndex) -> {
+        // the entity getter here actually goes through a proxy, reading the value via rs.getString("tel_no")
+        String telNo = entity.getTelNo();
+        if (telNo != null) {
+            // the setter here actually maps to rs.updateString("tel_no", telNo.substring(0, 3) + "#**#" +
+            // telNo.substring(7));
+            entity.setTelNo(telNo.substring(0, 3) + "#**#" + telNo.substring(7));
+        }
+    });
+}
+```
+
+> [!NOTE]
+> The `entity` inside the `EntityUpdateCallback` is a **proxied object**: getters read the current database value (`rs.getXxx`) and setters update the row directly (`rs.updateXxx`) — no manual ResultSet synchronization. Throwing inside the callback rolls the whole operation back.
+
+* Notes  
+  1) Avoid identity / sequence primary keys on the entity (when the record does not exist and an insert happens, carrying the key in the entity is the most straightforward)  
+  2) For business-unique-key scenarios (e.g. a ledger located by "product + date" rather than primary key), pass the property names via `uniqueProps`; omit it to query by primary key  
+  3) Under fierce contention prefer the `lockWaitTimeout` overload to set the lock wait explicitly (in seconds); a lock wait timeout throws and rolls back  
+  4) Under GraalVM native images the `EntityUpdateCallback` form relies on byte-buddy proxy subclasses: configure `native-entity-proxies` to pre-generate them at build time (entities not listed are unusable; the insert branch is not affected); see the [GraalVM Native guide](../../tools/graalvm_native.md)
+
+# 10. updateFetch (SQL-authored locking query → validate and update → return results, in one interaction)
 
 * Description  
   1) Unique to sqltoy (JPA does not have it): **a single database interaction** completes query + locking + logical validation + update + returning the updated results  
-  2) Applicable scenarios: high-concurrency, strongly transactional steps such as flash sales, inventory ledgers and fund ledgers — the purpose of the query is to **lock the records for logical validation** (e.g. the value must not drop below 0 after deduction); the update happens only after validation passes
+  2) Applicable scenarios: strongly transactional steps where the record **must already exist** and the query conditions need to be freely authored (multi-table joins, complex conditions, explicit lock strategy) — the purpose of the query is to **lock the records for logical validation** (e.g. the value must not drop below 0 after deduction); the update happens only after validation passes  
+  3) For ledger scenarios where the record may not exist and is located by primary/unique key, prefer `updateSaveFetch` above (automatic upsert)
 
 > [!WARNING]
 > The core purpose of updateFetch is **data logical validation** (e.g. the value must not drop below 0 after deduction). **Do not use this method for display-oriented page queries.**
@@ -588,54 +655,4 @@ List result = lightDao.updateFetch(
 
 > `UpdateRowHandler` provides three overridable methods: `updateRow(rs,index)`, `updateRow(rs,index,BiConsumer<property,value>)`, `updateRow(rs,index,ThreeBiConsumer<property,forced update fields[],value>)` (the third one allows specifying forced-update fields).
 >
-> It complements `updateSaveFetch` in the next section: `updateFetch` updates **existing** records; `updateSaveFetch` performs an **insert if the record does not exist** after the locking query.
-
-# 10. updateSaveFetch
-
-* Locking query: update if the record exists, save if not. Suitable for business scenarios such as inventory ledgers and fund ledgers
-
-```xml
-// add the dependency class
-<dependency>
-    <groupId>net.bytebuddy</groupId>
-    <artifactId>byte-buddy</artifactId>
-    <version>1.18.11</version>
-</dependency>
-```
-
-```java
-// api 
-/**
- * Designed for high-concurrency, strongly transactional scenarios such as inventory ledgers and customer fund accounts; a single database interaction accomplishes:
- *       <p>
- *       <li>1. locking query;</li>
- *       <li>2. update if the record exists;</li>
- *       <li>3. insert if the record does not exist;</li>
- *       <li>4. return the updated or inserted record information</li>
- *       </p>
- */
-public <T extends Serializable> T updateSaveFetch(final T entity, final EntityUpdateCallback<T> callback,
-			final String... uniqueProps);
-```
-
-
-```java
-// example
-@Test
-public void testUpdateSaveFetch() {
-    StaffInfoVO staffInfo = new StaffInfoVO();
-    staffInfo.setStaffId("S0001");
-    staffInfo.setBeginDate(LocalDate.parse("2019-01-01"));
-    staffInfo.setEndDate(LocalDate.now());
-    staffInfo.setStaffName("Chen");
-    lightDao.updateSaveFetch(staffInfo, (entity, rowIndex) -> {
-	// the entity getter here actually goes through a proxy, reading the value via rs.getString("tel_no")
-	String telNo = entity.getTelNo();
-	if (telNo != null) {
-		// the setter here actually maps to rs.updateString("tel_no", telNo.substring(0, 3) + "#**#" +
-		// telNo.substring(7));
-		entity.setTelNo(telNo.substring(0, 3) + "#**#" + telNo.substring(7));
-	}
-    });
-}
-```
+> It complements `updateSaveFetch` in the previous section: `updateSaveFetch` locates the record by entity and inserts automatically when missing; `updateFetch` updates **existing** records, with query conditions freely authored in SQL.
