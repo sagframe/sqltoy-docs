@@ -200,7 +200,7 @@ join 更新/删除并入 `lambdaUpdate()/lambdaDelete()`（与查询同款"不�
 - 按 **classpath 条件注册**（native 镜像构建期冻结，运行期无法再切换）：`cacheType` 对应的 caffeine/ehcache 管理器、mongo/redis 集成类、JSON 三个 provider、PG 系 `PGobject` 的 5 个驱动同构类（postgresql/opengauss/vastbase/gaussdb/kingbase）、mssql `Geometry`/`Vector`、`oracle.jdbc.OracleTypes`；
 - 新增配置 `native-reflection-classes` / `native-reflection-packages`（登记非实体 DTO/VO）与 `native-entity-proxies`（构建期预生成 `updateSaveFetch` 代理，需应用自行引入 `net.bytebuddy:byte-buddy`）；
 - starter 的 `sqlToyLazyDao`/`sqlToyDao`/`lightDao`/`sqlToyCRUDService` 四个 `@Bean` 返回类型由接口改为**具体实现类**并显式 `@ConditionalOnMissingBean(接口.class)`：Spring AOT 按声明类型预判 bean 类型，接口声明会使事务 CGLIB 代理无法在构建期预生成，native 运行期报 "CGLIB runtime enhancement not supported on native image"；应用侧如有"接口返回类型 + `initMethod`"的 `@Bean`，同样应改为具体类型声明；
-- **构建环境要求 GraalVM 23+**：17 不识别新版 reachability-metadata schema（native-maven-plugin 直接拒绝），21 不支持 `typeReached` 条件元数据（条件恒真，spring-aop 的 AspectJ 序列化条目会被误注册）；
+- **构建环境要求 GraalVM 25+**（实测矩阵：17 与 23 不识别新版 reachability-metadata schema，被 native-maven-plugin 直接拒绝；21 不支持 `typeReached` 条件元数据，条件恒真导致 spring-aop 的 AspectJ 序列化条目被误注册；25.0.4 双框架全矩阵验证）；
 - 已知限制：`updateSaveFetch` 的 `EntityUpdateCallback` 路径依赖 byte-buddy 运行期生成实体子类，native 下需配置 `native-entity-proxies` 预生成代理，未列出的实体不可用（insert 分支不受影响）。
 
 **5. 配套验证工程**
@@ -246,5 +246,5 @@ join 更新/删除并入 `lambdaUpdate()/lambdaDelete()`（与查询同款"不�
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；
 5. **使用 sqltoy-plus 的项目**：按第十节第 2 条清单迁移到 `org.sagacity.sqltoy.lambda`，移除 sqltoy-plus 依赖与 `@EnableSqlToyPlus`，并回归 `getOne()` 多处匹配、无条件 update/delete 两类行为变化；
-6. **构建 native 镜像的项目**：确认 GraalVM 23+、配置 `packagesToScan`、按需登记 `native-reflection-classes/packages`，用到 `updateSaveFetch` 的实体加入 `native-entity-proxies`；
+6. **构建 native 镜像的项目**：确认 GraalVM 25+、配置 `packagesToScan`、按需登记 `native-reflection-classes/packages`，用到 `updateSaveFetch` 的实体加入 `native-entity-proxies`；
 7. 启动验证：观察 debug 模式下 SQL 输出与业务回归（缓存翻译、分页、并行查询、lambda 条件优先）；断言 SQL 文本的单元测试需同步 `:p1…` 参数名。

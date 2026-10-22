@@ -21,7 +21,7 @@ sqltoy 的 spring-starter 与 solon-plugin 均内置 AOT/native 支持：构建�
 
 前置条件（与 Spring Boot 官方要求一致，详见 [Spring Boot Native Image 文档](https://docs.spring.io/spring-boot/reference/packaging/native-image/index.html)）：
 
-- **GraalVM JDK 23+（建议 25）**：旧版本与当前 GraalVM reachability metadata repository 不兼容——17 不支持新元数据 schema（native-maven-plugin 直接报错），21 不支持 `typeReached` 条件元数据（条件被当作恒真，spring-aop 的 AspectJ 序列化条目被误注册，无 aspectjweaver 时构建失败）；CI 中常用 `graalvm-community`；
+- **GraalVM JDK 25+**：低版本与当前 GraalVM reachability metadata repository 不兼容（实测矩阵：**17 与 23** 不识别新元数据 schema，被 native-maven-plugin 直接拒绝；**21** 不支持 `typeReached` 条件元数据——条件被当作恒真，spring-aop 的 AspectJ 序列化条目被误注册，无 aspectjweaver 时构建失败）；25.0.4 已双框架全矩阵验证；CI 中常用 `graalvm-community`；
 - Windows 需安装 Visual Studio Build Tools（MSVC），Linux 需 gcc 工具链，macOS 需 Xcode Command Line Tools。
 
 > [!NOTE]

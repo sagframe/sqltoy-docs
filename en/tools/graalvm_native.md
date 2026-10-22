@@ -21,7 +21,7 @@ Both the sqltoy spring-starter and solon-plugin ship with built-in AOT/native su
 
 Prerequisites (identical to the official Spring Boot requirements — see the [Spring Boot Native Image documentation](https://docs.spring.io/spring-boot/reference/packaging/native-image/index.html)):
 
-- **GraalVM JDK 23+ (25 recommended)**: older versions are incompatible with the current GraalVM reachability metadata repository — 17 does not understand the new metadata schema (native-maven-plugin fails outright), and 21 does not support `typeReached` conditional metadata (conditions count as always-true, spring-aop's AspectJ serialization entries get registered by mistake, and the build fails without aspectjweaver); CI setups commonly use `graalvm-community`;
+- **GraalVM JDK 25+**: older versions are incompatible with the current GraalVM reachability metadata repository (verified matrix: **17 and 23** do not understand the new metadata schema — native-maven-plugin rejects them outright; **21** does not support `typeReached` conditional metadata — conditions count as always-true, spring-aop's AspectJ serialization entries get registered by mistake, and the build fails without aspectjweaver); 25.0.4 is verified with the full matrix on both stacks; CI setups commonly use `graalvm-community`;
 - Visual Studio Build Tools (MSVC) on Windows, a gcc toolchain on Linux, Xcode Command Line Tools on macOS.
 
 > [!NOTE]
