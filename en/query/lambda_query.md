@@ -190,7 +190,7 @@ lightDao.lambdaQuery(StaffInfo.class).eq(StaffInfo::getStatus, 1)
 lightDao.lambdaQuery(StaffInfo.class).eq(StaffInfo::getStatus, 1).last("limit 10").find();
 ```
 
-Adjacent conditions get an automatic `AND`; adjacent explicit `and()/or()` connectors are merged keeping the last one; leading/trailing dangling connectors are stripped; every nesting level is wrapped in parentheses, **with no depth limit** (in practice constrained by JVM stack depth and the target database's expression nesting limit — 1~3 levels is effortless, and extremely complex dynamic grouping should go to SQL mode). **Empty groups are dropped automatically**: when every condition inside a group is skipped by `condition=false` or `IfPresent`, the whole group disappears together with its surplus connectors, so illegal `()` SQL is never rendered — dynamic groups are therefore safe to write, and a group simply stops participating when its parameters are missing.
+Adjacent conditions get an automatic `AND`; adjacent explicit `and()/or()` connectors are merged keeping the last one; leading/trailing dangling connectors are stripped; every nesting level is wrapped in parentheses, **with no depth limit** (in practice constrained by JVM stack depth and the target database's expression nesting limit — 1~3 levels is sufficient for common needs, and more complex dynamic grouping should use SQL mode). **Empty groups are dropped automatically**: when every condition inside a group is skipped by `condition=false` or `IfPresent`, the whole group disappears together with its surplus connectors, so illegal `()` SQL is never rendered — dynamic groups are therefore safe to write, and a group simply stops participating when its parameters are missing.
 
 ### Grouping, sorting and aggregate filtering
 

@@ -1,6 +1,6 @@
 # 补充说明：标签与表达式参考
 
-除了 [`#[]` 动态条件片段](../query/dynamic_sql.md)，sqltoy 还在 SQL 中预留了一组 `@` 宏指令，用于应对极端复杂的动态 SQL 场景。灵活搭配 `@if`、`@value`、`@blank`、`@loop` 可解决 99.99% 的问题；遇到超复杂场景，推荐在代码中组织好 SQL 片段，再用 `@value(:sqlScript)` 嵌入。
+除了 [`#[]` 动态条件片段](../query/dynamic_sql.md)，sqltoy 还在 SQL 中预留了一组 `@` 宏指令，用于应对高度复杂的动态 SQL 场景。灵活搭配 `@if`、`@value`、`@blank`、`@loop` 可解决绝大多数问题；遇到更复杂的场景，推荐在代码中组织好 SQL 片段，再用 `@include(:sqlScript)` 动态嵌入（片段内可继续使用命名参数）；纯文本注入也可用 `@value(:sqlScript)`。
 
 ## 一、@if() / @elseif() / @else
 
@@ -57,7 +57,7 @@
 
 `@value(:paramName)` 类似 `@blank(:paramName)`，唯一区别是它会**直接显示 paramName 对应的值**。
 
-典型用法：`@value(:sqlScript)` 直接把代码中组织好的 SQL 片段嵌入进来，应对超复杂动态 SQL。
+典型用法：`@value(:sqlScript)` 直接把代码中组织好的 SQL 片段嵌入进来，应对高度复杂动态 SQL；片段内还需使用命名参数时，请改用第七节的 `@include(:scriptParam)`。
 
 > **注意**：`@value` 注入的是未经校验的文本。若只是要拼接**字段名列表**（页面配置化的报表/接口服务按配置决定 select、group by、order by 的列），请改用第八节的 `@joinFields()`——它带字段名白名单校验与按方言的保留字引用。
 

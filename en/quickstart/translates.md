@@ -5,7 +5,7 @@ a field containing `A,B,C` is translated into `Name A,Name B,Name C`.
 
 ## Main use cases
 
-1. Reduce join queries — simpler SQL and a huge efficiency gain
+1. Reduce join queries — simpler SQL and a significant efficiency gain
 2. Fetch caches directly through the API to feed business logic or the UI, avoiding a database hit every time
     e.g. front-end selects, checkboxes, suggest components and organization trees can read straight from the cache
 3. Filter cache data through the API and reverse-match keys, replacing SQL LIKE queries

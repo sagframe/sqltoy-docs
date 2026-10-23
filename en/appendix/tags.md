@@ -1,6 +1,6 @@
 # Tags & Expressions Reference
 
-In addition to [`#[]` dynamic condition fragments](en/query/dynamic_sql.md), sqltoy reserves a set of `@` macro directives inside SQL for extremely complex dynamic SQL scenarios. Combining `@if`, `@value` and `@blank` flexibly solves 99.99% of problems; for ultra-complex cases, the recommended approach is to assemble the SQL fragment in code and embed it with `@value(:sqlScript)`.
+In addition to [`#[]` dynamic condition fragments](en/query/dynamic_sql.md), sqltoy reserves a set of `@` macro directives inside SQL for highly complex dynamic SQL scenarios. Combining `@if`, `@value` and `@blank` flexibly solves the vast majority of problems; for more complex cases, the recommended approach is to assemble the SQL fragment in code and embed it dynamically with `@include(:sqlScript)` (the fragment may keep using named parameters); for plain-text injection, `@value(:sqlScript)` also works.
 
 ## 1. @if() / @elseif() / @else
 
@@ -57,7 +57,7 @@ Invents a parameter for statements that are not conditions themselves, so they f
 
 `@value(:paramName)` is similar to `@blank(:paramName)`, with the only difference that it **directly renders the value of paramName**.
 
-Typical usage: `@value(:sqlScript)` embeds a SQL fragment assembled in code, handling ultra-complex dynamic SQL.
+Typical usage: `@value(:sqlScript)` embeds a SQL fragment assembled in code, handling highly complex dynamic SQL; if the fragment itself needs named parameters, use `@include(:scriptParam)` (section 7) instead.
 
 > **Note**: `@value` injects text without validation. When all you need is to join a **list of field names** (page-configurable reports/API services where the configuration decides the select, group by and order by columns), use `@joinFields()` in section 8 instead — it validates field names against a whitelist and quotes reserved words per dialect.
 

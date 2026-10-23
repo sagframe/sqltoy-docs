@@ -4,7 +4,7 @@ sqltoy provides a set of analytics capabilities that **perform secondary computa
 
 These algorithms deliver two standout benefits:
 
-1. **Offloads the database**: computations such as row-column conversion and layer-by-layer rollup would cause huge CPU and memory overhead if done by the database; sqltoy processes them in a single linear pass in application memory with extremely high efficiency.
+1. **Offloads the database**: computations such as row-column conversion and layer-by-layer rollup would cause huge CPU and memory overhead if done by the database; sqltoy processes them in a single linear pass in application memory with high efficiency.
 2. **Cross-database compatibility**: the algorithms do not depend on any database dialect at all. The same SQL runs on MySQL and Oracle and migrates smoothly to domestic and mainstream databases such as Dameng (DM), GaussDB, and PostgreSQL.
 
 All analytics features can be declared with tags in `*.sql.xml` or built fluently in Java with `QueryExecutor`; the two approaches are fully equivalent.
