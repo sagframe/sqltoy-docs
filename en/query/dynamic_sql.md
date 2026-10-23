@@ -88,8 +88,8 @@ String whereString = """
 List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
         // .blankNotNull()  // turn off blank-to-null
         .where(whereString)
-        .values(MapKit.keys("orderType", "authedOrganIds", "status", "orderId", "transDate")
-                .values("PO", authedOrganIds, "1", "S0001", beginAndEndTime))
+        .values(MapKit.keys("orderType", "authedOrganIds", "status", "orderId", "beginAndEndDate", "techGroups", "prodGroups")
+                .values("PO", authedOrganIds, "1", "S0001", beginAndEndTime, techGroups, prodGroups))
         .filters(new ParamsFilter("status").eq("-1")));
 ```
 

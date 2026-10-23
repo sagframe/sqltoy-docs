@@ -6,7 +6,7 @@
 ### 前提：模板SQL
 
 ```xml
-<sql id="sys_log_findlist">
+<sql id="sqltoy_staff_findlist">
 	<!-- 分页优化器,通过缓存实现查询条件一致的情况下在一定时间周期内缓存总记录数量，从而无需每次查询总记录数量 -->
 	<!-- parallel:是否并行查询总记录数和单页数据，当alive-max=1 时关闭缓存优化 -->
 	<!-- alive-max:最大存放多少个不同查询条件的总记录量; alive-seconds:查询条件记录量存活时长(比如120秒,超过阀值则重新查询) -->
@@ -31,13 +31,13 @@
 #### findOne 查找单个记录
 
 ```java
-SysLog sysLog = lightDao.findOne("sys_log_findlist", new SysLog(), SysLog.class);
+StaffInfo staffInfo = lightDao.findOne("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class);
 ```
 
 #### find 查找列表
 
 ```java
-List<SysLog> list = lightDao.find("sys_log_findlist", new SysLog(), SysLog.class);
+List<StaffInfo> list = lightDao.find("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class);
 ```
 
 #### findEntity 实体查询
@@ -49,7 +49,7 @@ List<SysLog> list = lightDao.findEntity(SysLog.class, EntityQuery.create().names
 #### findPage 分页查询
 
 ```java
-Page<SysLog> page = lightDao.findPage(new Page<>(10, 1), "sys_log_findlist", new SysLog(), SysLog.class);
+Page<StaffInfo> page = lightDao.findPage(new Page<>(10, 1), "sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class);
 ```
 
 #### findPageEntity 分页实体查询
@@ -61,13 +61,13 @@ Page<SysLog> page = lightDao.findPageEntity(new Page<>(10, 1), SysLog.class, Ent
 #### findTop 查找N条记录
 
 ```java
-List<SysLog> list = lightDao.findTop("sys_log_findlist", new SysLog(), SysLog.class, 12);
+List<StaffInfo> list = lightDao.findTop("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class, 12);
 ```
 
 #### findRandom 随机查找N条记录
 
 ```java
-List<SysLog> list = lightDao.findRandom("sys_log_findlist", new SysLog(), SysLog.class, 12);
+List<StaffInfo> list = lightDao.findRandom("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class, 12);
 ```
 
 #### getValue、getCount、isUnique 快捷查询

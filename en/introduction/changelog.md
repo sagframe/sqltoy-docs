@@ -25,7 +25,7 @@ The 6.0 line requires JDK 17+ (JDK 8 projects should stay on `5.6.96.jre8`). Thi
 | --- | --- |
 | New project | Use the latest 6.0.x |
 | Existing 5.6.x on JDK 8 | Stay on `5.6.96.jre8`; do not upgrade your JDK just for the sake of it |
-| Existing 5.6.x on JDK 17 | Walk through sections 1–11 of the [upgrade guide](en/introduction/upgrade_6.0.md), paying attention to the 6.0.0 API/package changes |
+| Existing 5.6.x on JDK 17 | Walk through the [upgrade guide](en/introduction/upgrade_6.0.md) section by section, paying attention to the 6.0.0 API/package changes |
 | Using sqltoy-plus | Upgrade to 6.0.8 and migrate to the built-in lambda API per [section 10.2](en/introduction/upgrade_6.0.md) |
 | Building native images | 6.0.8+ and GraalVM 25+ |
 

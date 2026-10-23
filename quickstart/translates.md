@@ -331,8 +331,8 @@ public class TranslateTest {
 ## 缓存的其他用法
 
 * 1、直接获取缓存:  
-> lightDao.getTranslateCache("dictCache","ORDER_TYPE");  
-> lightDao.getTranslateCache("organCache",null,OrganInfoVO.class);
+> lightDao.getTranslateCache("dictKeyNameCache","ORDER_TYPE");  
+> lightDao.getTranslateCache("organIdNameCache",null,OrganInfoVO.class);
 
 ```java
 /**

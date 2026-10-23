@@ -22,11 +22,11 @@ flowchart TD
 
 ```java
 // 1) paginated query with Map parameters
-Page<SysLog> page = lightDao.findPage(new Page(10, 1), "sys_log_find", paramsMap, SysLog.class);
+Page<StaffInfo> page = lightDao.findPage(new Page(10, 1), "sqltoy_staff_find", paramsMap, StaffInfo.class);
 
 // 2) flexible pagination with QueryExecutor (datasource, cache translate, formatting, pagination optimize, etc. can be specified)
 QueryResult result = lightDao.findPageByQuery(new Page(10, 1),
-        new QueryExecutor("sys_log_find").names("status").values(1).resultType(SysLog.class));
+        new QueryExecutor("sqltoy_staff_find").names("status").values(1).resultType(StaffInfo.class));
 
 // 3) single-table entity pagination
 Page<SysLog> page2 = lightDao.findPageEntity(new Page(10, 1), SysLog.class,
@@ -69,7 +69,7 @@ In the vast majority of scenarios, this automatic optimization already significa
 For scenarios where **the query conditions are identical and paging happens frequently**, re-running count on every page turn is wasteful. `<page-optimize>` caches "identical query conditions → count result" so that, within a certain period, paging directly reuses the count without querying the total again.
 
 ```xml
-<sql id="sys_log_find">
+<sql id="sqltoy_staff_find">
     <!-- parallel: whether to execute the count and the single-page data query in parallel;
          alive-max: how many groups of counts for different query conditions can be cached at most; alive-seconds: cache survival seconds -->
     <page-optimize parallel="true" alive-max="100" alive-seconds="120" />
@@ -96,7 +96,7 @@ The Java counterpart is `QueryExecutor.pageOptimize(PageOptimize)`:
 
 ```java
 lightDao.findPageByQuery(new Page(10, 1),
-        new QueryExecutor("sys_log_find").pageOptimize(new PageOptimize(100, 120)));
+        new QueryExecutor("sqltoy_staff_find").pageOptimize(new PageOptimize(100, 120)));
 ```
 
 ---
@@ -106,7 +106,7 @@ lightDao.findPageByQuery(new Page(10, 1),
 **Paginate first, then join**: when the main query needs to join other tables (especially one-to-many), the usual approach is to join into a large result set first and then paginate, which is expensive. `@fast()` wraps the part that "determines the result set" in a subquery, **first takes the paginated records by pageSize, then joins with the other tables**, greatly reducing the amount of joined data.
 
 ```xml
-<sql id="sys_log_findlist">
+<sql id="sqltoy_staff_findlist">
     <value><![CDATA[
         select t1.*,t2.ORGAN_NAME
         -- @fast() first takes pageSize rows by pagination, then joins
@@ -141,7 +141,7 @@ With `<page-optimize parallel="true">`, sqltoy **executes the count query and th
 **Custom count SQL**: in extremely special cases, you can hand-write the optimal count statement:
 
 ```xml
-<sql id="sys_log_find">
+<sql id="sqltoy_staff_find">
     <value><![CDATA[ select ... complex query ... ]]></value>
     <count-sql><![CDATA[ select count(1) from sqltoy_staff_info t where t.STATUS=1 ]]></count-sql>
 </sql>
@@ -152,7 +152,7 @@ With `<page-optimize parallel="true">`, sqltoy **executes the count query and th
 ```java
 Page page = new Page(20, 1);
 page.setSkipQueryCount(true);   // do not query the total record count
-Page result = lightDao.findPage(page, "sys_log_find", paramsMap, SysLog.class);
+Page result = lightDao.findPage(page, "sqltoy_staff_find", paramsMap, StaffInfo.class);
 ```
 
 ---

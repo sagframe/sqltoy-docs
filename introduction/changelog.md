@@ -25,7 +25,7 @@
 | --- | --- |
 | 新项目 | 直接用最新 6.0.x |
 | 存量 5.6.x（JDK 8） | 保持 `5.6.96.jre8`，不要为了升级而升级 JDK |
-| 存量 5.6.x（JDK 17） | 按[升级指南](introduction/upgrade_6.0.md)一到十一节顺序评估，重点看 6.0.0 的 API/包变更 |
+| 存量 5.6.x（JDK 17） | 按[升级指南](introduction/upgrade_6.0.md)各节顺序评估，重点看 6.0.0 的 API/包变更 |
 | 使用 sqltoy-plus | 升到 6.0.8，按[升级指南第十节第 2 条](introduction/upgrade_6.0.md)迁移到内置 lambda |
 | 要构建 native 镜像 | 6.0.8+，且 GraalVM 25+ |
 

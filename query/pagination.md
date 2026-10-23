@@ -22,11 +22,11 @@ flowchart TD
 
 ```java
 // 1) Map 传参分页
-Page<SysLog> page = lightDao.findPage(new Page(10, 1), "sys_log_find", paramsMap, SysLog.class);
+Page<StaffInfo> page = lightDao.findPage(new Page(10, 1), "sqltoy_staff_find", paramsMap, StaffInfo.class);
 
 // 2) QueryExecutor 灵活分页（可指定数据源、翻译、格式化、分页优化等）
 QueryResult result = lightDao.findPageByQuery(new Page(10, 1),
-        new QueryExecutor("sys_log_find").names("status").values(1).resultType(SysLog.class));
+        new QueryExecutor("sqltoy_staff_find").names("status").values(1).resultType(StaffInfo.class));
 
 // 3) 单表实体分页
 Page<SysLog> page2 = lightDao.findPageEntity(new Page(10, 1), SysLog.class,
@@ -69,7 +69,7 @@ sqltoy 的 count **不是**简单粗暴地 `select count(1) from (你的sql) as 
 对于**查询条件相同、被频繁翻页**的场景，每次翻页都重新 count 是浪费。`<page-optimize>` 通过缓存保留"相同查询条件 → count 结果"，在一定周期内翻页时直接复用 count，无需重复查询总数。
 
 ```xml
-<sql id="sys_log_find">
+<sql id="sqltoy_staff_find">
     <!-- parallel:是否并行执行 count 与单页数据查询;
          alive-max:最多缓存多少组不同查询条件的 count; alive-seconds:缓存存活秒数 -->
     <page-optimize parallel="true" alive-max="100" alive-seconds="120" />
@@ -96,7 +96,7 @@ Java 中对应 `QueryExecutor.pageOptimize(PageOptimize)`：
 
 ```java
 lightDao.findPageByQuery(new Page(10, 1),
-        new QueryExecutor("sys_log_find").pageOptimize(new PageOptimize(100, 120)));
+        new QueryExecutor("sqltoy_staff_find").pageOptimize(new PageOptimize(100, 120)));
 ```
 
 ---
@@ -106,7 +106,7 @@ lightDao.findPageByQuery(new Page(10, 1),
 **先分页、后关联**：当主查询需要 join 其他表（尤其一对多）时，常规做法是先 join 出大结果集再分页，代价高昂。`@fast()` 用子查询包裹"决定结果集"的部分，**先按 pageSize 取出分页记录，再与其他表关联**，大幅减少关联数据规模。
 
 ```xml
-<sql id="sys_log_findlist">
+<sql id="sqltoy_staff_findlist">
     <value><![CDATA[
         select t1.*,t2.ORGAN_NAME
         -- @fast() 先分页取 pageSize 条，再关联
@@ -141,7 +141,7 @@ lightDao.findPageByQuery(new Page(10, 1),
 **自定义 count SQL**：极特殊场景下，可手写最优 count 语句：
 
 ```xml
-<sql id="sys_log_find">
+<sql id="sqltoy_staff_find">
     <value><![CDATA[ select ... 复杂查询 ... ]]></value>
     <count-sql><![CDATA[ select count(1) from sqltoy_staff_info t where t.STATUS=1 ]]></count-sql>
 </sql>
@@ -152,7 +152,7 @@ lightDao.findPageByQuery(new Page(10, 1),
 ```java
 Page page = new Page(20, 1);
 page.setSkipQueryCount(true);   // 不查询总记录数
-Page result = lightDao.findPage(page, "sys_log_find", paramsMap, SysLog.class);
+Page result = lightDao.findPage(page, "sqltoy_staff_find", paramsMap, StaffInfo.class);
 ```
 
 ---

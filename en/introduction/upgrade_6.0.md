@@ -8,7 +8,7 @@ Changes and notes for upgrading from 5.6.x to 6.0.9 (the 6.0 line). All changes 
 | --- | --- |
 | JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
 | Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.9 |
-| Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged, and existing configuration files need no adjustment |
+| Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged (parameters added in later versions are covered in their respective sections below and are all optional), and existing configuration files need no adjustment |
 
 ## 2. API Changes (Code Changes Required)
 
@@ -19,7 +19,7 @@ Changes and notes for upgrading from 5.6.x to 6.0.9 (the 6.0 line). All changes 
 
 `DBProfile` (`org.sagacity.sqltoy.model.DBProfile`) provides `getDbType()` / `getDialect()` / `getUrl()` / `getProductName()` / `getMajorVersion()`, plus convenience checks such as `isMysqlFamily()` / `isOracleFamily()` / `isOceanBase()` / `isBackslashEscape()`; see [Other Features](en/tools/other_features.md) for details.
 
-> The other frequently used APIs (the remaining 72 LightDao methods, the Link chain API, QueryExecutor/EntityQuery/EntityUpdate, and the existing configuration parameters) are **all unchanged**; the upgrade cost is concentrated in the two items above.
+> The other frequently used APIs (the remaining 71 LightDao method names — 109 declarations in total — the Link chain API, QueryExecutor/EntityQuery/EntityUpdate, and the existing configuration parameters) are **all unchanged**; the upgrade cost is concentrated in the two items above.
 
 ## 3. Package Structure Changes (Adjust imports If You Reference Framework Internal Classes)
 

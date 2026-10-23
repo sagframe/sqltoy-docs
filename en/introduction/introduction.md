@@ -9,7 +9,7 @@
 * **2008–2012**: years of financial-industry projects facing tens-of-millions-row datasets focused SqlToy on enhancing SQL querying over JPA. By then Cache Translate, Fast Pagination and pivot/unpivot were already in place.
 * **2013–2014**: to spare developers from mixing two technologies in one project, object-based CRUD was implemented inside SqlToy, completing the full sqltoy-orm framework.
 * **2014–2017**: while leading the Lakala big-data platform, SqlToy went through a major refactoring that rationalized its internals, and was hardened on Lakala CRM and a big-data platform accumulating up to tens of billions of rows.
-* **2018–present**: thoroughly tempered by complex multi-tenant SaaS ERP scenarios and real-time data warehouses combining Flink CDC with MPP databases, SqlToy has become mature and reliable — and is now open source, to share and build together with the community!
+* **2018–present**: thoroughly tempered by complex multi-tenant SaaS ERP scenarios and real-time data warehouses combining Flink CDC with MPP databases, SqlToy has become mature and reliable — and keeps being shared and built together with the community as an open-source project!
 
 **Milestones of a few signature capabilities**
 
@@ -17,7 +17,7 @@
 * **2010** — thinking through a performance problem gave birth to Cache Translate
 * **2011** — a demanding pagination-performance requirement inspired `@fast` Fast Pagination
 * **2012** — analytics needs brought in pivot/unpivot and YoY & MoM calculations
-* **2020** — after proving itself on large projects, SqlToy was officially open-sourced
+* **2016** — first open-sourced on Alibaba's Code platform (the platform later shut down; the project moved to GitHub/Gitee in 2018 and has been maintained there since); active promotion began in 2020
 
 ## Scenarios and domain extensions
 

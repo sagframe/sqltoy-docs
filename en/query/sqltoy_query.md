@@ -6,7 +6,7 @@
 ### Prerequisite: Template SQL
 
 ```xml
-<sql id="sys_log_findlist">
+<sql id="sqltoy_staff_findlist">
 	<!-- Pagination optimizer: when the query conditions stay identical, caches the total record count for a period of time so the total count does not need to be queried on every request -->
 	<!-- parallel: whether to query the total record count and the single page of data in parallel; cache optimization is disabled when alive-max=1 -->
 	<!-- alive-max: how many counts for different query conditions can be kept at most; alive-seconds: how long a query-condition count stays alive (e.g. 120 seconds; beyond the threshold it is queried again) -->
@@ -31,13 +31,13 @@
 #### findOne: Find a Single Record
 
 ```java
-SysLog sysLog = lightDao.findOne("sys_log_findlist", new SysLog(), SysLog.class);
+StaffInfo staffInfo = lightDao.findOne("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class);
 ```
 
 #### find: Find a List
 
 ```java
-List<SysLog> list = lightDao.find("sys_log_findlist", new SysLog(), SysLog.class);
+List<StaffInfo> list = lightDao.find("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class);
 ```
 
 #### findEntity: Entity Query
@@ -49,7 +49,7 @@ List<SysLog> list = lightDao.findEntity(SysLog.class, EntityQuery.create().names
 #### findPage: Paginated Query
 
 ```java
-Page<SysLog> page = lightDao.findPage(new Page<>(10, 1), "sys_log_findlist", new SysLog(), SysLog.class);
+Page<StaffInfo> page = lightDao.findPage(new Page<>(10, 1), "sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class);
 ```
 
 #### findPageEntity: Paginated Entity Query
@@ -61,13 +61,13 @@ Page<SysLog> page = lightDao.findPageEntity(new Page<>(10, 1), SysLog.class, Ent
 #### findTop: Find Top-N Records
 
 ```java
-List<SysLog> list = lightDao.findTop("sys_log_findlist", new SysLog(), SysLog.class, 12);
+List<StaffInfo> list = lightDao.findTop("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class, 12);
 ```
 
 #### findRandom: Find N Random Records
 
 ```java
-List<SysLog> list = lightDao.findRandom("sys_log_findlist", new SysLog(), SysLog.class, 12);
+List<StaffInfo> list = lightDao.findRandom("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class, 12);
 ```
 
 #### getValue, getCount, isUnique: Shortcut Queries

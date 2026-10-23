@@ -334,8 +334,8 @@ public class TranslateTest {
 ## Other uses of the cache
 
 * 1. Fetch a cache directly:
-> lightDao.getTranslateCache("dictCache","ORDER_TYPE");  
-> lightDao.getTranslateCache("organCache",null,OrganInfoVO.class);
+> lightDao.getTranslateCache("dictKeyNameCache","ORDER_TYPE");  
+> lightDao.getTranslateCache("organIdNameCache",null,OrganInfoVO.class);
 
 ```java
 /**
