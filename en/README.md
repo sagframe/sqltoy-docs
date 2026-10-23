@@ -62,8 +62,17 @@ SqlToy provides efficient ORM operations including object CRUD, cascade loading 
 - [Quick Start](./quickstart/helloworld.md)
 - [Online Docs](https://sagframe.github.io/sqltoy-docs)
 
+Here is what a sqltoy query looks like — the SQL stays native (copy it to a DB client and it just runs), conditions inside `#[]` are auto-trimmed when null, and results map straight into typed objects:
+
 ```java
-Object list = lightDao.find("select * from sqltoy_order_info", new HashMap());
+List<OrderInfoVO> orders = lightDao.find("""
+        select * from sqltoy_order_info t
+        where 1=1
+        #[and t.status in (:status)]
+        #[and t.create_time >= :beginTime]
+        """,
+        MapKit.keys("status", "beginTime").values(new Integer[] { 1 }, LocalDateTime.now().minusDays(30)),
+        OrderInfoVO.class);
 ```
 
 ## Supported Databases

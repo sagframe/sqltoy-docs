@@ -62,8 +62,17 @@ sqltoy提供高效的ORM操作，包括对象化CRUD、级联加载、自动DDL�
 - [快速开始](./quickstart/helloworld.md)
 - [开发文档](https://sagframe.github.io/sqltoy-docs)
 
+sqltoy 的查询长这样——SQL 保持原生，`#[]` 内条件为 null 自动裁剪，copy 到数据库客户端即可调试，结果直接映射为类型化对象：
+
 ```java
-Object list = lightDao.find("select * from sqltoy_order_info", new HashMap());
+List<OrderInfoVO> orders = lightDao.find("""
+        select * from sqltoy_order_info t
+        where 1=1
+        #[and t.status in (:status)]
+        #[and t.create_time >= :beginTime]
+        """,
+        MapKit.keys("status", "beginTime").values(new Integer[] { 1 }, LocalDateTime.now().minusDays(30)),
+        OrderInfoVO.class);
 ```
 
 ## 支持的数据库
