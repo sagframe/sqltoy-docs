@@ -261,4 +261,39 @@ select id,name from sqltoy_dict_detail where status=1
 
 ---
 
+## 十三、@split()（参数拆分数组）
+
+把传入的**一个字符串参数**按分隔符拆分成数组，交给 `in` 等集合展开机制使用——典型场景是前端只传 `"A;B;C"` 一个字符串，SQL 里直接 `field in (...)`，省去 Java 侧手工 split。在 SQL 解析期由 `SqlConfigParseUtils` 处理。
+
+三种形态：
+
+```sql
+-- 1、默认逗号分隔（按正则 \s*,\s* 切分，容忍空白）
+select * from sqltoy_order_info t where t.status in (@split(:statusStr))
+
+-- 2、指定分隔符（可带单引号或双引号）
+select * from sqltoy_order_info t where t.status in (@split(:statusStr,';'))
+
+-- 3、指定分隔符并转数字数组（各段转 Integer，空白段跳过）
+select * from sqltoy_order_info t where t.status in (@split(:statusStr,int,','))
+```
+
+要点：
+
+- `@split(...)` 执行期被替换回 `?`，切分后的数组放入对应参数位，随后按集合展开机制自动拆成多个 `?` 占位符；
+- 仅当参数值为 `String` 时才切分；每段自动 trim，参数自带首尾引号时先剥离；
+- 不传第二个参数时默认分隔符为逗号（`\s*,\s*`）。
+
+Java 调用（前端传一个字符串即可）：
+
+```java
+List rows = lightDao.findByQuery(
+        new QueryExecutor("sqltoy_order_info_find")
+            .names("statusStr").values("1,2,3")   // 一个字符串，无需前端给数组
+            .resultType(OrderVO.class))
+        .getRows();
+```
+
+---
+
 > 相关：[`#[]` 与 filters 过滤器](../query/dynamic_sql.md)、[常见 SQL 案例](../query/sql_showcase.md)、[分页优化](../query/pagination.md)、[注解速查](annotations.md)。

@@ -133,6 +133,8 @@ sqlToyConfig.setId(reportId+"_"+sqlScriptIndex);
 lightDao.getSqlToyContext().putSqlToyConfig(sqlToyConfig);
 ```
 
+> For the complete closed-loop example of "store configuration in DB → dynamic parse → report / API service" (including the `XMLBinding` cache mechanism and `@joinFields` dynamic columns), see [Configurable Service Foundation (Reports / Configurable API Services)](../tools/configurable_service.md).
+
 ## 6. Collecting slow-query SQL statistics
 
 * Enable it with the default configuration

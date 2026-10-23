@@ -148,6 +148,83 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 
 > **缓存反向匹配（cache-arg）** 是 sqltoy 的特色能力，详见[缓存翻译使用](../quickstart/translates.md)与[超大规模主数据缓存](../translate/sqltoy_FIFO_translate.md)。
 
+### 4.5 参数形态完整示例
+
+一个 `<sql>` 浓缩 sqltoy 支持的全部参数形态（单值、集合展开、数组下标区间、元组多参数、层级嵌套、括号组），配合 filters 前置规整，构成"**查询条件与具体 SQL 分离**"的典型业务形态：
+
+```xml
+<!-- 1、条件值处理跟具体 sql 分离 -->
+<!-- 2、条件值前置通过 filters 定义的通用方法加工规整（大多数不需要额外处理） -->
+<sql id="show_case">
+    <filters>
+        <!-- 参数 statusAry 只要包含 -1（代表全部）则置 null，不参与条件检索 -->
+        <eq params="statusAry" value="-1" />
+    </filters>
+    <value><![CDATA[
+        select t.*
+        from sqltoy_device_order_info t
+        where #[t.status in (:statusAry)]                          -- 集合自动展开
+        #[and t.ORDER_ID=:orderId]                                 -- 单值
+        #[and t.ORGAN_ID in (:authedOrganIds)]                     -- 集合（数据权限）
+        #[and t.STAFF_ID in (:staffIds)]                           -- 集合（多选）
+        #[and t.TRANS_DATE>=:beginAndEndDate[0]]                   -- 数组下标取首
+        #[and t.TRANS_DATE<:beginAndEndDate[1]]                    -- 数组下标取尾（时间区间）
+        #[and (t.tech_group,t.prod_group) in (:techGroups,:prodGroups)] -- 元组多参数
+        #[and t.staff_name like :staffName]                        -- 模糊匹配
+        #[and t.creator_id=:xxxVo.creatorId]                       -- 对象属性点路径（单对象传参，见下）
+        #[and t.priority=:priority #[and t.level>=:level]]         -- 层级嵌套：外层 null 内层一并剔除
+        #[and ( #[t.order_id=:orderId2] or #[t.biz_no=:bizNo] )]   -- 括号组：成员独立判空，悬挂 or 自动清理
+    ]]></value>
+</sql>
+```
+
+**参数形态速查：**
+
+| 形态 | 写法 | 说明 |
+| --- | --- | --- |
+| 单值 | `:orderId` | 绑定单个值 |
+| 集合 / 数组展开 | `t.status in (:statusAry)` | 数组 / 集合自动展开为多个 `?` 占位符 |
+| 数组下标 | `:beginAndEndDate[0]` / `:beginAndEndDate[1]` | 同一数组的元素分别引用，构造时间区间等 |
+| 元组多参数 | `(t.tech_group,t.prod_group) in (:techGroups,:prodGroups)` | 两个集合按位置配对展开为 `(a1,b1),(a2,b2)` |
+| 模糊匹配 | `t.staff_name like :staffName` | 可与 filters 的 `l-like` / `r-like` / `escapeLike` 组合 |
+| 对象属性点路径 | `:xxxVo.creatorId` | **单对象传参**：values 只传一个 VO/Map 对象，SQL 参数名即对象属性名，框架反射取值；支持子对象属性级联 `xxxVo.name` 与 `a.b[index]`（大小写不敏感，对应 `BeanUtil.reflectBeanToAry` 语义，`updateByQuery` 等接口同样适用） |
+| 层级嵌套 | `#[t.priority=:priority #[and t.level>=:level]]` | 每层独立判空，外层 null 时内层一并剔除 |
+| 括号组 | `#[and ( #[t.order_id=:orderId2] or #[t.biz_no=:bizNo] )]` | 成员各自判空，全部为 null 时整组剔除，残留悬挂 `and`/`or` 自动清理 |
+
+**Java 侧传参**（与 names 顺序一一对应，不需要的参数传 null 即可）：
+
+```java
+// 方式一：多值传参（names 与 values 一一对应）
+List rows = lightDao.findByQuery(
+        new QueryExecutor("show_case")
+            .names("statusAry", "orderId", "authedOrganIds", "staffIds", "beginAndEndDate",
+                   "techGroups", "prodGroups", "staffName", "priority", "level",
+                   "orderId2", "bizNo")
+            .values(
+                    new Integer[] { 1, 2, -1 },        // statusAry：含 -1 → eq 置 null，该段剔除
+                    "O0001",                            // orderId：单值
+                    new String[] { "A01", "A02" },      // authedOrganIds
+                    new String[] { "S001", "S002" },    // staffIds
+                    new LocalDateTime[] { start, end }, // beginAndEndDate：区间
+                    new String[] { "T001", "T002" },    // techGroups
+                    new String[] { "P001", "P002" },    // prodGroups
+                    "%张%",                             // staffName
+                    1, 2,                               // priority、level（层级嵌套）
+                    null, "BZ2026001")                  // orderId2=null → 括号组只保留 or 分支
+            .resultType(OrderVO.class))
+        .getRows();
+
+// 方式二：单对象传参（参数名 = 对象名.属性名，:xxxVo.creatorId 走属性点路径）
+StaffInfoVO xxxVo = new StaffInfoVO();
+xxxVo.setCreatorId("U0001");   // 对应 #[and t.creator_id=:xxxVo.creatorId]
+List rows2 = lightDao.findByQuery(
+        new QueryExecutor("show_case")
+            .names("xxxVo")     // 只传一个对象
+            .values(xxxVo)
+            .resultType(OrderVO.class))
+        .getRows();
+```
+
 ---
 
 ## 五、完整 `<sql>` 规范速查
@@ -337,6 +414,6 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 
 ## 六、相关高级语法
 
-- `@if()`/`@elseif()`/`@else`、`@fast`、`@blank()`、`@value()`、`@loop()`/`@secure-loop()`、`@include(sqlId)`、`@include(:scriptParam)`、`@joinFields()`（字段名列表安全拼接，页面配置化报表用）等宏指令，见[补充说明：标签与表达式参考](../appendix/tags.md)。
+- `@if()`/`@elseif()`/`@else`、`@fast`、`@blank()`、`@value()`、`@loop()`/`@secure-loop()`、`@include(sqlId)`、`@include(:scriptParam)`、`@joinFields()`（字段名列表安全拼接，页面配置化报表用）、`@split()`（把字符串参数拆分成数组，配合 `in` 展开）等宏指令，见[补充说明：标签与表达式参考](../appendix/tags.md)。
 - 更多实战写法（动态 `@include`、配置驱动 SQL 集成、慢 SQL 统计等）见[常见 SQL 案例](sql_showcase.md)。
 - 查询 API（findOne/find/findPage/findTop/findRandom/getValue/isUnique 等）见[常规查询 API](sqltoy_query.md)。

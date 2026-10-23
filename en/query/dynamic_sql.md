@@ -148,6 +148,83 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 
 > **Reverse cache matching (cache-arg)** is a signature sqltoy capability; see [Cache Translate in Action](../quickstart/translates.md) and [Large-Scale Cache (FIFO)](../translate/sqltoy_FIFO_translate.md).
 
+### 4.5 Complete Example of Parameter Forms
+
+A single `<sql>` that condenses all parameter forms sqltoy supports (single value, collection expansion, array index range, tuple multi-parameter, object property path, hierarchical nesting, bracket groups), combined with filters preprocessing, forming the typical business shape of "**query conditions separated from the concrete SQL**":
+
+```xml
+<!-- 1. condition-value handling is separated from the concrete SQL -->
+<!-- 2. conditions are preprocessed up-front via the generic filters methods (most need no extra handling) -->
+<sql id="show_case">
+    <filters>
+        <!-- as long as statusAry contains -1 (meaning "all"), set it to null so the condition is skipped -->
+        <eq params="statusAry" value="-1" />
+    </filters>
+    <value><![CDATA[
+        select t.*
+        from sqltoy_device_order_info t
+        where #[t.status in (:statusAry)]                            -- collection auto expansion
+        #[and t.ORDER_ID=:orderId]                                   -- single value
+        #[and t.ORGAN_ID in (:authedOrganIds)]                       -- collection (data permission)
+        #[and t.STAFF_ID in (:staffIds)]                             -- collection (multi-select)
+        #[and t.TRANS_DATE>=:beginAndEndDate[0]]                     -- array index, first element
+        #[and t.TRANS_DATE<:beginAndEndDate[1]]                      -- array index, second element (time range)
+        #[and (t.tech_group,t.prod_group) in (:techGroups,:prodGroups)] -- tuple multi-parameter
+        #[and t.staff_name like :staffName]                          -- fuzzy match
+        #[and t.creator_id=:xxxVo.creatorId]                         -- object property path (single-object passing, see below)
+        #[and t.priority=:priority #[and t.level>=:level]]           -- hierarchical nesting: outer null drops inner too
+        #[and ( #[t.order_id=:orderId2] or #[t.biz_no=:bizNo] )]     -- bracket group: members judge null independently, dangling or auto-cleaned
+    ]]></value>
+</sql>
+```
+
+**Parameter forms at a glance:**
+
+| Form | Syntax | Description |
+| --- | --- | --- |
+| Single value | `:orderId` | Binds a single value |
+| Collection / array expansion | `t.status in (:statusAry)` | Arrays / collections automatically expand into multiple `?` placeholders |
+| Array index | `:beginAndEndDate[0]` / `:beginAndEndDate[1]` | Refer to elements of the same array separately, e.g. building a time range |
+| Tuple multi-parameter | `(t.tech_group,t.prod_group) in (:techGroups,:prodGroups)` | Two collections pair by position into `(a1,b1),(a2,b2)` |
+| Fuzzy match | `t.staff_name like :staffName` | Can combine with the filters' `l-like` / `r-like` / `escapeLike` |
+| Object property path | `:xxxVo.creatorId` | **Single-object passing**: values carries only one VO/Map object; the SQL parameter name is the object property, resolved by reflection; supports nested property cascading `xxxVo.name` and `a.b[index]` (case-insensitive; matches `BeanUtil.reflectBeanToAry` semantics; also used by `updateByQuery` etc.) |
+| Hierarchical nesting | `#[t.priority=:priority #[and t.level>=:level]]` | Each level judges null independently; an outer null drops the inner level too |
+| Bracket group | `#[and ( #[t.order_id=:orderId2] or #[t.biz_no=:bizNo] )]` | Members judge null independently; when all are null the whole group is dropped and dangling `and`/`or` are cleaned automatically |
+
+**Passing parameters from Java** (matching `names` order one-to-one; pass null for parameters not needed):
+
+```java
+// Style 1: multi-value passing (names and values map one-to-one)
+List rows = lightDao.findByQuery(
+        new QueryExecutor("show_case")
+            .names("statusAry", "orderId", "authedOrganIds", "staffIds", "beginAndEndDate",
+                   "techGroups", "prodGroups", "staffName", "priority", "level",
+                   "orderId2", "bizNo")
+            .values(
+                    new Integer[] { 1, 2, -1 },        // statusAry: contains -1 -> eq sets null, segment dropped
+                    "O0001",                            // orderId: single value
+                    new String[] { "A01", "A02" },      // authedOrganIds
+                    new String[] { "S001", "S002" },    // staffIds
+                    new LocalDateTime[] { start, end }, // beginAndEndDate: range
+                    new String[] { "T001", "T002" },    // techGroups
+                    new String[] { "P001", "P002" },    // prodGroups
+                    "%张%",                             // staffName
+                    1, 2,                               // priority, level (hierarchical nesting)
+                    null, "BZ2026001")                  // orderId2=null -> bracket group keeps only the or branch
+            .resultType(OrderVO.class))
+        .getRows();
+
+// Style 2: single-object passing (parameter name = objectName.propertyName, :xxxVo.creatorId uses the property path)
+StaffInfoVO xxxVo = new StaffInfoVO();
+xxxVo.setCreatorId("U0001");   // corresponds to #[and t.creator_id=:xxxVo.creatorId]
+List rows2 = lightDao.findByQuery(
+        new QueryExecutor("show_case")
+            .names("xxxVo")     // pass a single object
+            .values(xxxVo)
+            .resultType(OrderVO.class))
+        .getRows();
+```
+
 ---
 
 ## 5. Complete `<sql>` Specification Quick Reference
@@ -337,6 +414,6 @@ Don't be intimidated by the "full landscape" above — everyday SQL is usually j
 
 ## 6. Related Advanced Syntax
 
-- Macro directives such as `@if()`/`@elseif()`/`@else`, `@fast`, `@blank()`, `@value()`, `@loop()`/`@secure-loop()`, `@include(sqlId)`, `@include(:scriptParam)`, `@joinFields()` (safe field-list joining for page-configurable reports) are covered in [Tags & Expressions](../appendix/tags.md).
+- Macro directives such as `@if()`/`@elseif()`/`@else`, `@fast`, `@blank()`, `@value()`, `@loop()`/`@secure-loop()`, `@include(sqlId)`, `@include(:scriptParam)`, `@joinFields()` (safe field-list joining for page-configurable reports), `@split()` (splits a string parameter into an array for `in` expansion) are covered in [Tags & Expressions](../appendix/tags.md).
 - More practical patterns (dynamic `@include`, configuration-driven SQL integration, slow SQL statistics, etc.) are covered in [SQL Showcase](sql_showcase.md).
 - Query APIs (findOne/find/findPage/findTop/findRandom/getValue/isUnique, etc.) are covered in [Query API](sqltoy_query.md).

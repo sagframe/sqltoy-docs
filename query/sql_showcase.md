@@ -102,7 +102,7 @@ public void testMultiInnerIfElse1() throws Exception {
 ```
 
 ## 5. sqlToy实现配置化集成，如报表、配置化api服务等
-* sqltoy的开发并非存粹基于写java代码模式，同时也服务于快速页面配置化报表、接口服务的开发，具体集成机制
+* sqltoy 的开发并非纯粹基于写 Java 代码模式，同时也服务于快速页面配置化报表、接口服务的开发，具体集成机制
 
 * 代码中直接使用xml片段
 
@@ -130,6 +130,8 @@ sqlToyConfig.setId(reportId+"_"+sqlScriptIndex);
 //将模型注册到sqltoy上下文，后续就可以lightDao.find(id,paramsMap)调用了
 lightDao.getSqlToyContext().putSqlToyConfig(sqlToyConfig);
 ```
+
+> 完整的"配置存库 → 动态解析 → 报表/API 服务"闭环范例（含 `XMLBinding` 缓存机制、`@joinFields` 动态列）见[配置化服务底座（报表 / 配置化 API 服务）](../tools/configurable_service.md)。
 
 ## 6. 统计慢查询sql
 * 开启默认配置

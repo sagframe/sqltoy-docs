@@ -263,4 +263,39 @@ select id,name from sqltoy_dict_detail where status=1
 
 ---
 
+## 13. @split() (split a parameter into an array)
+
+Splits **one string parameter** into an array by a separator, then feeds it to collection-expansion mechanisms such as `in` — the typical case is the frontend sending a single `"A;B;C"` string while the SQL writes `field in (...)` directly, saving a manual split on the Java side. Handled by `SqlConfigParseUtils` at SQL parse time.
+
+Three forms:
+
+```sql
+-- 1. default comma separator (split by the regex \s*,\s*, tolerant of blanks)
+select * from sqltoy_order_info t where t.status in (@split(:statusStr))
+
+-- 2. explicit separator (single or double quotes allowed)
+select * from sqltoy_order_info t where t.status in (@split(:statusStr,';'))
+
+-- 3. explicit separator plus numeric conversion (each segment to Integer, blank segments skipped)
+select * from sqltoy_order_info t where t.status in (@split(:statusStr,int,','))
+```
+
+Notes:
+
+- `@split(...)` is replaced back to `?` at execution time, the split array is put back into the corresponding parameter slot, and then automatically expanded into multiple `?` placeholders by the collection-expansion mechanism;
+- Splitting happens only when the parameter value is a `String`; every segment is trimmed automatically, and leading/trailing quotes on the parameter are stripped first;
+- Without a second argument the default separator is the comma (`\s*,\s*`).
+
+Java call (the frontend just sends one string):
+
+```java
+List rows = lightDao.findByQuery(
+        new QueryExecutor("sqltoy_order_info_find")
+            .names("statusStr").values("1,2,3")   // a single string; no need to pass an array
+            .resultType(OrderVO.class))
+        .getRows();
+```
+
+---
+
 > Related: [`#[]` and filters](../query/dynamic_sql.md), [Common SQL Examples](../query/sql_showcase.md), [Pagination Optimize](../query/pagination.md), [Annotations Cheat Sheet](annotations.md).

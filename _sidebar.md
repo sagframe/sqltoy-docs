@@ -59,6 +59,7 @@
 * 工具与扩展
     * [工具类:DTO 与 POJO 互转](tools/utils.md)
     * [表元数据操作 TableApi](tools/table_api.md)
+    * [配置化服务底座(报表/API服务)](tools/configurable_service.md)
     * [扩展集成(报表/低代码)](tools/integration.md)
     * [GraalVM Native Image 指引](tools/graalvm_native.md)
     * [其他特性](tools/other_features.md)

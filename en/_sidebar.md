@@ -59,6 +59,7 @@
 * Tools & Extensions
     * [DTO / POJO Mapping Utils](tools/utils.md)
     * [TableApi Metadata](tools/table_api.md)
+    * [Configurable Service Foundation](tools/configurable_service.md)
     * [Platform Integration](tools/integration.md)
     * [GraalVM Native Image Guide](tools/graalvm_native.md)
     * [Other Features](tools/other_features.md)

@@ -292,6 +292,46 @@ For tree tables with hierarchical relationships (organization structures, accoun
 
 `<link>` attributes: `columns` (required, multiple columns allowed, e.g. `staff_id,staff_name`), `id-columns` (grouping columns, multiple allowed; make sure the SQL sorts properly), `sign` (separator, default comma), `distinct` (default `false`), `result-type` (`ARRAY`/`LIST`/`SET`, only applicable to a single field, presenting the result as a collection instead of a concatenated string).
 
+> The concatenation order follows the result-set order — **make sure the SQL is sorted by the `id-columns` grouping columns**, otherwise the concatenated result is unpredictable.
+
+**Multiple columns + custom separator** (with multiple `columns` they are concatenated in order; `sign` accepts any character):
+
+```xml
+<sql id="order_items_link">
+    <value><![CDATA[
+        select t.order_id, t.product_name, t.qty
+        from sqltoy_order_item t
+        order by t.order_id
+    ]]></value>
+    <!-- group by order, concatenate product names and qty into one row -->
+    <link id-columns="order_id" columns="product_name,qty" sign="|" />
+</sql>
+```
+
+**Collection result** (`result-type` applies to a single field only; returns an `ARRAY`/`LIST`/`SET` collection instead of a string):
+
+```xml
+<sql id="staff_tags_link">
+    <value><![CDATA[
+        select t.organ_id, t.staff_tag from sqltoy_staff_tag t order by t.organ_id
+    ]]></value>
+    <link id-columns="organ_id" columns="staff_tag" result-type="ARRAY" />
+</sql>
+```
+
+**Java form (QueryExecutor.groupConcat)**:
+
+```java
+QueryResult result = lightDao.findByQuery(
+        new QueryExecutor("organ_staff_link")
+            .groupConcat(new GroupConcat()
+                .group("organ_id")        // equivalent to id-columns
+                .concat("staff_name")     // equivalent to columns
+                .separator(",")           // equivalent to sign
+                .distinct(true)));        // equivalent to distinct
+List rows = result.getRows();
+```
+
 ---
 
 ## 6b. Reversing the Result Set (reverse)

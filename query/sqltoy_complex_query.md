@@ -289,6 +289,46 @@ sqltoy 提供一组**在内存中对结果集做二次计算**的分析能力：
 
 `<link>` 属性：`columns`（必填，可多列如 `staff_id,staff_name`）、`id-columns`（分组列，可多列，注意 SQL 做好排序）、`sign`（连接符，默认逗号）、`distinct`（默认 `false`）、`result-type`（`ARRAY`/`LIST`/`SET`，仅适用单字段，将结果以集合而非拼接字符串呈现）。
 
+> 拼接顺序以结果集顺序为准，**请确保 SQL 已按 `id-columns` 分组列排好序**，否则拼接结果不可预期。
+
+**多列拼接 + 自定义分隔符**（`columns` 多列时逐列依次拼接，`sign` 可任意字符）：
+
+```xml
+<sql id="order_items_link">
+    <value><![CDATA[
+        select t.order_id, t.product_name, t.qty
+        from sqltoy_order_item t
+        order by t.order_id
+    ]]></value>
+    <!-- 按订单分组，把商品名、数量拼成一行 -->
+    <link id-columns="order_id" columns="product_name,qty" sign="|" />
+</sql>
+```
+
+**集合结果**（`result-type` 仅适用单字段，返回 `ARRAY`/`LIST`/`SET` 集合而非字符串）：
+
+```xml
+<sql id="staff_tags_link">
+    <value><![CDATA[
+        select t.organ_id, t.staff_tag from sqltoy_staff_tag t order by t.organ_id
+    ]]></value>
+    <link id-columns="organ_id" columns="staff_tag" result-type="ARRAY" />
+</sql>
+```
+
+**Java 形态（QueryExecutor.groupConcat）**：
+
+```java
+QueryResult result = lightDao.findByQuery(
+        new QueryExecutor("organ_staff_link")
+            .groupConcat(new GroupConcat()
+                .group("organ_id")        // 等价 id-columns
+                .concat("staff_name")     // 等价 columns
+                .separator(",")           // 等价 sign
+                .distinct(true)));        // 等价 distinct
+List rows = result.getRows();
+```
+
 ---
 
 ## 六之二、结果集反转（reverse）
