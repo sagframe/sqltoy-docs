@@ -382,6 +382,7 @@ List rows2 = lightDao.findByQuery(
 | `<cols-chain-relative>` / `<rows-chain-relative>` | 列 / 行同比环比 | [复杂查询与数据分析](sqltoy_complex_query.md) |
 | `<tree-sort>` | 树形排序与逐层汇总 | [复杂查询与数据分析](sqltoy_complex_query.md) |
 | `<link>` | 分组拼接（代替 group_concat） | [复杂查询与数据分析](sqltoy_complex_query.md) |
+| `<reverse>` | 结果集顺序反转 | [复杂查询与数据分析](sqltoy_complex_query.md) |
 | `<value>` | SQL 正文（必填），支持 `#[]`、`@if`、`@fast` 等 | 本页 / [标签参考](../appendix/tags.md) |
 
 ### 常规最小示例

@@ -69,7 +69,7 @@ sqltoy uses `#[ ... ]` to mark a **dynamic condition fragment**. The core rules:
 </sql>
 ```
 
-Common attributes of the `<sql>` tag: `id` (required), `type` (`search`/`insert`/`update`/`delete`; `select` is a legacy-compatible alias), `blank-to-null` (default `true`), `debug` (whether to output execution logs), `query-timeout` (query timeout in seconds), `dataSource` (specifies a data source name), `dialect` (new in 6.0.3 — declares that this sql is parsed and solidified in the specified dialect form; see [Dialect Self-Adaption & Function Extension](../dialect/sqltoy_function.md)).
+Common attributes of the `<sql>` tag: `id` (required), `type` (`search`/`insert`/`update`/`delete`; `select` is a legacy-compatible alias), `blank-to-null` (default `true`), `debug` (whether to output execution logs), `query-timeout` (query timeout in seconds), `dataSource` (specifies a data source name), `dialect` (new in 6.0.3 — declares that this sql is parsed and solidified in the specified dialect form; see [Dialect Self-Adaption & Function Extension](../dialect/sqltoy_function.md)), `union-all-count` (in union pagination, computes the count branch-by-branch to avoid unnecessary execution). For NoSQL scenarios use the `eql` (Elasticsearch) / `mql` (MongoDB) nodes instead — their attributes differ, see [Elasticsearch](../nosql/sqltoy_elasticsearch.md) and [MongoDB](../nosql/sqltoy_mongo.md).
 
 ---
 
@@ -382,6 +382,7 @@ Below is a `<sql>` element listing **all available child tags** (validated again
 | `<cols-chain-relative>` / `<rows-chain-relative>` | Column / row period-over-period comparison | [Complex Query & Analytics](sqltoy_complex_query.md) |
 | `<tree-sort>` | Tree sorting and level-by-level aggregation | [Complex Query & Analytics](sqltoy_complex_query.md) |
 | `<link>` | Grouped concatenation (replaces group_concat) | [Complex Query & Analytics](sqltoy_complex_query.md) |
+| `<reverse>` | Reverses the result-set order | [Complex Query & Analytics](sqltoy_complex_query.md) |
 | `<value>` | SQL body (required); supports `#[]`, `@if`, `@fast`, etc. | This page / [Tags & Expressions](../appendix/tags.md) |
 
 ### Minimal Everyday Example
