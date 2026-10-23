@@ -8,7 +8,7 @@ SqlToy is a Java ORM framework centered on **dynamic SQL** and built for enterpr
 - **Object-to-table mapping**: POJO/VO classes carry annotations (`@SqlToyEntity`/`@Entity`/`@Id`/`@Column`) that map them to tables; `EntityManager` manages them centrally.
 - **Dialect isolation**: all database differences are contained in the `dialect` package; `DialectFactory` detects the database type and routes to the right implementation, keeping business SQL portable.
 - **In-memory algorithms**: pagination optimization, pivot, summary, chain-ratio, tree sorting, cache translation and more run as algorithms in application memory — offloading the database and staying consistent across databases.
-- **Three ways to organize a query**: SQL mode (sqlId + `#[...]`, for complex dynamic and configurable queries), `EntityQuery`/`EntityUpdate` (single-table string conditions) and [lambda conditions](../query/lambda_query.md) (property method references; one builder for single-table and joins) — all three share the same execution path and can be mixed per scenario.
+- **Three ways to organize a query**: SQL mode (sqlId + `#[...]`, for complex dynamic and configurable queries), `EntityQuery`/`EntityUpdate` (single-table string conditions) and [lambda conditions](en/query/lambda_query.md) (property method references; one builder for single-table and joins) — all three share the same execution path and can be mixed per scenario.
 
 ## 2. Core Packages
 
@@ -54,5 +54,19 @@ Take `lightDao.findPage(page, "sqlId", params, VO.class)` as an example:
 5. Configured `sharding`/tenant interceptors, `translate` cache translation and `secure` masking are applied in turn;
 6. The query executes and the result set goes through in-memory algorithms (summary/pivot/chain-ratio/tree-sort, etc.);
 7. Everything is wrapped into a `Page` and returned.
+
+Overall flow:
+
+```mermaid
+flowchart LR
+    A[LightDao interface] --> B[SqlToyDaoSupport<br/>operation impl]
+    B --> C[SqlToyConfig<br/>sqlId pre-parsed]
+    C --> D[filters normalize params<br/>dynamic SQL fragment trimming]
+    D --> E[DialectFactory<br/>dialect routing]
+    E --> F[page SQL + count optimize<br/>PageOptimizeUtils]
+    F --> G[interception & enhancement<br/>sharding · tenant · translate · secure]
+    G --> H[in-memory algorithms<br/>summary · pivot · tree-sort]
+    H --> I[wrapped into a Page and returned]
+```
 
 > To dig into the source, start from `SqlToyDaoSupport` (operation implementation), `LightDao` (API entry), `DialectFactory` (dialect routing), `SqlToyContext` (configuration hub), `TranslateManager` (cache translate) and `PageOptimizeUtils` (pagination optimization).

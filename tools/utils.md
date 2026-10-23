@@ -57,7 +57,7 @@ private String postType;
 
 这样 `convertType` 即可正确映射名称不同的字段。
 
-> 严格分层的完整示例参见项目 https://github.com/sagframe/sqltoy-strict ，POJO/VO 由 [quickvo](../prepare/quickvo.md) 生成到不同包。
+> 严格分层的完整示例参见项目 https://github.com/sagframe/sqltoy-strict ，POJO/VO 由 [quickvo](prepare/quickvo.md) 生成到不同包。
 
 ## 四、常用工具类
 
@@ -93,4 +93,4 @@ Object result = DBTransUtils.doTrans(lightDao.getDataSource(), () -> {
 });
 ```
 
-> 这些工具类基本都是**无状态静态方法**（除 `SnowflakeIdWorker` 等需实例的以外），可多线程直接调用；`DBTransUtils` 的事务状态绑定在当前线程。更多工具入口见[API 速查](../appendix/api.md)。
+> 这些工具类基本都是**无状态静态方法**（除 `SnowflakeIdWorker` 等需实例的以外），可多线程直接调用；`DBTransUtils` 的事务状态绑定在当前线程。更多工具入口见[API 速查](appendix/api.md)。

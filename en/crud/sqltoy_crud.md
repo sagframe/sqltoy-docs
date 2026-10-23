@@ -7,7 +7,7 @@ sqltoy's object-oriented CRUD is quite similar to JPA. Its main features:
    lightDao.update().dataSource(xxx).forceUpdateProps("status").batchSize(500).many(entities);  
 4) There is no concept of logical delete; in sqltoy it is simply a status update  
 5) Compared with JPA, sqltoy mainly optimizes update (providing the elastic update) and adds updateSaveFetch and updateFetch (one database interaction completes the locking query, update-or-insert and result return)  
-6) sqltoy supports cascading in two forms, OneToOne and OneToMany (with some improvements, e.g. loading supports filtering), but only one level of cascading; query results are automatically packaged in layers based on annotations (hierarchy packaging), see [Query API](../query/sqltoy_query.md)  
+6) sqltoy supports cascading in two forms, OneToOne and OneToMany (with some improvements, e.g. loading supports filtering), but only one level of cascading; query results are automatically packaged in layers based on annotations (hierarchy packaging), see [Query API](en/query/sqltoy_query.md)  
 7) sqltoy optimizes cascade loading and cascade deletion under the hood, using id in (:ids) style queries and deletes, organizing the final data algorithmically to reduce database IO and improve efficiency  
 8) For details see the org.sagacity.sqltoy.dao.LightDao interface, which is thoroughly documented
 
@@ -78,7 +78,7 @@ public void testSaveCascade() {
 	item1.setPrice(BigDecimal.valueOf(1000));
 	item1.setAmt(BigDecimal.valueOf(5000));
 	item1.setQuantity(BigDecimal.valueOf(5));
-	head.getComplexpkItemVOs().add(item1);
+	head.getComplexpkItems().add(item1);
 
 	// child table record 2
 	ComplexpkItem item2 = new ComplexpkItem();
@@ -87,7 +87,7 @@ public void testSaveCascade() {
 	item2.setPrice(BigDecimal.valueOf(1000));
 	item2.setAmt(BigDecimal.valueOf(5000));
 	item2.setQuantity(BigDecimal.valueOf(5));
-	head.getComplexpkItemVOs().add(item2);
+	head.getComplexpkItems().add(item2);
 
 	lightDao.save(head);
 }
@@ -308,7 +308,7 @@ Exclude logically deleted records when querying (just add the status condition i
 </sql>
 ```
 
-> Tip: if a [unified field handler](../quickstart/helloworld_improve.md) (`unifyFieldsHandler`) is configured, object-style `update` automatically fills in missing `updateBy`/`updateTime`; with `updateByQuery` it is recommended to explicitly `set` the audit fields as shown above.
+> Tip: if a [unified field handler](en/quickstart/helloworld_improve.md) (`unifyFieldsHandler`) is configured, object-style `update` automatically fills in missing `updateBy`/`updateTime`; with `updateByQuery` it is recommended to explicitly `set` the audit fields as shown above.
 
 # 6. Delete Operations
 
@@ -606,7 +606,7 @@ public void testUpdateSaveFetch() {
   1) Avoid identity / sequence primary keys on the entity (when the record does not exist and an insert happens, carrying the key in the entity is the most straightforward)  
   2) For business-unique-key scenarios (e.g. a ledger located by "product + date" rather than primary key), pass the property names via `uniqueProps`; omit it to query by primary key  
   3) Under fierce contention prefer the `lockWaitTimeout` overload to set the lock wait explicitly (in seconds); a lock wait timeout throws and rolls back  
-  4) Under GraalVM native images the `EntityUpdateCallback` form relies on byte-buddy proxy subclasses: configure `native-entity-proxies` to pre-generate them at build time (entities not listed are unusable; the insert branch is not affected); see the [GraalVM Native guide](../../tools/graalvm_native.md)
+  4) Under GraalVM native images the `EntityUpdateCallback` form relies on byte-buddy proxy subclasses: configure `native-entity-proxies` to pre-generate them at build time (entities not listed are unusable; the insert branch is not affected); see the [GraalVM Native guide](en/tools/graalvm_native.md)
 
 # 10. updateFetch (SQL-authored locking query → validate and update → return results, in one interaction)
 

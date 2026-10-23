@@ -123,11 +123,11 @@ public class DynamicServiceImpl implements DynamicService {
 | 方式 | 说明 |
 | --- | --- |
 | 多个 LightDao | 定义多个 `LightDao` bean 分别注入不同 dataSource，Service 中按 bean 名称引入 |
-| 查询级切换 | `QueryExecutor.dataSource(...)` 与链式 `.dataSource(...)`（见 [Link 链式操作](../query/link_api.md)） |
-| xml 指定 | `<sql dataSource="...">` 在单条 SQL 上指定数据源（见[动态 SQL 规范](../query/dynamic_sql.md)） |
+| 查询级切换 | `QueryExecutor.dataSource(...)` 与链式 `.dataSource(...)`（见 [Link 链式操作](query/link_api.md)） |
+| xml 指定 | `<sql dataSource="...">` 在单条 SQL 上指定数据源（见[动态 SQL 规范](query/dynamic_sql.md)） |
 | 多库事务(JTA) | 结合 JTA 实现（如 Atomikos/Narayana） |
 
-> 更多常见问题（如分库分表为什么不支持跨库 join 分页、与其他 ORM 组合使用等）见 [FAQ](../faq/faq.md)。
+> 更多常见问题（如分库分表为什么不支持跨库 join 分页、与其他 ORM 组合使用等）见 [FAQ](faq/faq.md)。
 
 > 🎬 原完整示例源码（`DynamicServiceImpl.java` / `OrderInfoServiceImpl.java`）已随 `trunk/sqltoy-dynamic-datasource` 子项目移除，本文代码示例自成一体、可直接落地；sqltoy 自身的命名多数据源演示见 [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) 的 `MultiDataSourceTest`。
 

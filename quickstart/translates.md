@@ -28,7 +28,7 @@ spring:
 ```
 ### sqltoy-translate.xml配置
 
-> `sqltoy-translate.xml` 的 schema 指向与 IDE 补全配置见 [XML Schema 配置指引](../config/xml_schemas.md)。
+> `sqltoy-translate.xml` 的 schema 指向与 IDE 补全配置见 [XML Schema 配置指引](config/xml_schemas.md)。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -93,7 +93,7 @@ spring:
 | `<sql-translate>` | 最常用：一条 sql 查出 key/name 全量缓存 | `cache`、`datasource`、`sql`（属性或子元素） |
 | `<service-translate>` | 缓存数据需经 service 加工（如多来源聚合、脱敏、解密后再入缓存） | `service`（spring bean 名）、`method` |
 | `<rest-translate>` | 缓存数据来自 rest 服务（配合 basic/jwt 认证，见下节） | `url`、`username`、`password`、`auth-type` 等 |
-| `<local-translate>` | 本地静态/动态数据源：properties 文件，或配合 FIFO 动态缓存 | `properties`、`sid`、`dynamic-cache` 系列（详见 [FIFO 缓存](../translate/sqltoy_FIFO_translate.md)） |
+| `<local-translate>` | 本地静态/动态数据源：properties 文件，或配合 FIFO 动态缓存 | `properties`、`sid`、`dynamic-cache` 系列（详见 [FIFO 缓存](translate/sqltoy_FIFO_translate.md)） |
 
 4 种缓存定义共用一组容量与生命周期属性：`cache`（必填）、`keep-alive`（存活秒数，默认 3600）、`heap`（堆内条数上限，默认 10000）、`off-heap`（堆外 MB，默认 0）、`disk-size`（磁盘 MB，默认 0）、`i18n`（如 `zh_cn:1,en_us:2`）、`desc`。
 
@@ -156,7 +156,7 @@ jwt 取 token 的三种方式 **token-url / token-secure-key / authorization 三
 运行机制：token 获取后缓存并在临近过期时自动刷新；请求遇 401 时自动失效并重登（或重新签名）重试一次。自签名模式在本地生成 jwt（claims 含 sub=username、iat、exp），HS 系列为共享密钥、RS 系列为 PKCS#8 私钥（可由 `openssl pkcs8 -topk8 -nocrypt` 转换）。
 
 > [!TIP]
-> 上面的缓存都是**全量加载**模式。如果数据量达到百万级以上（如平台型电商 SKU、号码归属地），请使用[超大规模主数据缓存（FIFO）](../translate/sqltoy_FIFO_translate.md)：缓存不做全量加载，翻译时未命中的 key 动态批量获取，本地仅保留最常用的数据。
+> 上面的缓存都是**全量加载**模式。如果数据量达到百万级以上（如平台型电商 SKU、号码归属地），请使用[超大规模主数据缓存（FIFO）](translate/sqltoy_FIFO_translate.md)：缓存不做全量加载，翻译时未命中的 key 动态批量获取，本地仅保留最常用的数据。
 
 ## 测试验证
 ### 类OrderInfoVO增加2个属性
@@ -277,9 +277,9 @@ public class TranslateTest {
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <sagacity
-	xmlns="http://www.sagframe.com/schema/sqltoy-translate"
+	xmlns="https://www.sagframe.com/schema/sqltoy-translate"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy-translate https://sagframe.github.io/schema/sqltoy-translate.xsd">
+	xsi:schemaLocation="https://www.sagframe.com/schema/sqltoy-translate https://sagframe.github.io/schema/sqltoy-translate.xsd">
 	<!-- 缓存有默认失效时间，默认为1小时,因此只有较为频繁的缓存才需要及时检测 -->
 	<cache-translates>
 		<!-- 基于sql直接查询的方式获取缓存 -->
@@ -369,7 +369,7 @@ public void translate(Collection dataSet, String cacheName, String cacheType, In
 		TranslateHandler handler);
 		
 //用法示例
-lightDao.translate(staffVOs<StaffInfoVO>, "staffIdName",	1， new TranslateHandler() {
+lightDao.translate(staffVOs, "staffIdName", null, 1, new TranslateHandler() {
 	//告知key值
 	public Object getKey(Object row) {
 		return ((StaffInfoVO)row).getStaffId();

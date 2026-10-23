@@ -34,4 +34,4 @@ TranslateManager translateManager = lightDao.getSqlToyContext().getTranslateMana
 
 **2) Dynamically extend caches** (adding cache definitions at runtime): use `putCache(TranslateConfigModel)` to dynamically register a new cache, and attach an update checker to it with `putCacheUpdater`, extending the cache translation capability on demand at runtime.
 
-> For the basic usage of Cache Translate, see [Cache Translate usage](../quickstart/translates.md); for the FIFO dynamic cache of large-scale master data, see [Large-Scale Master-Data Cache (FIFO)](sqltoy_FIFO_translate.md).
+> For the basic usage of Cache Translate, see [Cache Translate usage](en/quickstart/translates.md); for the FIFO dynamic cache of large-scale master data, see [Large-Scale Master-Data Cache (FIFO)](en/translate/sqltoy_FIFO_translate.md).

@@ -38,7 +38,7 @@
 
 ## 二、@fast / @fastPage
 
-`@fast()` 写在 SQL 中，用于[快速分页](../query/pagination.md)（先分页后关联）。**非分页查询时框架会自动剔除 `@fast`**，因此不影响 find/findTop 等其他查询。`@fast` 与 `@fastPage` 等效。
+`@fast()` 写在 SQL 中，用于[快速分页](query/pagination.md)（先分页后关联）。**非分页查询时框架会自动剔除 `@fast`**，因此不影响 find/findTop 等其他查询。`@fast` 与 `@fastPage` 等效。
 
 ## 三、@blank()
 
@@ -206,7 +206,7 @@ List result = lightDao.find("report_columns",
 </sql>
 ```
 
-> 与 [filter 的 `<to-date>`](../query/dynamic_sql.md) 区别：`@df` 是把**值格式化后拼进 SQL 文本**（会形成字面量），`<to-date>` 是把**参数转成日期类型后仍以 `?` 绑定**。涉及外部输入时优先用 `<to-date>`，`@df` 更适合报表拼接期间、分区表名等场景。
+> 与 [filter 的 `<to-date>`](query/dynamic_sql.md) 区别：`@df` 是把**值格式化后拼进 SQL 文本**（会形成字面量），`<to-date>` 是把**参数转成日期类型后仍以 `?` 绑定**。涉及外部输入时优先用 `<to-date>`，`@df` 更适合报表拼接期间、分区表名等场景。
 
 ## 十、@case()（decode 式枚举判断）
 
@@ -227,7 +227,7 @@ where t.status=1
 order by @case(orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.create_time desc')
 ```
 
-> 业务主键场景同样使用该宏，见 [主键策略 · @BusinessId](../primarykey/sqltoy_primarykey.md)。
+> 业务主键场景同样使用该宏，见 [主键策略 · @BusinessId](primarykey/sqltoy_primarykey.md)。
 
 ## 十一、@substr() / @substring()（子串截取）
 
@@ -257,7 +257,7 @@ select id,name from sqltoy_dict_detail where status=1
 
 - oracle 系（oracle/oracle11/dm/oceanbase）→ `from dual`；db2 → `from sysibm.sysdummy1`；hana → `from dummy`；其余方言直接剔除；
 - 兼容别名 `@dual()` / `@dummyTable()`，三者等价、大小写不敏感、括号内空白容错；一条 SQL 可出现多次；
-- 不含该宏的 SQL 零影响；详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)。
+- 不含该宏的 SQL 零影响；详见[方言自适配与函数扩展](dialect/sqltoy_function.md)。
 
 ---
 
@@ -296,4 +296,4 @@ List rows = lightDao.findByQuery(
 
 ---
 
-> 相关：[`#[]` 与 filters 过滤器](../query/dynamic_sql.md)、[常见 SQL 案例](../query/sql_showcase.md)、[分页优化](../query/pagination.md)、[注解速查](annotations.md)。
+> 相关：[`#[]` 与 filters 过滤器](../query/dynamic_sql.md)、[常见 SQL 案例](query/sql_showcase.md)、[分页优化](query/pagination.md)、[注解速查](appendix/annotations.md)。

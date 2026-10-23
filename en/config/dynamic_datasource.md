@@ -123,10 +123,10 @@ public class DynamicServiceImpl implements DynamicService {
 | Approach | Description |
 | --- | --- |
 | Multiple LightDao beans | Define multiple `LightDao` beans, each injected with a different dataSource, and reference them by bean name in Services |
-| Query-level switching | `QueryExecutor.dataSource(...)` and the chained `.dataSource(...)` (see [Link Chain API](../query/link_api.md)) |
-| Specified in xml | `<sql dataSource="...">` specifies the datasource for a single SQL (see [Dynamic SQL Guide](../query/dynamic_sql.md)) |
+| Query-level switching | `QueryExecutor.dataSource(...)` and the chained `.dataSource(...)` (see [Link Chain API](en/query/link_api.md)) |
+| Specified in xml | `<sql dataSource="...">` specifies the datasource for a single SQL (see [Dynamic SQL Guide](en/query/dynamic_sql.md)) |
 | Multi-database transaction (JTA) | Implemented in combination with JTA (e.g. Atomikos/Narayana) |
 
-> For more common questions (such as why sharding does not support cross-database join pagination, or how to combine sqltoy with other ORM frameworks), see the [FAQ](../faq/faq.md).
+> For more common questions (such as why sharding does not support cross-database join pagination, or how to combine sqltoy with other ORM frameworks), see the [FAQ](en/faq/faq.md).
 
 > 🎬 The full example sources (`DynamicServiceImpl.java` / `OrderInfoServiceImpl.java`) were removed together with the former `trunk/sqltoy-dynamic-datasource` sub-project; the code examples in this article are self-contained. For sqltoy's native named multi-datasource demo see `MultiDataSourceTest` in [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase).

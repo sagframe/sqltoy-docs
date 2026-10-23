@@ -140,7 +140,7 @@ public default String getUserTenantId() { ... }
 
 ### 2.4 Relation to multi-tenancy
 
-This mechanism is also one way to implement multi-tenant isolation: `@Tenant` + `TenantFilterInterceptor` filter and fill consistently. For the full multi-tenancy story (including filling the tenant column on write) see [Multi-Tenancy](sqltoy_multitenant.md).
+This mechanism is also one way to implement multi-tenant isolation: `@Tenant` + `TenantFilterInterceptor` filter and fill consistently. For the full multi-tenancy story (including filling the tenant column on write) see [Multi-Tenancy](en/enterprise/sqltoy_multitenant.md).
 
 ## 3. Choosing between the two
 
@@ -149,13 +149,13 @@ This mechanism is also one way to implement multi-tenant isolation: `@Tenant` + 
 | The page has an organization/account-set filter the user may or may not set | `dataAuthFilters()` (unified filling + overreach check) |
 | Isolation must always apply (SaaS tenant, hard data isolation) | `TenantFilterInterceptor` (automatic injection) |
 | Isolation plus a **clear error** when the front end overreaches | `dataAuthFilters()` with `isForcelimit=true` |
-| The filtering dimension is not an entity column (cross-table, complex expression) | A custom `SqlInterceptor`, see [SQL Interceptors](sql_interceptor.md) |
+| The filtering dimension is not an entity column (cross-table, complex expression) | A custom `SqlInterceptor`, see [SQL Interceptors](en/enterprise/sql_interceptor.md) |
 
 > The two can be combined: the interceptor provides the baseline isolation, `dataAuthFilters` handles filling the visible page condition and reporting overreach.
 
 ## 4. Related
 
-- Full multi-tenancy usage: [Multi-Tenancy](sqltoy_multitenant.md)
-- Custom SQL processing: [SQL Interceptors](sql_interceptor.md)
-- The unified field handler interface (`createUnifyFields`/`updateUnifyFields`): [Common-Field Auto-Fill](../quickstart/helloworld_improve.md)
-- All configuration properties: [Configuration](../config/sqltoy_config.md)
+- Full multi-tenancy usage: [Multi-Tenancy](en/enterprise/sqltoy_multitenant.md)
+- Custom SQL processing: [SQL Interceptors](en/enterprise/sql_interceptor.md)
+- The unified field handler interface (`createUnifyFields`/`updateUnifyFields`): [Common-Field Auto-Fill](en/quickstart/helloworld_improve.md)
+- All configuration properties: [Configuration](en/config/sqltoy_config.md)

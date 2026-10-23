@@ -69,7 +69,7 @@ private String id;
 private Long id;
 ```
 
-> `@Id` 只描述生成策略，`@Column` 描述列；两者都要标在主键字段上。属性含义见[注解速查 · @Id](../appendix/annotations.md)。
+> `@Id` 只描述生成策略，`@Column` 描述列；两者都要标在主键字段上。属性含义见[注解速查 · @Id](appendix/annotations.md)。
 
 quickvo 实际生成的片段（截图）：
 
@@ -181,7 +181,7 @@ public interface IdGenerator {
 @Id(strategy = "generator", generator = "com.yourproject.MyIdGenerator")
 ```
 
-> 自定义生成器若依赖 Spring 的 bean（如 redis 模板），用 `initialize(SqlToyContext)` 拿上下文，或在实现类内部自行获取；native 镜像下该实现类需要反射注册，见 [GraalVM Native Image 指引](../tools/graalvm_native.md)。
+> 自定义生成器若依赖 Spring 的 bean（如 redis 模板），用 `initialize(SqlToyContext)` 拿上下文，或在实现类内部自行获取；native 镜像下该实现类需要反射注册，见 [GraalVM Native Image 指引](tools/graalvm_native.md)。
 
 ## 六、主键重复处理
 
@@ -200,6 +200,6 @@ java -Dsqltoy.snowflake.dataCenterId=20
 
 ## 七、相关
 
-- `@Id`/`@BusinessId` 属性表：[注解速查](../appendix/annotations.md)
-- 主键插入返回值的方言差异：[方言自适配与函数扩展](../dialect/sqltoy_function.md)
-- 换库迁移时的主键评估：[换库迁移适配指引](../introduction/db_migration.md)
+- `@Id`/`@BusinessId` 属性表：[注解速查](appendix/annotations.md)
+- 主键插入返回值的方言差异：[方言自适配与函数扩展](dialect/sqltoy_function.md)
+- 换库迁移时的主键评估：[换库迁移适配指引](introduction/db_migration.md)

@@ -31,4 +31,4 @@ spring.sqltoy.overTimeSqlHandler=com.yourpkg.YourOverTimeHandler
 
 In the implementation class you get the over-time SQL statement, its parameters, its elapsed time and more, so you can persist it to the database, raise alerts or report it as needed.
 
-> Related: for SQL execution statistics also refer to `org.sagacity.sqltoy.SqlExecuteStat`, `SqlExecuteTrace` and `SqlExecuteLog`. For common SQL optimization patterns see [SQL Showcase](../query/sql_showcase.md).
+> Related: for SQL execution statistics also refer to `org.sagacity.sqltoy.SqlExecuteStat`, `SqlExecuteTrace` and `SqlExecuteLog`. For common SQL optimization patterns see [SQL Showcase](en/query/sql_showcase.md).

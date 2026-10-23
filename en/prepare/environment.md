@@ -6,7 +6,7 @@
 | --- | --- |
 | JDK | **17+** (the 6.0 line requires JDK 17 and targets Spring Boot 3/4); for JDK 8 projects use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
 | Build tool | Maven 3.6+ or Gradle |
-| Database | Any JDBC database (MySQL/Oracle/PostgreSQL/Dameng/GaussDB/SQL Server/DB2, etc.; see [Supported Databases](../introduction/db_list.md)) |
+| Database | Any JDBC database (MySQL/Oracle/PostgreSQL/Dameng/GaussDB/SQL Server/DB2, etc.; see [Supported Databases](en/introduction/db_list.md)) |
 | Connection pool | Druid, HikariCP or any other connection pool (sqltoy is not bound to a connection pool) |
 
 > [!NOTE]
@@ -46,17 +46,17 @@ Choose the corresponding artifact according to the framework you use (the groupI
 </dependency>
 ```
 
-**Pure Java**: just include the core package `sagacity-sqltoy`; see [How to Use sqltoy in a Pure Java Project](../config/pure_java.md).
+**Pure Java**: just include the core package `sagacity-sqltoy`; see [How to Use sqltoy in a Pure Java Project](en/config/pure_java.md).
 
 ## 3. Connection Pool and Datasource
 
-- The demo project uses the **Druid** connection pool, but sqltoy does not mandate a connection pool — choose one according to your actual situation.
+- The demo project uses the **HikariCP** connection pool (running on an in-memory H2 database, see [Quick Start](en/quickstart/helloworld.md)), but sqltoy does not mandate a connection pool — choose one according to your actual situation.
 - Spring Boot's default connection pool is **HikariCP**; `spring-boot-starter-jdbc` must be included for the datasource to be initialized automatically.
 - Make sure to **configure the dataSource and connection pool first**, and then configure sqltoy.
 
 ## 4. Cache Translate Dependencies (Optional)
 
-If you use the [cache translate](../quickstart/translates.md) feature, a cache implementation is required. sqltoy supports **ehcache** by default, and **caffeine** can also be selected:
+If you use the [cache translate](en/quickstart/translates.md) feature, a cache implementation is required. sqltoy supports **ehcache** by default, and **caffeine** can also be selected:
 
 ```xml
 <dependency>
@@ -72,9 +72,9 @@ If you use the [cache translate](../quickstart/translates.md) feature, a cache i
 </dependency>
 ```
 
-> Why not use Redis as the translate cache by default? Because cache translate pursues high-frequency code-value conversion with **zero local network overhead**, and local caches (ehcache/caffeine) perform better. For very large master data scenarios, use the [FIFO dynamic cache](../translate/sqltoy_FIFO_translate.md).
+> Why not use Redis as the translate cache by default? Because cache translate pursues high-frequency code-value conversion with **zero local network overhead**, and local caches (ehcache/caffeine) perform better. For very large master data scenarios, use the [FIFO dynamic cache](en/translate/sqltoy_FIFO_translate.md).
 
 ## 5. Next Steps
 
-- For the complete flow of creating a project → creating tables → generating POJOs → writing queries, see [helloworld Quick Start](../quickstart/helloworld.md).
-- POJOs/VOs are generated automatically from database tables by the **quickvo** tool; see the [quickvo Code Generator](quickvo.md).
+- For the complete flow of creating a project → creating tables → generating POJOs → writing queries, see [helloworld Quick Start](en/quickstart/helloworld.md).
+- POJOs/VOs are generated automatically from database tables by the **quickvo** tool; see the [quickvo Code Generator](en/prepare/quickvo.md).

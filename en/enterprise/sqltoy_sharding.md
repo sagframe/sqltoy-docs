@@ -151,7 +151,7 @@ For table sharding only, drop `db`:
 @Sharding(table = @Strategy(name = "realHisTable", fields = { "bizDate" }))
 ```
 
-> Full attribute reference for `@Sharding` (including `maxConcurrents`, `maxWaitSeconds`, `is_global_rollback`) is in the [Annotations Cheat Sheet · @Sharding](../appendix/annotations.md).
+> Full attribute reference for `@Sharding` (including `maxConcurrents`, `maxWaitSeconds`, `is_global_rollback`) is in the [Annotations Cheat Sheet · @Sharding](en/appendix/annotations.md).
 
 ## 4. Declaration style 2: XML (queries)
 
@@ -193,13 +193,13 @@ lightDao.findByQuery(new QueryExecutor("""
 
 ## 7. Known boundaries
 
-- **Cross-database joins and pagination are not supported**: merging paginated results across databases and tables is disproportionately expensive and points at a design problem; use an MPP database such as ClickHouse/StarRocks instead (both supported by sqltoy) — see the [FAQ](../faq/faq.md);
-- **Transactions after database sharding**: cross-database writes need JTA or a distributed-transaction framework; see [Multi-Datasource & Transactions](../config/dynamic_datasource.md);
+- **Cross-database joins and pagination are not supported**: merging paginated results across databases and tables is disproportionately expensive and points at a design problem; use an MPP database such as ClickHouse/StarRocks instead (both supported by sqltoy) — see the [FAQ](en/faq/faq.md);
+- **Transactions after database sharding**: cross-database writes need JTA or a distributed-transaction framework; see [Multi-Datasource & Transactions](en/config/dynamic_datasource.md);
 - **`@DataVersion`/cache translate on sharded tables**: table substitution happens at the SQL layer, so entity-level enhancements still apply; but after **database** sharding a single SQL only runs on one database, so aggregate statistics must be assembled by hand;
-- **Strategy beans must implement `initialize()` and declare `initMethod="initialize"`**: the weighted probing of `DefaultShardingStrategy` and the modulus of `HashShardingStrategy` are set up there. Under native images, declare the **concrete return type** on the `@Bean` (an interface declaration leaves the init method unresolvable) — see the [GraalVM Native Image Guide](../tools/graalvm_native.md).
+- **Strategy beans must implement `initialize()` and declare `initMethod="initialize"`**: the weighted probing of `DefaultShardingStrategy` and the modulus of `HashShardingStrategy` are set up there. Under native images, declare the **concrete return type** on the `@Bean` (an interface declaration leaves the init method unresolvable) — see the [GraalVM Native Image Guide](en/tools/graalvm_native.md).
 
 ## 8. Related
 
-- Datasource configuration and transactions: [Multi-Datasource & Transactions](../config/dynamic_datasource.md)
-- Annotation attributes: [Annotations Cheat Sheet](../appendix/annotations.md)
+- Datasource configuration and transactions: [Multi-Datasource & Transactions](en/config/dynamic_datasource.md)
+- Annotation attributes: [Annotations Cheat Sheet](en/appendix/annotations.md)
 - Demo project: [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) (`DataSourceConfig` contains complete hash and date sharding setups)

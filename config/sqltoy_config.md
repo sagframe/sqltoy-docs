@@ -216,7 +216,7 @@ spring.sqltoy.taskExecutor.awaitTerminationSeconds=-1
 
 ## 十、NoSQL（Elasticsearch）
 
-ES 节点配置前缀 `spring.sqltoy.elastic.`（支持多节点/多集群），完整说明见 [Elasticsearch 支持](../nosql/sqltoy_elasticsearch.md)：
+ES 节点配置前缀 `spring.sqltoy.elastic.`（支持多节点/多集群），完整说明见 [Elasticsearch 支持](nosql/sqltoy_elasticsearch.md)：
 
 ```properties
 spring.sqltoy.elastic.defaultId=default
@@ -227,11 +227,11 @@ spring.sqltoy.elastic.endpoints[0].password=skyline
 spring.sqltoy.elastic.endpoints[0].sqlPath=_nlpcn/sql
 ```
 
-> MongoDB 复用 spring-data 的 `spring.data.mongodb.*` 配置，见 [MongoDB 支持](../nosql/sqltoy_mongo.md)。
+> MongoDB 复用 spring-data 的 `spring.data.mongodb.*` 配置，见 [MongoDB 支持](nosql/sqltoy_mongo.md)。
 
 ## 十一、GraalVM native 构建期参数（6.0.8 起）
 
-这三个参数**只在 native 镜像构建期生效**，JVM 运行模式完全忽略它们。它们用于补齐"框架无法从配置推断"的反射与代理需求，完整背景与验证结果见 [GraalVM Native Image 指引](../tools/graalvm_native.md)。
+这三个参数**只在 native 镜像构建期生效**，JVM 运行模式完全忽略它们。它们用于补齐"框架无法从配置推断"的反射与代理需求，完整背景与验证结果见 [GraalVM Native Image 指引](tools/graalvm_native.md)。
 
 ```properties
 # 非实体 DTO/VO 的反射登记（packagesToScan 只识别 @Entity，DTO/VO 扫不到）
@@ -251,13 +251,13 @@ spring.sqltoy.native-entity-proxies[0]=com.yourcorp.project.entity.StockVO
 | `native-reflection-classes` | 全限定类名数组 | 单独登记个别类（DTO/VO、按类名引用的类） |
 | `native-entity-proxies` | 全限定类名数组 | 为列出的实体在构建期预生成 `updateSaveFetch` 代理（实体不能是 `final`，需可访问无参构造器） |
 
-> Solon 侧前缀为 `solon.sqltoy.*`，参数名相同。yaml 形态与双栈完整示例见 [GraalVM Native Image 指引](../tools/graalvm_native.md) 第 3 节。
+> Solon 侧前缀为 `solon.sqltoy.*`，参数名相同。yaml 形态与双栈完整示例见 [GraalVM Native Image 指引](tools/graalvm_native.md) 第 3 节。
 
 ---
 
 ## 常规项目用法
 
-看到清单别被吓到，绝大多数项目只需设置 3~5 个参数：
+配置项看似较多，实际绝大多数项目只需设置 3~5 个参数：
 
 ```properties
 # 推荐复杂查询放 xml 中

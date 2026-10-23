@@ -30,5 +30,5 @@ String[] paramNames = config.getFullParamNames();
 
 ## 4. See Also
 
-- For hands-on SQL-configuration-driven patterns (reports/API services), see [Common SQL Examples](../query/sql_showcase.md).
-- For an overview of configuration parameters, see [sqltoy Configuration](../config/sqltoy_config.md).
+- For hands-on SQL-configuration-driven patterns (reports/API services), see [Common SQL Examples](en/query/sql_showcase.md).
+- For an overview of configuration parameters, see [sqltoy Configuration](en/config/sqltoy_config.md).

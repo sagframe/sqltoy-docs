@@ -10,26 +10,26 @@ SqlToy shares MyBatis's **dynamic-SQL mindset** (SQL in xml, conditions assemble
 | `<if test="x!=null"> and t.a=#{x}</if>` | `#[and t.a=:x]` | A null parameter removes the fragment automatically, and **the SQL can be pasted straight into a client** |
 | `<where>` / `<trim prefixOverrides>` | `where 1=1` + `#[]` | No `<where>` wrapper needed |
 | `#{}` | `:name` named parameter | Both end up as `?` through `PreparedStatement` |
-| `${}` (string splicing) | `@value(:name)` / `@joinFields(:cols,default)` | Identifier scenarios get whitelist validation — see [Tags & Expressions](../appendix/tags.md) |
+| `${}` (string splicing) | `@value(:name)` / `@joinFields(:cols,default)` | Identifier scenarios get whitelist validation — see [Tags & Expressions](en/appendix/tags.md) |
 | `<foreach collection="ids">` | `t.id in (:ids)` | Arrays/collections expand automatically and split above 1000 values |
 | ResultMap + `<result column="A" property="a">` | Result type (VO/POJO) + `AS a` aliases | Use `@SqlToyFieldAlias` when names differ |
-| `<collection>` nested mapping | Hierarchy packaging (hiberarchy) or a flat VO | One join SQL packs parent-child objects — see [Query API](../query/sqltoy_query.md) |
+| `<collection>` nested mapping | Hierarchy packaging (hiberarchy) or a flat VO | One join SQL packs parent-child objects — see [Query API](en/query/sqltoy_query.md) |
 | Pagination plugins (PageHelper etc.) | `findPage` | Automatic count optimization + `@fast` + parallel pagination |
 | `@Select` annotation | `@Sql` annotation / SQL in code | Complex SQL still belongs in xml |
 | MP `QueryWrapper` / `LambdaQueryWrapper` | `EntityQuery` / `LambdaQuery` | The former takes string conditions, the latter property references |
-| MP `BaseMapper` / `IService` | `LightDao` / `SqlToyCRUDService` | `LightDao` has ~110 methods — see [API Cheat Sheet](../appendix/api.md) |
+| MP `BaseMapper` / `IService` | `LightDao` / `SqlToyCRUDService` | `LightDao` has ~110 methods — see [API Cheat Sheet](en/appendix/api.md) |
 | MP `@TableLogic` logical delete | Shared SQL fragment / interceptor | sqltoy has no built-in logical delete; use a common `<sql>` fragment or a `SqlInterceptor` |
-| MP `@Version` optimistic lock | `@DataVersion` | See [Data Versioning](../enterprise/data_version.md) |
-| MP `@TableField(fill=...)` | `unifyFieldsHandler` | Unified gap-filling — see [Common-Field Auto-Fill](../quickstart/helloworld_improve.md) |
+| MP `@Version` optimistic lock | `@DataVersion` | See [Data Versioning](en/enterprise/data_version.md) |
+| MP `@TableField(fill=...)` | `unifyFieldsHandler` | Unified gap-filling — see [Common-Field Auto-Fill](en/quickstart/helloworld_improve.md) |
 
 ## 2. Suggested rollout order
 
-1. **Dependencies and configuration**: add `sagacity-sqltoy-spring-starter`, configure `sqlResourcesDir` + `debug=true` — see [Environment & Dependencies](../prepare/environment.md);
+1. **Dependencies and configuration**: add `sagacity-sqltoy-spring-starter`, configure `sqlResourcesDir` + `debug=true` — see [Environment & Dependencies](en/prepare/environment.md);
 2. **Create the SQL directory**: one `*.sql.xml` per module (e.g. `com/acme/crm/modules/staff.sql.xml`); write **new requirements** in sqltoy form first and leave the old mappers alone;
-3. **Generate POJOs**: use [quickvo](../prepare/quickvo.md) against the existing tables (fully annotated — do not hand-write them);
+3. **Generate POJOs**: use [quickvo](en/prepare/quickvo.md) against the existing tables (fully annotated — do not hand-write them);
 4. **Convert queries** (best payoff, lowest risk): start with the query that has the most conditions and is hardest to maintain, following section 3;
 5. **Convert writes**: replace "load, modify, update" with elastic updates; high-concurrency ledgers become `updateSaveFetch` (select-or-insert-and-modify);
-6. **Run the old and new side by side**: compare result sets for a while. `redoDataSources` can replay the new SQL on another database for verification — see [Multi-DB Verification](../dialect/multi_db_verify.md).
+6. **Run the old and new side by side**: compare result sets for a while. `redoDataSources` can replay the new SQL on another database for verification — see [Multi-DB Verification](en/dialect/multi_db_verify.md).
 
 ## 3. Typical rewrites
 
@@ -105,7 +105,7 @@ Page<OrderInfoVO> page = lightDao.findPage(new Page(pageSize, pageNo),
         "crm_order_findlist", paramsMap, OrderInfoVO.class);
 ```
 
-The count SQL is rewritten by the framework (order by removed, select list trimmed); for large-table join pagination use `@fast()` — see [Pagination Optimize](../query/pagination.md).
+The count SQL is rewritten by the framework (order by removed, select list trimmed); for large-table join pagination use `@fast()` — see [Pagination Optimize](en/query/pagination.md).
 
 ### 3.5 Single-table conditional update
 
@@ -163,7 +163,7 @@ OrderInfo order = lightDao.updateSaveFetch(
         "orderId");
 ```
 
-> If the record is **guaranteed to exist** and you need freely-defined query conditions and locking, use `updateFetch` (sql + `UpdateRowHandler`, see [Object-Oriented CRUD §10](../crud/sqltoy_crud.md)); for ledger-style "update if exists, insert if not", prefer `updateSaveFetch`.
+> If the record is **guaranteed to exist** and you need freely-defined query conditions and locking, use `updateFetch` (sql + `UpdateRowHandler`, see [Object-Oriented CRUD §10](en/crud/sqltoy_crud.md)); for ledger-style "update if exists, insert if not", prefer `updateSaveFetch`.
 
 ### 3.7 Batch insert
 
@@ -181,10 +181,10 @@ lightDao.saveAllIgnoreExist(list);   // skip existing rows
 | A parameter has no effect | Named parameters are **case-sensitive**, and the name inside `#[]` must match the Map key exactly |
 | Every result property is null | Column and property names differ: add `AS` aliases, configure `humpMapResultTypeLabel`, or use `@SqlToyFieldAlias` |
 | `in` raises a syntax error | String splicing was used instead of `:ids`; hand empty collections to the framework |
-| The paged total is smaller than the data | `@fast` plus an outer join filter makes the count use the inner SQL; supply `<count-sql>` explicitly — see [FAQ 10](../faq/faq.md) |
+| The paged total is smaller than the data | `@fast` plus an outer join filter makes the count use the inner SQL; supply `<count-sql>` explicitly — see [FAQ 10](en/faq/faq.md) |
 | Dynamic SQL needs an identifier | Never splice user input with `@value`; use `@joinFields` (whitelist) or `<valid-sqlInjection>` |
 | Logical-delete conditions everywhere | There is no built-in logical delete; inject it once with an `@include`d `<sql>` fragment or a `SqlInterceptor` |
-| Transaction behaviour differs | Object operations still honour Spring `@Transactional`; for multiple datasources see [Multi-Datasource & Transactions](../config/dynamic_datasource.md) |
+| Transaction behaviour differs | Object operations still honour Spring `@Transactional`; for multiple datasources see [Multi-Datasource & Transactions](en/config/dynamic_datasource.md) |
 
 ## 5. What you gain
 
@@ -193,4 +193,4 @@ lightDao.saveAllIgnoreExist(list);   // skip existing rows
 - **Cross-database**: 25 dialects with automatic function replacement, so one SQL runs on many databases;
 - **Analytics**: pivot/unpivot, YoY/MoM and tree rollups happen in memory, so you no longer write a different SQL per database.
 
-> Related: [Best Picks](../best/best_practices.md) (side-by-side sqltoy vs MyBatis), [Feature List](feature.md), [API Cheat Sheet](../appendix/api.md)
+> Related: [Best Picks](en/best/best_practices.md) (side-by-side sqltoy vs MyBatis), [Feature List](en/introduction/feature.md), [API Cheat Sheet](en/appendix/api.md)

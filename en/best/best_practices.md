@@ -39,7 +39,7 @@ Requirement: query the order table with conditions covering a transaction date r
 </sql>
 ```
 
-The business meaning is obvious at a glance, which makes later maintenance, tuning and adjustment much easier. See [Dynamic SQL Guide](../query/dynamic_sql.md).
+The business meaning is obvious at a glance, which makes later maintenance, tuning and adjustment much easier. See [Dynamic SQL Guide](en/query/dynamic_sql.md).
 
 ## 2. Fast pagination and count optimization
 
@@ -49,15 +49,15 @@ sqltoy provides intelligent pagination automatically, so developers don't need t
 - removes unnecessary function computations and irrelevant information between `select` and `from`;
 - fully distinguishes `union` and `group` type queries.
 
-Combined with `@fast()` (paginate first, then join) and `<page-optimize>` (count caching), a pagination request that normally costs 2 queries drops to about **1.35 queries**. See [Pagination Optimize](../query/pagination.md).
+Combined with `@fast()` (paginate first, then join) and `<page-optimize>` (count caching), a pagination request that normally costs 2 queries drops to about **1.35 queries**. See [Pagination Optimize](en/query/pagination.md).
 
 ## 3. Cache Translate
 
-Delegate the "code value → name" conversion to the cache instead of writing piles of `left join`. Without cache translate, multi-table-join SQL is long and slow; with it, the SQL stays concise and clear and efficiency improves by orders of magnitude. See [Cache Translate in Action](../quickstart/translates.md).
+Delegate the "code value → name" conversion to the cache instead of writing piles of `left join`. Without cache translate, multi-table-join SQL is long and slow; with it, the SQL stays concise and clear and efficiency improves by orders of magnitude. See [Cache Translate in Action](en/quickstart/translates.md).
 
 ## 4. Function replacement (cross-database)
 
-Object operations easily cross databases — but what about **hand-written SQL**? Can SQL written for MySQL run directly on Oracle/SQL Server? sqltoy gives the answer: on first load or dynamic execution it **automatically replaces functions in the SQL according to the database type** (e.g. `nvl`/`ifnull`/`isnull`, `concat`, `to_char`, `date_format`, etc.). See [Dialect Adaptation & Functions](../dialect/sqltoy_function.md).
+Object operations easily cross databases — but what about **hand-written SQL**? Can SQL written for MySQL run directly on Oracle/SQL Server? sqltoy gives the answer: on first load or dynamic execution it **automatically replaces functions in the SQL according to the database type** (e.g. `nvl`/`ifnull`/`isnull`, `concat`, `to_char`, `date_format`, etc.). See [Dialect Adaptation & Functions](en/dialect/sqltoy_function.md).
 
 ## 5. Preventing SQL injection
 
@@ -72,7 +72,7 @@ select * from sqltoy_staff_info t where t.staff_name=:staffName
 select * from sqltoy_staff_info t where t.staff_name=?
 ```
 
-In addition, the `<valid-sqlInjection>` filter can validate parameters against injection (see [Dynamic SQL Guide](../query/dynamic_sql.md)).
+In addition, the `<valid-sqlInjection>` filter can validate parameters against injection (see [Dynamic SQL Guide](en/query/dynamic_sql.md)).
 
 ## 6. Comments are allowed inside SQL
 
@@ -83,4 +83,4 @@ sqltoy insists that developers copy SQL written in clients such as DBeaver **dir
 
 ---
 
-> For more practical patterns, see [Common SQL Examples](../query/sql_showcase.md) and [Tags & Expressions Reference](../appendix/tags.md).
+> For more practical patterns, see [Common SQL Examples](en/query/sql_showcase.md) and [Tags & Expressions Reference](en/appendix/tags.md).

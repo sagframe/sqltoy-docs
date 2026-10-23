@@ -4,11 +4,11 @@ Since the project was initiated in 2008, sqltoy has advocated **productization**
 
 ## 1. How to Make SQL Adapt to Multiple Databases
 
-1. **Primary-key strategy**: minimize the use of `identity` and `sequence`, which are strongly database-dependent, and prefer sqltoy's programmatic primary keys (22-digit/26-digit/snowflake/UUID, etc., see [Primary Key Strategies](../primarykey/sqltoy_primarykey.md)).
+1. **Primary-key strategy**: minimize the use of `identity` and `sequence`, which are strongly database-dependent, and prefer sqltoy's programmatic primary keys (22-digit/26-digit/snowflake/UUID, etc., see [Primary Key Strategies](en/primarykey/sqltoy_primarykey.md)).
 2. **Inserts/updates/deletes**: use sqltoy's object-based operations (save/update/delete/load) and let the framework handle dialect differences.
-3. **Queries**: enable `spring.sqltoy.functionConverts=default` so that functions in SQL are automatically adapted and replaced per database (see [Dialect Adaptation & Functions](sqltoy_function.md)).
-4. **Constant-row pseudo-tables**: for "select constant-row union real-query" SQL (dictionary dropdown fallback rows, fixed report total rows, etc.), use the virtual-table macro `@virtualTable()` (new in 6.0.6) — expanded at parse time per dialect into `from dual` / `from sysibm.sysdummy1` / `from dummy`, or simply stripped, so you no longer maintain per-database `from dual` forms; see [Dialect Adaptation & Functions](sqltoy_function.md).
-5. When necessary, use `sqlId_dialect` / `dialect_sqlId` to provide dedicated SQL for specific databases; since 6.0.3 you can also declare a `dialect` attribute on the `<sql>` element to solidify parsing in a specified dialect, and enable `spring.sqltoy.realDialectFirst` so variant lookup prefers the real dialect detected from the connection — see [Dialect Adaptation & Functions](sqltoy_function.md).
+3. **Queries**: enable `spring.sqltoy.functionConverts=default` so that functions in SQL are automatically adapted and replaced per database (see [Dialect Adaptation & Functions](en/dialect/sqltoy_function.md)).
+4. **Constant-row pseudo-tables**: for "select constant-row union real-query" SQL (dictionary dropdown fallback rows, fixed report total rows, etc.), use the virtual-table macro `@virtualTable()` (new in 6.0.6) — expanded at parse time per dialect into `from dual` / `from sysibm.sysdummy1` / `from dummy`, or simply stripped, so you no longer maintain per-database `from dual` forms; see [Dialect Adaptation & Functions](en/dialect/sqltoy_function.md).
+5. When necessary, use `sqlId_dialect` / `dialect_sqlId` to provide dedicated SQL for specific databases; since 6.0.3 you can also declare a `dialect` attribute on the `<sql>` element to solidify parsing in a specified dialect, and enable `spring.sqltoy.realDialectFirst` so variant lookup prefers the real dialect detected from the connection — see [Dialect Adaptation & Functions](en/dialect/sqltoy_function.md).
 
 ## 2. Enable Cross-Database Adaptation Testing (redoDataSources)
 
@@ -42,6 +42,6 @@ Caveats for `redoDataSources`:
 
 ## 4. Related
 
-- Function auto-replacement and dialect sqlId: [Dialect Adaptation & Functions](sqltoy_function.md)
-- Adapting unlisted PostgreSQL-family databases (dialect/dialectMap): [SQL Showcase](../query/sql_showcase.md)
-- The full migration assessment checklist: [Database Migration Guide](../introduction/db_migration.md)
+- Function auto-replacement and dialect sqlId: [Dialect Adaptation & Functions](en/dialect/sqltoy_function.md)
+- Adapting unlisted PostgreSQL-family databases (dialect/dialectMap): [SQL Showcase](en/query/sql_showcase.md)
+- The full migration assessment checklist: [Database Migration Guide](en/introduction/db_migration.md)

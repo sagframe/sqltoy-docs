@@ -8,7 +8,7 @@
 * 针对不固定长度可通过脱敏比例mask-rate设置比例，如：mask-rate="50"
 * 也可以自行定义脱敏处理函数
 
-```java
+```properties
 # 实现org.sagacity.sqltoy.plugins.secure.DesensitizeProvider
 # 默认实现类:org.sagacity.sqltoy.plugins.secure.impl.DesensitizeDefaultProvider
 spring.sqltoy.desensitizeProvider=your.DesensitizeProvider
@@ -56,10 +56,8 @@ List result = lightDao
 # 生成 1024 位私钥(PKCS#8)并导出配对公钥(X.509)，去头尾压成单行 Base64
 openssl genrsa 1024 2>/dev/null | openssl pkcs8 -topk8 -nocrypt > private.pem
 openssl rsa -in private.pem -pubout > public.pem
-grep -v '^-' private.pem | tr -d '
-' > rsa_private.key && echo >> rsa_private.key
-grep -v '^-' public.pem  | tr -d '
-' > rsa_public.key  && echo >> rsa_public.key
+grep -v '^-' private.pem | tr -d '\n' > rsa_private.key && echo >> rsa_private.key
+grep -v '^-' public.pem  | tr -d '\n' > rsa_public.key  && echo >> rsa_public.key
 ```
 
 > 也可以用纯 Java 生成（JDK 自带 JCE，无需任何依赖）——sqltoy 源码 `src/test` 路径下的 `org.sagacity.sqltoy.utils.SecureUtils` 就是这段逻辑的封装：
@@ -80,7 +78,9 @@ public class GenerateRsaKeys {
         System.out.println(Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
     }
 }
-```1024 位密文的单字段密文约 172 字符，加密列建议 `varchar(500)`；生产环境可按安全要求改用更长位数（列宽同步加大）。
+```
+
+1024 位密文的单字段密文约 172 字符，加密列建议 `varchar(500)`；生产环境可按安全要求改用更长位数（列宽同步加大）。
 
 ```properties
 # 可以自定义加解密算法实现，框架提供了默认实现

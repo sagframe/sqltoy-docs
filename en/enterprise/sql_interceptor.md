@@ -50,4 +50,4 @@ public class OrderInfo implements Serializable {
 
 Reference implementation: `org.sagacity.sqltoy.plugins.interceptors.TenantFilterInterceptor`.
 
-> For the complete multi-tenancy configuration, including `@Tenant`, the unified fields handler and privilege-escalation filtering, see [Multi-Tenancy](sqltoy_multitenant.md) and [Data Permission & Overreach Check](sqltoy_permission.md).
+> For the complete multi-tenancy configuration, including `@Tenant`, the unified fields handler and privilege-escalation filtering, see [Multi-Tenancy](en/enterprise/sqltoy_multitenant.md) and [Data Permission & Overreach Check](en/enterprise/sqltoy_permission.md).

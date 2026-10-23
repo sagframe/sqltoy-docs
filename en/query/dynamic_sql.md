@@ -2,7 +2,7 @@
 
 sqltoy's dynamic SQL design goal: **keep SQL clean and directly runnable in a database client**, while stripping out of the SQL the dynamic logic (such as `<if>`) that mybatis intermixes into it.
 
-- SQL can be written in `*.sql.xml` files (recommended: easy to maintain, supports hot reloading), passed in directly from Java code, or expressed as conditions with the [Lambda condition API](lambda_query.md) (built in since 6.0.8; the former third-party sqltoy-plus has been merged into core).
+- SQL can be written in `*.sql.xml` files (recommended: easy to maintain, supports hot reloading), passed in directly from Java code, or expressed as conditions with the [Lambda condition API](en/query/lambda_query.md) (built in since 6.0.8; the former third-party sqltoy-plus has been merged into core).
 - For simple scenarios, use the explicit `lightDao` interfaces directly; for complex ones, organize parameters with `findByQuery`/`findPageByQuery` together with `QueryExecutor` or `EntityQuery`. All explicit interfaces are built on `QueryExecutor` underneath — understand it once and you can use them all flexibly.
 
 ---
@@ -40,7 +40,7 @@ sqltoy uses `#[ ... ]` to mark a **dynamic condition fragment**. The core rules:
 ## 2. The XML Form
 
 > [!TIP]
-> For the XSD schema location of `*.sql.xml` files and IDE completion setup, see the [XML Schema Guide](../config/xml_schemas.md).
+> For the XSD schema location of `*.sql.xml` files and IDE completion setup, see the [XML Schema Guide](en/config/xml_schemas.md).
 
 ```xml
 <!-- blank-to-null="true" is the default; equivalent to <sql id="show_case" blank-to-null="true"> -->
@@ -69,7 +69,7 @@ sqltoy uses `#[ ... ]` to mark a **dynamic condition fragment**. The core rules:
 </sql>
 ```
 
-Common attributes of the `<sql>` tag: `id` (required), `type` (`search`/`insert`/`update`/`delete`; `select` is a legacy-compatible alias), `blank-to-null` (default `true`), `debug` (whether to output execution logs), `query-timeout` (query timeout in seconds), `dataSource` (specifies a data source name), `dialect` (new in 6.0.3 — declares that this sql is parsed and solidified in the specified dialect form; see [Dialect Self-Adaption & Function Extension](../dialect/sqltoy_function.md)), `union-all-count` (in union pagination, computes the count branch-by-branch to avoid unnecessary execution). For NoSQL scenarios use the `eql` (Elasticsearch) / `mql` (MongoDB) nodes instead — their attributes differ, see [Elasticsearch](../nosql/sqltoy_elasticsearch.md) and [MongoDB](../nosql/sqltoy_mongo.md).
+Common attributes of the `<sql>` tag: `id` (required), `type` (`search`/`insert`/`update`/`delete`; `select` is a legacy-compatible alias), `blank-to-null` (default `true`), `debug` (whether to output execution logs), `query-timeout` (query timeout in seconds), `dataSource` (specifies a data source name), `dialect` (new in 6.0.3 — declares that this sql is parsed and solidified in the specified dialect form; see [Dialect Self-Adaption & Function Extension](en/dialect/sqltoy_function.md)), `union-all-count` (in union pagination, computes the count branch-by-branch to avoid unnecessary execution). For NoSQL scenarios use the `eql` (Elasticsearch) / `mql` (MongoDB) nodes instead — their attributes differ, see [Elasticsearch](en/nosql/sqltoy_elasticsearch.md) and [MongoDB](en/nosql/sqltoy_mongo.md).
 
 ---
 
@@ -146,7 +146,7 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 | `<custom-handler>` | `params`, `type` | Custom data handler |
 | `<valid-sqlInjection>` | `params`, `level` (STRICT_WORD/RELAXED_WORD/SQL_KEYWORD) | SQL injection parameter validation |
 
-> **Reverse cache matching (cache-arg)** is a signature sqltoy capability; see [Cache Translate in Action](../quickstart/translates.md) and [Large-Scale Cache (FIFO)](../translate/sqltoy_FIFO_translate.md).
+> **Reverse cache matching (cache-arg)** is a signature sqltoy capability; see [Cache Translate in Action](en/quickstart/translates.md) and [Large-Scale Cache (FIFO)](en/translate/sqltoy_FIFO_translate.md).
 
 ### 4.5 Complete Example of Parameter Forms
 
@@ -372,18 +372,18 @@ Below is a `<sql>` element listing **all available child tags** (validated again
 | --- | --- | --- |
 | `<remarks>` | sql description (not executed) | This page |
 | `<filters>` | Condition parameter pre-normalization (to-null / type conversion / reverse cache matching, etc.) | Section 4 of this page |
-| `<translate>` | Cache Translate (code→name) | [Cache Translate in Action](../quickstart/translates.md) |
-| `<secure-mask>` / `<secure-decrypt>` | Result-set masking / field decryption | [Data Masking & Encryption](../enterprise/sqltoy_security.md) |
-| `<sharding-datasource>` / `<sharding-table>` | Database / table sharding strategies | [Sharding](../enterprise/sqltoy_sharding.md) |
-| `<page-optimize>` / `<count-sql>` | Pagination count cache optimization / custom count | [Pagination Optimize](pagination.md) |
+| `<translate>` | Cache Translate (code→name) | [Cache Translate in Action](en/quickstart/translates.md) |
+| `<secure-mask>` / `<secure-decrypt>` | Result-set masking / field decryption | [Data Masking & Encryption](en/enterprise/sqltoy_security.md) |
+| `<sharding-datasource>` / `<sharding-table>` | Database / table sharding strategies | [Sharding](en/enterprise/sqltoy_sharding.md) |
+| `<page-optimize>` / `<count-sql>` | Pagination count cache optimization / custom count | [Pagination Optimize](en/query/pagination.md) |
 | `<date-format>` / `<number-format>` | Result-set date / number formatting | This page |
-| `<summary>` | Grouped totals / averages | [Complex Query & Analytics](sqltoy_complex_query.md) |
-| `<pivot>` / `<unpivot>` | Rows to columns / columns to rows | [Complex Query & Analytics](sqltoy_complex_query.md) |
-| `<cols-chain-relative>` / `<rows-chain-relative>` | Column / row period-over-period comparison | [Complex Query & Analytics](sqltoy_complex_query.md) |
-| `<tree-sort>` | Tree sorting and level-by-level aggregation | [Complex Query & Analytics](sqltoy_complex_query.md) |
-| `<link>` | Grouped concatenation (replaces group_concat) | [Complex Query & Analytics](sqltoy_complex_query.md) |
-| `<reverse>` | Reverses the result-set order | [Complex Query & Analytics](sqltoy_complex_query.md) |
-| `<value>` | SQL body (required); supports `#[]`, `@if`, `@fast`, etc. | This page / [Tags & Expressions](../appendix/tags.md) |
+| `<summary>` | Grouped totals / averages | [Complex Query & Analytics](en/query/sqltoy_complex_query.md) |
+| `<pivot>` / `<unpivot>` | Rows to columns / columns to rows | [Complex Query & Analytics](en/query/sqltoy_complex_query.md) |
+| `<cols-chain-relative>` / `<rows-chain-relative>` | Column / row period-over-period comparison | [Complex Query & Analytics](en/query/sqltoy_complex_query.md) |
+| `<tree-sort>` | Tree sorting and level-by-level aggregation | [Complex Query & Analytics](en/query/sqltoy_complex_query.md) |
+| `<link>` | Grouped concatenation (replaces group_concat) | [Complex Query & Analytics](en/query/sqltoy_complex_query.md) |
+| `<reverse>` | Reverses the result-set order | [Complex Query & Analytics](en/query/sqltoy_complex_query.md) |
+| `<value>` | SQL body (required); supports `#[]`, `@if`, `@fast`, etc. | This page / [Tags & Expressions](en/appendix/tags.md) |
 
 ### Minimal Everyday Example
 
@@ -415,6 +415,6 @@ Don't be intimidated by the "full landscape" above — everyday SQL is usually j
 
 ## 6. Related Advanced Syntax
 
-- Macro directives such as `@if()`/`@elseif()`/`@else`, `@fast`, `@blank()`, `@value()`, `@loop()`/`@secure-loop()`, `@include(sqlId)`, `@include(:scriptParam)`, `@joinFields()` (safe field-list joining for page-configurable reports), `@split()` (splits a string parameter into an array for `in` expansion) are covered in [Tags & Expressions](../appendix/tags.md).
-- More practical patterns (dynamic `@include`, configuration-driven SQL integration, slow SQL statistics, etc.) are covered in [SQL Showcase](sql_showcase.md).
-- Query APIs (findOne/find/findPage/findTop/findRandom/getValue/isUnique, etc.) are covered in [Query API](sqltoy_query.md).
+- Macro directives such as `@if()`/`@elseif()`/`@else`, `@fast`, `@blank()`, `@value()`, `@loop()`/`@secure-loop()`, `@include(sqlId)`, `@include(:scriptParam)`, `@joinFields()` (safe field-list joining for page-configurable reports), `@split()` (splits a string parameter into an array for `in` expansion) are covered in [Tags & Expressions](en/appendix/tags.md).
+- More practical patterns (dynamic `@include`, configuration-driven SQL integration, slow SQL statistics, etc.) are covered in [SQL Showcase](en/query/sql_showcase.md).
+- Query APIs (findOne/find/findPage/findTop/findRandom/getValue/isUnique, etc.) are covered in [Query API](en/query/sqltoy_query.md).

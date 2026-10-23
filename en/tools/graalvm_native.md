@@ -204,7 +204,7 @@ Constraints:
 
 ## 5. Solon Integration
 
-The solon-plugin ships `SqltoyRuntimeNativeRegistrar` (implementing solon's `RuntimeNativeRegistrar` interface, mounted automatically by `SqlToyPluginImpl` in AOT mode). Its registrations are symmetric with the Spring side: fixed resource patterns, reflection for config-property classes and the 6 built-in id generators, entity reflection — and since 6.0.8, configuration-driven resource patterns, extension-class reflection, and the DTO/VO and special classes listed by `native-reflection-classes` / `native-reflection-packages`, plus `native-entity-proxies` for pre-generated updateSaveFetch proxies. Solon's default `sqlResourcesDir=classpath:sqltoy` hits the built-in patterns, so it works with zero configuration. For the build flow see the official solon native documentation and the [Solon Integration Reference](../config/solon.md).
+The solon-plugin ships `SqltoyRuntimeNativeRegistrar` (implementing solon's `RuntimeNativeRegistrar` interface, mounted automatically by `SqlToyPluginImpl` in AOT mode). Its registrations are symmetric with the Spring side: fixed resource patterns, reflection for config-property classes and the 6 built-in id generators, entity reflection — and since 6.0.8, configuration-driven resource patterns, extension-class reflection, and the DTO/VO and special classes listed by `native-reflection-classes` / `native-reflection-packages`, plus `native-entity-proxies` for pre-generated updateSaveFetch proxies. Solon's default `sqlResourcesDir=classpath:sqltoy` hits the built-in patterns, so it works with zero configuration. For the build flow see the official solon native documentation and the [Solon Integration Reference](en/config/solon.md).
 
 > [!NOTE]
 > When solon binds a yml **scalar** to a `String[]`, the elements come out quoted (`packagesToScan: com.x.entity` binds as `"com.x.entity"`), and a quoted package name makes the entity scan come out silently empty. Since 6.0.8 the plugin strips surrounding quotes, so both the scalar and the yaml-list forms work; on 6.0.7 and earlier use the yaml-list form.
@@ -222,6 +222,6 @@ The demo project [sqltoy-showcase](https://github.com/sagframe/sqltoy-showcase) 
 
 ## Related
 
-- [Other Features](other_features.md)
-- [Solon Integration Reference](../config/solon.md)
-- [Configuration Reference](../config/sqltoy_config.md)
+- [Other Features](en/tools/other_features.md)
+- [Solon Integration Reference](en/config/solon.md)
+- [Configuration Reference](en/config/sqltoy_config.md)

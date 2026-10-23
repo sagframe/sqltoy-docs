@@ -10,26 +10,26 @@ sqltoy 与 MyBatis 的**动态 SQL 心智完全一致**（SQL 写在 xml、条�
 | `<if test="x!=null"> and t.a=#{x}</if>` | `#[and t.a=:x]` | 参数为 null 自动剔除，**SQL 能直接粘到客户端执行** |
 | `<where>` / `<trim prefixOverrides>` | `where 1=1` + `#[]` | 不需要 `<where>` 标签兜底 |
 | `#{}` | `:name` 命名参数 | 最终都转成 `?` 走 `PreparedStatement` |
-| `${}`（字符串拼接） | `@value(:name)` / `@joinFields(:cols,default)` | 标识符场景有白名单校验，见[标签与表达式](../appendix/tags.md) |
+| `${}`（字符串拼接） | `@value(:name)` / `@joinFields(:cols,default)` | 标识符场景有白名单校验，见[标签与表达式](appendix/tags.md) |
 | `<foreach collection="ids">` | `t.id in (:ids)` | 数组/集合自动展开，超 1000 自动切分 |
 | ResultMap + `<result column="A" property="a">` | 结果类型（VO/POJO）+ 列别名 `AS a` | 列名与属性名不一致用 `@SqlToyFieldAlias` |
-| `<collection>` 嵌套映射 | 层次封装（hiberarchy）或按 VO 平铺 | 一条 join SQL 封装父子对象，见[常规查询 API](../query/sqltoy_query.md) |
+| `<collection>` 嵌套映射 | 层次封装（hiberarchy）或按 VO 平铺 | 一条 join SQL 封装父子对象，见[常规查询 API](query/sqltoy_query.md) |
 | 分页插件（PageHelper 等） | `findPage` | 自动 count 优化 + `@fast` + 并行分页 |
 | `@Select` 注解 | `@Sql` 注解 / 代码内 SQL | 复杂 SQL 仍建议放 xml |
 | MP `QueryWrapper` / `LambdaQueryWrapper` | `EntityQuery` / `LambdaQuery` | 前者字符串条件，后者属性引用 |
-| MP `BaseMapper` / `IService` | `LightDao` / `SqlToyCRUDService` | `LightDao` 约 110 个方法，见 [API 速查](../appendix/api.md) |
+| MP `BaseMapper` / `IService` | `LightDao` / `SqlToyCRUDService` | `LightDao` 约 110 个方法，见 [API 速查](appendix/api.md) |
 | MP `@TableLogic` 逻辑删除 | 统一 SQL 片段 / 拦截器 | sqltoy 不内置逻辑删除，用 `<sql>` 公共片段或 `SqlInterceptor` 统一加条件 |
-| MP `@Version` 乐观锁 | `@DataVersion` | 见[数据版本控制](../enterprise/data_version.md) |
-| MP `@TableField(fill=...)` | `unifyFieldsHandler` | 统一补漏赋值，见[增加公共字段处理](../quickstart/helloworld_improve.md) |
+| MP `@Version` 乐观锁 | `@DataVersion` | 见[数据版本控制](enterprise/data_version.md) |
+| MP `@TableField(fill=...)` | `unifyFieldsHandler` | 统一补漏赋值，见[增加公共字段处理](quickstart/helloworld_improve.md) |
 
 ## 二、落地顺序（建议按此推进）
 
-1. **依赖与配置**：引入 `sagacity-sqltoy-spring-starter`，配 `sqlResourcesDir` + `debug=true`，见[开发环境与依赖](../prepare/environment.md)；
+1. **依赖与配置**：引入 `sagacity-sqltoy-spring-starter`，配 `sqlResourcesDir` + `debug=true`，见[开发环境与依赖](prepare/environment.md)；
 2. **建 SQL 目录**：按模块建 `*.sql.xml`（如 `com/acme/crm/modules/staff.sql.xml`），先把**新需求**写成 sqltoy 形式，不动旧 Mapper；
-3. **生成 POJO**：用 [quickvo](../prepare/quickvo.md) 按现有表生成实体（注解齐全，别手写）；
+3. **生成 POJO**：用 [quickvo](prepare/quickvo.md) 按现有表生成实体（注解齐全，别手写）；
 4. **改造查询**（收益最大、风险最低）：从"条件最多、最难维护"的查询开始，按第三节对照改写；
 5. **改造写入**：把"先 load 再改再 update"换成弹性更新；高并发台账类改为 `updateSaveFetch`（查增改一体）；
-6. **灰度与校验**：新旧实现并行跑一段时间，对比结果集（sqltoy 的 `redoDataSources` 可帮你在另一套库上重放验证，见[多库适配验证](../dialect/multi_db_verify.md)）。
+6. **灰度与校验**：新旧实现并行跑一段时间，对比结果集（sqltoy 的 `redoDataSources` 可帮你在另一套库上重放验证，见[多库适配验证](dialect/multi_db_verify.md)）。
 
 ## 三、典型改写
 
@@ -105,7 +105,7 @@ Page<OrderInfoVO> page = lightDao.findPage(new Page(pageSize, pageNo),
         "crm_order_findlist", paramsMap, OrderInfoVO.class);
 ```
 
-分页 SQL 里的 count 由框架改写（剔除 order by、裁剪 select 列）；大表 join 分页用 `@fast()`，见[分页优化](../query/pagination.md)。
+分页 SQL 里的 count 由框架改写（剔除 order by、裁剪 select 列）；大表 join 分页用 `@fast()`，见[分页优化](query/pagination.md)。
 
 ### 3.5 单表条件更新
 
@@ -162,7 +162,7 @@ OrderInfo order = lightDao.updateSaveFetch(
         "orderId");
 ```
 
-> 若记录**必然存在**、且需自由编写查询条件与锁策略，则用 `updateFetch`（sql + `UpdateRowHandler`，见[对象化 CRUD 第 10 节](../crud/sqltoy_crud.md)）；台账类"存在则改、不存在则插"优先 `updateSaveFetch`。
+> 若记录**必然存在**、且需自由编写查询条件与锁策略，则用 `updateFetch`（sql + `UpdateRowHandler`，见[对象化 CRUD 第 10 节](crud/sqltoy_crud.md)）；台账类"存在则改、不存在则插"优先 `updateSaveFetch`。
 
 ### 3.7 批量插入
 
@@ -180,10 +180,10 @@ lightDao.saveAllIgnoreExist(list);   // 已存在则跳过
 | SQL 里参数没生效 | sqltoy 命名参数**大小写敏感**，且 `#[]` 内的参数名必须与传入 Map 的 key 完全一致 |
 | 结果属性全为 null | 列名与属性名不一致：加 `AS` 别名，或配置 `humpMapResultTypeLabel` / 用 `@SqlToyFieldAlias` |
 | `in` 报语法错 | 用了字符串拼接而不是 `:ids`；空集合交给框架跳过即可 |
-| 分页总数比数据少 | 用了 `@fast` + 外层 join 过滤，count 走内层 SQL；用 `<count-sql>` 显式指定，见 [FAQ 十](../faq/faq.md) |
+| 分页总数比数据少 | 用了 `@fast` + 外层 join 过滤，count 走内层 SQL；用 `<count-sql>` 显式指定，见 [FAQ 十](faq/faq.md) |
 | 动态 SQL 想拼标识符 | 不要用 `@value` 直拼用户输入；用 `@joinFields`（白名单）或 `<valid-sqlInjection>` |
 | 逻辑删除条件到处写 | sqltoy 无内置逻辑删除，用公共 `<sql>` 片段 `@include` 或 `SqlInterceptor` 统一注入 |
-| 事务行为不一样 | 对象操作沿用 Spring `@Transactional`；跨库/多数据源见[多数据源与事务](../config/dynamic_datasource.md) |
+| 事务行为不一样 | 对象操作沿用 Spring `@Transactional`；跨库/多数据源见[多数据源与事务](config/dynamic_datasource.md) |
 
 ## 五、迁移后能拿到什么
 
@@ -192,4 +192,4 @@ lightDao.saveAllIgnoreExist(list);   // 已存在则跳过
 - **跨库**：25 种方言 + 函数自动替换，同一份 SQL 跑多个库；
 - **数据分析**：pivot/unpivot、同比环比、树形汇总在内存完成，不必为每个数据库写不同 SQL。
 
-> 相关：[必杀集锦](../best/best_practices.md)（sqltoy 与 MyBatis 写法对比）、[功能清单](feature.md)、[API 速查](../appendix/api.md)
+> 相关：[必杀集锦](best/best_practices.md)（sqltoy 与 MyBatis 写法对比）、[功能清单](introduction/feature.md)、[API 速查](appendix/api.md)

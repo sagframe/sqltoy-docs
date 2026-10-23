@@ -11,7 +11,7 @@ This page summarizes a few less frequently used capabilities that are quite valu
 mvn -Pnative native:compile
 ```
 
-> For the full guide (build prerequisites, what the application must contribute, known limitations, demo project), see the [GraalVM Native Image Guide](graalvm_native.md).
+> For the full guide (build prerequisites, what the application must contribute, known limitations, demo project), see the [GraalVM Native Image Guide](en/tools/graalvm_native.md).
 
 ## 2. geometry Spatial Type Support (JTS)
 
@@ -34,7 +34,7 @@ sqltoy has built-in automatic adaptation for database **geometry spatial columns
 
 ## 3. Common-Field Auto-Fill Switch (UnifyUpdateFieldsController)
 
-Once a [unified fields handler](../quickstart/helloworld_improve.md) (unifyFieldsHandler) is configured, save/update automatically fills in common fields such as `updateBy`/`updateTime`. In certain scenarios (e.g. system-level data repair scripts where you don't want to alter "last updated by"), you can temporarily **pause** common-field auto-fill for the current thread:
+Once a [unified fields handler](en/quickstart/helloworld_improve.md) (unifyFieldsHandler) is configured, save/update automatically fills in common fields such as `updateBy`/`updateTime`. In certain scenarios (e.g. system-level data repair scripts where you don't want to alter "last updated by"), you can temporarily **pause** common-field auto-fill for the current thread:
 
 ```java
 try {

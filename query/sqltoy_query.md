@@ -37,7 +37,7 @@ SysLog sysLog = lightDao.findOne("sys_log_findlist", new SysLog(), SysLog.class)
 #### find 查找列表
 
 ```java
-List<SysLog> list = lightDao.find("sys_log_find_list", new SysLog(), SysLog.class);
+List<SysLog> list = lightDao.find("sys_log_findlist", new SysLog(), SysLog.class);
 ```
 
 #### findEntity 实体查询
@@ -49,25 +49,25 @@ List<SysLog> list = lightDao.findEntity(SysLog.class, EntityQuery.create().names
 #### findPage 分页查询
 
 ```java
-Page<SysLog> page = lightDao.findPage(new Page<>(1, 10), "sys_log_find_list", new SysLog(), SysLog.class);
+Page<SysLog> page = lightDao.findPage(new Page<>(10, 1), "sys_log_findlist", new SysLog(), SysLog.class);
 ```
 
 #### findPageEntity 分页实体查询
 
 ```java
-Page<SysLog> page = lightDao.findPageEntity(new Page<>(1, 10), SysLog.class, EntityQuery.create().names("operator").values("112233"));
+Page<SysLog> page = lightDao.findPageEntity(new Page<>(10, 1), SysLog.class, EntityQuery.create().names("operator").values("112233"));
 ```
 
 #### findTop 查找N条记录
 
 ```java
-List<SysLog> list = lightDao.findTop("sys_log_find_list", new SysLog(), SysLog.class, 12);
+List<SysLog> list = lightDao.findTop("sys_log_findlist", new SysLog(), SysLog.class, 12);
 ```
 
 #### findRandom 随机查找N条记录
 
 ```java
-List<SysLog> list = lightDao.findRandom("sys_log_find_list", new SysLog(), SysLog.class, 12);
+List<SysLog> list = lightDao.findRandom("sys_log_findlist", new SysLog(), SysLog.class, 12);
 ```
 
 #### getValue、getCount、isUnique 快捷查询
@@ -208,13 +208,13 @@ public void testOneToMany() {
 > - 方法名是 `hiberarchy` / `hiberarchyFieldsMap`（框架历史拼写，不是 hierarchy）。
 > - `hiberarchyFieldsMap` 会**自动开启**层次封装并登记涉及的类，因此设置了它就无需再调 `hiberarchy(true)`。
 > - `hiberarchyFieldsMap` 只针对**父子对象存在同名属性**的场景；无同名属性时仅需 `hiberarchy(true)`。
-> - 层次封装是"一条 join sql 直接打包"，与[对象化 CRUD](../crud/sqltoy_crud.md) 中的级联 load（按主键批量二次查询组装）是两种互补机制。
+> - 层次封装是"一条 join sql 直接打包"，与[对象化 CRUD](crud/sqltoy_crud.md) 中的级联 load（按主键批量二次查询组装）是两种互补机制。
 
 > 🎬 完整可运行示例：演示项目 `sqltoy-showcase` 的 `HierarchyPackagingTest.java`（其 `DictTypeVO` 的 @OneToMany 已配置 `notNullField = "dictKey"`；子项顺序由 join SQL 的 `ORDER BY` 决定）。
 
 #### 存储过程调用
 
-存储过程调用（`executeStore` / `executeMoreResultStore`、链式 `store()`、out 参数、**多结果集**）的完整说明与范例见 [存储过程调用](store_procedure.md)。
+存储过程调用（`executeStore` / `executeMoreResultStore`、链式 `store()`、out 参数、**多结果集**）的完整说明与范例见 [存储过程调用](query/store_procedure.md)。
 
 ```java
 // 快速示例：调用存储过程并获取结果集（无 out 参数时 outParamsType 传 null）

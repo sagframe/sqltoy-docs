@@ -1,6 +1,6 @@
 # Solon Integration Reference
 
-sqltoy supports the [Solon](https://solon.noear.org/) framework through the standalone `sagacity-sqltoy-solon-plugin` module. The APIs are identical to the Spring version (LightDao / SqlToyLazyDao / SqlToyCRUDService, etc.); only configuration and injection differ. For a hands-on introduction, see the [helloworld-solon demo](../quickstart/helloworld_solon.md).
+sqltoy supports the [Solon](https://solon.noear.org/) framework through the standalone `sagacity-sqltoy-solon-plugin` module. The APIs are identical to the Spring version (LightDao / SqlToyLazyDao / SqlToyCRUDService, etc.); only configuration and injection differ. For a hands-on introduction, see the [helloworld-solon demo](en/quickstart/helloworld_solon.md).
 
 ## 1. Dependency and Version Requirements
 
@@ -18,7 +18,7 @@ sqltoy supports the [Solon](https://solon.noear.org/) framework through the stan
 
 ## 2. Configuration (the solon.sqltoy prefix)
 
-The configuration prefix is **`solon.sqltoy`** (the legacy prefix `sqltoy` is still honored); property names map almost one-to-one to the Spring version's `spring.sqltoy.*` — refer directly to [sqltoy Configuration Parameters](sqltoy_config.md) for their meanings:
+The configuration prefix is **`solon.sqltoy`** (the legacy prefix `sqltoy` is still honored); property names map almost one-to-one to the Spring version's `spring.sqltoy.*` — refer directly to [sqltoy Configuration Parameters](en/config/sqltoy_config.md) for their meanings:
 
 ```yaml
 solon.sqltoy:
@@ -65,10 +65,10 @@ public class TestController {
 }
 ```
 
-The datasource-selection mechanism (the `datasource` attribute in sql, the lazyDao chained `.dataSource(...)`, the `defaultDataSource` fallback, etc.) is the same as the Spring version — see [Multi-Datasource and Transactions](dynamic_datasource.md).
+The datasource-selection mechanism (the `datasource` attribute in sql, the lazyDao chained `.dataSource(...)`, the `defaultDataSource` fallback, etc.) is the same as the Spring version — see [Multi-Datasource and Transactions](en/config/dynamic_datasource.md).
 
 ## 4. GraalVM Native
 
 The solon-plugin ships `org.sagacity.sqltoy.solon.integration.aot.SqltoyRuntimeNativeRegistrar` (implementing Solon's `RuntimeNativeRegistrar` interface). When building a native image it automatically registers sqltoy's configuration resources (`sqltoy-translate.xml`, etc.) and entity-class reflection metadata — no manual reflect-config additions needed; since 6.0.8 it also registers resource patterns and extension-class reflection dynamically from the configuration, and supports `native-reflection-packages` / `native-reflection-classes` for non-entity DTO/VO reflection.
 
-> For the Spring Boot side of AOT and the full native guide, see the [GraalVM Native Image Guide](../tools/graalvm_native.md).
+> For the Spring Boot side of AOT and the full native guide, see the [GraalVM Native Image Guide](en/tools/graalvm_native.md).

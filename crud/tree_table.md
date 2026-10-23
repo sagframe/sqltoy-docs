@@ -66,5 +66,5 @@ List<OrganInfoVO> subOrgans = lightDao.find("sqltoy_treeTable_search",
 ## 四、说明
 
 - 配置了统一字段处理器（`unifyFieldsHandler`）时，路由级联与叶子标记更新的语句会**自动附加** `updateUnifyFields()` 中的公共更新字段（如最后修改人、最后修改时间），按实体属性名匹配列名，实体中不存在的字段自动忽略。
-- 树形表的**查询侧排序与逐层汇总**（`<tree-sort>` 标签）见[复杂查询与数据分析](../query/sqltoy_complex_query.md)；二者配合可实现"构造路径 + 排序汇总"的完整树形方案。
-- 对象的级联关系声明（`@OneToMany`/`@OneToOne`）见[对象化 CRUD](sqltoy_crud.md)。
+- 树形表的**查询侧排序与逐层汇总**（`<tree-sort>` 标签）见[复杂查询与数据分析](query/sqltoy_complex_query.md)；二者配合可实现"构造路径 + 排序汇总"的完整树形方案。
+- 对象的级联关系声明（`@OneToMany`/`@OneToOne`）见[对象化 CRUD](crud/sqltoy_crud.md)。

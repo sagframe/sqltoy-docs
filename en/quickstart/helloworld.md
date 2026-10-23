@@ -5,7 +5,7 @@
 
 # Steps to build a sqltoy project
 
-> This article is fully in sync with the demo project [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld): the project runs on an **in-memory H2 database** by default (schema and seed data load automatically), so `mvn test` works right after cloning — zero install (7 demo tests, all green).
+> This article is fully in sync with the demo project [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld): the project runs on an **in-memory H2 database** by default (schema and seed data load automatically), so `mvn test` works right after cloning — zero install (9 demo tests, all green).
 
 ## 1. Create a Spring Boot project and configure the data source
 * See: [sqltoy demo project sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld)
@@ -196,8 +196,8 @@ CREATE TABLE SQLTOY_ORDER_INFO(
 ```xml
 <plugin>
 	<groupId>com.sagframe</groupId>
-	<artifactId>quickvo-maven-plugin</artifactId>
-	<version>2.0.3</version>
+		<artifactId>quickvo-maven-plugin</artifactId>
+		<version>2.0.4</version>
 	<configuration>
 		<configFile>./src/main/resources/quickvo.xml</configFile>
 		<baseDir>${project.basedir}</baseDir>
@@ -304,6 +304,8 @@ public class OrderInfo implements Serializable {
 
 ```java
 package com.sqltoy.helloworld.service;
+
+import java.util.Map;
 
 import org.sagacity.sqltoy.model.Page;
 import com.sqltoy.helloworld.dto.OrderInfoVO;
@@ -450,4 +452,4 @@ mvn test
 Tests run: 9, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
 ```
 
-Besides the CRUD/pagination tests above, the demo project ships `TranslateTest` covering the four cache-translate usages (the xml `<translate>` tag, `QueryExecutor.translates`, `EntityQuery.translates` and the `@Translate` annotation on VO properties — see [Cache Translate in Action](translates.md) and [Common-Field Auto-Fill](helloworld_improve.md)), and `LambdaQueryTest` for lambda conditions (entity-getter conditions plus `setExpr` expression updates — see [Lambda Queries and Updates](../query/lambda_query.md)).
+Besides the CRUD/pagination tests above, the demo project ships `TranslateTest` covering the four cache-translate usages (the xml `<translate>` tag, `QueryExecutor.translates`, `EntityQuery.translates` and the `@Translate` annotation on VO properties — see [Cache Translate in Action](en/quickstart/translates.md) and [Common-Field Auto-Fill](en/quickstart/helloworld_improve.md)), and `LambdaQueryTest` for lambda conditions (entity-getter conditions plus `setExpr` expression updates — see [Lambda Queries and Updates](en/query/lambda_query.md)).

@@ -1,6 +1,6 @@
 # Tags & Expressions Reference
 
-In addition to [`#[]` dynamic condition fragments](../query/dynamic_sql.md), sqltoy reserves a set of `@` macro directives inside SQL for extremely complex dynamic SQL scenarios. Combining `@if`, `@value` and `@blank` flexibly solves 99.99% of problems; for ultra-complex cases, the recommended approach is to assemble the SQL fragment in code and embed it with `@value(:sqlScript)`.
+In addition to [`#[]` dynamic condition fragments](en/query/dynamic_sql.md), sqltoy reserves a set of `@` macro directives inside SQL for extremely complex dynamic SQL scenarios. Combining `@if`, `@value` and `@blank` flexibly solves 99.99% of problems; for ultra-complex cases, the recommended approach is to assemble the SQL fragment in code and embed it with `@value(:sqlScript)`.
 
 ## 1. @if() / @elseif() / @else
 
@@ -38,7 +38,7 @@ Dual condition: @if(:paramName1>=value1 && :paramName2<=value2)
 
 ## 2. @fast / @fastPage
 
-`@fast()` is written inside the SQL for [fast pagination](../query/pagination.md) (paginate first, then join). **For non-paged queries the framework automatically strips `@fast`**, so it does not affect find/findTop or other queries. `@fast` and `@fastPage` are equivalent.
+`@fast()` is written inside the SQL for [fast pagination](en/query/pagination.md) (paginate first, then join). **For non-paged queries the framework automatically strips `@fast`**, so it does not affect find/findTop or other queries. `@fast` and `@fastPage` are equivalent.
 
 ## 3. @blank()
 
@@ -208,7 +208,7 @@ Formats a date into a string and splices it into the SQL — **no knowledge of t
 </sql>
 ```
 
-> Difference from the [`<to-date>`](../query/dynamic_sql.md) filter: `@df` formats the **value into SQL text** (producing a literal), while `<to-date>` converts the **parameter to a date type and still binds it as `?`**. Prefer `<to-date>` for external input; `@df` suits report concatenation and partition-table names.
+> Difference from the [`<to-date>`](en/query/dynamic_sql.md) filter: `@df` formats the **value into SQL text** (producing a literal), while `<to-date>` converts the **parameter to a date type and still binds it as `?`**. Prefer `<to-date>` for external input; `@df` suits report concatenation and partition-table names.
 
 ## 10. @case() (decode-style enumeration)
 
@@ -229,7 +229,7 @@ where t.status=1
 order by @case(orderType,'SALE','t.sale_date desc','BUY','t.buy_date desc','t.create_time desc')
 ```
 
-> The same macro is used for business keys — see [Primary Key Strategies · @BusinessId](../primarykey/sqltoy_primarykey.md).
+> The same macro is used for business keys — see [Primary Key Strategies · @BusinessId](en/primarykey/sqltoy_primarykey.md).
 
 ## 11. @substr() / @substring() (substring)
 
@@ -259,7 +259,7 @@ select id,name from sqltoy_dict_detail where status=1
 
 - oracle family (oracle/oracle11/dm/oceanbase) → `from dual`; db2 → `from sysibm.sysdummy1`; hana → `from dummy`; stripped for every other dialect;
 - Compatible aliases `@dual()` / `@dummyTable()` — all three equivalent, case-insensitive, tolerant of spaces inside the parentheses; may appear several times in one SQL;
-- SQL without the macro is completely unaffected; see [Dialect Adaptation & Functions](../dialect/sqltoy_function.md).
+- SQL without the macro is completely unaffected; see [Dialect Adaptation & Functions](en/dialect/sqltoy_function.md).
 
 ---
 
@@ -298,4 +298,4 @@ List rows = lightDao.findByQuery(
 
 ---
 
-> Related: [`#[]` and filters](../query/dynamic_sql.md), [Common SQL Examples](../query/sql_showcase.md), [Pagination Optimize](../query/pagination.md), [Annotations Cheat Sheet](annotations.md).
+> Related: [`#[]` and filters](en/query/dynamic_sql.md), [Common SQL Examples](en/query/sql_showcase.md), [Pagination Optimize](en/query/pagination.md), [Annotations Cheat Sheet](en/appendix/annotations.md).

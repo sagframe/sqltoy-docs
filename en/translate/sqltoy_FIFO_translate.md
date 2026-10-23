@@ -187,7 +187,7 @@ spring:
 
 **keep-alive expiration**: it takes effect for the whole group of "cache name + cacheType" — timing starts from when the group's data is initialized; after `keep-alive` seconds, a background daemon thread (checking once every 3 minutes) clears the whole group, and it is dynamically reloaded on next use; a negative value means it never expires.
 
-**Cooperation with cache-update-checker incremental updates**: the dynamic cache can also be configured with a [cache update checker](../quickstart/translates.md), but on update **only keys that already exist locally are overwritten** — keys that were not loaded have no old value locally and naturally get the latest data the next time they are dynamically fetched.
+**Cooperation with cache-update-checker incremental updates**: the dynamic cache can also be configured with a [cache update checker](en/quickstart/translates.md), but on update **only keys that already exist locally are overwritten** — keys that were not loaded have no old value locally and naturally get the latest data the next time they are dynamically fetched.
 
 **Zero awareness on the usage side**: the way translation is referenced is exactly the same as for a normal cache — whether it is `<translate cache="skuDict" ... />` in the sql xml or `@Translate(cache="skuDict")` on a VO — without any extra code.
 
@@ -234,5 +234,5 @@ spring:
 
 ## Related Pages
 
-- [Cache Translate usage](../quickstart/translates.md): basic configuration of Cache Translate and various additional usages
-- [Dynamic Cache Control](dynamic_cache.md): dynamically extend and refresh caches at runtime via `TranslateManager`
+- [Cache Translate usage](en/quickstart/translates.md): basic configuration of Cache Translate and various additional usages
+- [Dynamic Cache Control](en/translate/dynamic_cache.md): dynamically extend and refresh caches at runtime via `TranslateManager`

@@ -33,7 +33,7 @@ SqlToy 的定位是**弥补 JPA 的查询短板、解决 MyBatis 的高频痛点
 | 查询结果封装 | ResultMap 手动映射 | 对象映射 | 自动映射 + **主子表层次封装**（一条 join SQL 封装成父子对象） |
 | 条件式查询 | `QueryWrapper`/`LambdaQueryWrapper`（多表 join 需额外插件） | Criteria API，写法冗长 | 内置 `LambdaQuery/LambdaUpdate/LambdaDelete`：单表与 join 一套构建器，支持 CTE / UNION / `@fast` 下推 |
 
-> 上表只列关键差异，完整能力见下方功能特性与[功能清单](./introduction/feature.md)；更多"为什么这样设计"的对比示例（sqltoy vs MyBatis 写法对比等）见[必杀集锦](./best/best_practices.md)。
+> 上表只列关键差异，完整能力见下方功能特性与[功能清单](introduction/feature.md)；更多"为什么这样设计"的对比示例（sqltoy vs MyBatis 写法对比等）见[必杀集锦](best/best_practices.md)。
 
 ### 关于 jOOQ / Fluent-Mybatis 等"代码拟合 SQL"框架
 
@@ -49,17 +49,17 @@ sqltoy提供高效的ORM操作，包括对象化CRUD、级联加载、自动DDL�
 
 | 类别 | 核心能力 | 文档 |
 | --- | --- | --- |
-| [对象操作](./crud/sqltoy_crud.md) | JPA 风格 CRUD、弹性更新、updateFetch / updateSaveFetch、级联、查询层次封装、树形表路由 | [CRUD](./crud/sqltoy_crud.md) |
-| [SQL 查询](./query/dynamic_sql.md) | 动态 SQL（`#[]` + filters）、Lambda 条件（单表/join 同一构建器）、缓存翻译、四层分页优化（count 优化 / 缓存 / 快速 / 并行）、并行查询、存储过程、流式查询 | [动态 SQL](./query/dynamic_sql.md) / [Lambda](./query/lambda_query.md) / [分页](./query/pagination.md) |
-| [数据分析](./query/sqltoy_complex_query.md) | 行转列 / 列转行、分组汇总、同比环比、树形排序汇总、分组拼接、日期数字格式化 | [数据分析](./query/sqltoy_complex_query.md) |
-| [跨数据库](./dialect/sqltoy_function.md) | 25 种方言（含 SAP HANA、瀚高 HighGo）、函数自动替换、多方言 sqlId、多库适配验证 | [方言](./dialect/sqltoy_function.md) / [数据库清单](./introduction/db_list.md) |
-| [企业级](./enterprise/sqltoy_multitenant.md) | 分库分表、多租户、数据权限与越权校验、脱敏加解密、数据版本控制、SQL 拦截、慢 SQL 处理 | [分库分表](./enterprise/sqltoy_sharding.md) / [安全](./enterprise/sqltoy_security.md) |
-| [NoSQL](./nosql/sqltoy_mongo.md) | Elasticsearch（sql / json 双模式）、MongoDB（查询 / 聚合 + 缓存翻译） | [Mongo](./nosql/sqltoy_mongo.md) / [ES](./nosql/sqltoy_elasticsearch.md) |
-| [工程化](./config/sqltoy_config.md) | quickvo 代码生成、autoDDL 自动建表、debug 热加载、GraalVM AOT、Spring Boot / Spring / Solon / 纯 Java | [配置](./config/sqltoy_config.md) / [quickvo](./prepare/quickvo.md) / [GraalVM](./tools/graalvm_native.md) |
+| [对象操作](crud/sqltoy_crud.md) | JPA 风格 CRUD、弹性更新、updateFetch / updateSaveFetch、级联、查询层次封装、树形表路由 | [CRUD](crud/sqltoy_crud.md) |
+| [SQL 查询](query/dynamic_sql.md) | 动态 SQL（`#[]` + filters）、Lambda 条件（单表/join 同一构建器）、缓存翻译、四层分页优化（count 优化 / 缓存 / 快速 / 并行）、并行查询、存储过程、流式查询 | [动态 SQL](query/dynamic_sql.md) / [Lambda](query/lambda_query.md) / [分页](query/pagination.md) |
+| [数据分析](query/sqltoy_complex_query.md) | 行转列 / 列转行、分组汇总、同比环比、树形排序汇总、分组拼接、日期数字格式化 | [数据分析](query/sqltoy_complex_query.md) |
+| [跨数据库](dialect/sqltoy_function.md) | 25 种方言（含 SAP HANA、瀚高 HighGo）、函数自动替换、多方言 sqlId、多库适配验证 | [方言](dialect/sqltoy_function.md) / [数据库清单](introduction/db_list.md) |
+| [企业级](enterprise/sqltoy_multitenant.md) | 分库分表、多租户、数据权限与越权校验、脱敏加解密、数据版本控制、SQL 拦截、慢 SQL 处理 | [分库分表](enterprise/sqltoy_sharding.md) / [安全](enterprise/sqltoy_security.md) |
+| [NoSQL](nosql/sqltoy_mongo.md) | Elasticsearch（sql / json 双模式）、MongoDB（查询 / 聚合 + 缓存翻译） | [Mongo](nosql/sqltoy_mongo.md) / [ES](nosql/sqltoy_elasticsearch.md) |
+| [工程化](config/sqltoy_config.md) | quickvo 代码生成、autoDDL 自动建表、debug 热加载、GraalVM AOT、Spring Boot / Spring / Solon / 纯 Java | [配置](config/sqltoy_config.md) / [quickvo](prepare/quickvo.md) / [GraalVM](tools/graalvm_native.md) |
 
-> 完整功能清单见 [sqltoy 功能清单](./introduction/feature.md)
+> 完整功能清单见 [sqltoy 功能清单](introduction/feature.md)
 
-- [快速开始](./quickstart/helloworld.md)
+- [快速开始](quickstart/helloworld.md)
 - [开发文档](https://sagframe.github.io/sqltoy-docs)
 
 sqltoy 的查询长这样——SQL 保持原生，`#[]` 内条件为 null 自动裁剪，copy 到数据库客户端即可调试，结果直接映射为类型化对象：

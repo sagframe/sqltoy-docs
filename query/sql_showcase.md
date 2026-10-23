@@ -62,7 +62,7 @@ public void testMultiInnerIfElse1() throws Exception {
 + 表示日期的:day()、sysdate()、${.day}
 + include包含判断：@if(:statusAry include 1),如果statusAry是数组其中包含1返回true，如果statusAry值是一个字符串，返回statusAry. contains(“1”) 的结果。
 + exclude @if(:statusAry exclude 1) ,跟include相反，不包含的意思
-+ 取size:@if(size(:statusAry)>1)) ,即通过size(:参数名称)模式取得集合数组的长度
++ 取size:@if(size(:statusAry)>1) ,即通过size(:参数名称)模式取得集合数组的长度
 + In 用法: @if(:status in  ‘1,2,3’) 当status属于1或2或3时返回true 
 + out 用法:@if(:status out ‘1,2,3’) 当status不属于1或2或3时返回true
 
@@ -86,7 +86,7 @@ public void testMultiInnerIfElse1() throws Exception {
 <sql id="qstart_loop_sql">
     <value><![CDATA[
         select ORDER_ID
-        @loop(:fields,",",:fields[i])
+        @loop(:fields,:fields[i],",")
         from sqltoy_device_order t
         where #[t.ORDER_ID=:orderId]
         -- @blank(:param) 目的是迎合sqltoy #[] 中参数为null剔除的功能，当值不为null时@blank()被替代为空白字符串(当然也可以用@if来代替@blank)
@@ -131,7 +131,7 @@ sqlToyConfig.setId(reportId+"_"+sqlScriptIndex);
 lightDao.getSqlToyContext().putSqlToyConfig(sqlToyConfig);
 ```
 
-> 完整的"配置存库 → 动态解析 → 报表/API 服务"闭环范例（含 `XMLBinding` 缓存机制、`@joinFields` 动态列）见[配置化服务底座（报表 / 配置化 API 服务）](../tools/configurable_service.md)。
+> 完整的"配置存库 → 动态解析 → 报表/API 服务"闭环范例（含 `XMLBinding` 缓存机制、`@joinFields` 动态列）见[配置化服务底座（报表 / 配置化 API 服务）](tools/configurable_service.md)。
 
 ## 6. 统计慢查询sql
 * 开启默认配置

@@ -72,6 +72,6 @@ For existing files:
 
 ## Related pages
 
-- [Dynamic SQL Guide](../query/dynamic_sql.md): the full `<sql>` element and child-tag specification inside `*.sql.xml`
-- [Cache Translate in Action](../quickstart/translates.md): translate.xml configuration and usage
-- [quickvo Code Generator](../prepare/quickvo.md): key quickvo.xml configuration
+- [Dynamic SQL Guide](en/query/dynamic_sql.md): the full `<sql>` element and child-tag specification inside `*.sql.xml`
+- [Cache Translate in Action](en/quickstart/translates.md): translate.xml configuration and usage
+- [quickvo Code Generator](en/prepare/quickvo.md): key quickvo.xml configuration

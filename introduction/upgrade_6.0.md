@@ -17,7 +17,7 @@
 | 并行查询 | `lightDao.parallQuery(List<ParallQuery>, ...)` | `lightDao.parallelQuery(List<ParallelQuery>, ...)`（模型类同步更名 `ParallQuery` → `ParallelQuery`） |
 | 连接反调 | `doConnection(Connection conn, Integer dbType, String dialect)` | `doConnection(Connection conn, DBProfile profile)`——`DBProfile` 提供完整的数据库执行档案 |
 
-`DBProfile`（`org.sagacity.sqltoy.model.DBProfile`）提供：`getDbType()` / `getDialect()` / `getUrl()` / `getProductName()` / `getMajorVersion()`，以及 `isMysqlFamily()` / `isOracleFamily()` / `isOceanBase()` / `isBackslashEscape()` 等便捷判断，详见[其他特性](../tools/other_features.md)。
+`DBProfile`（`org.sagacity.sqltoy.model.DBProfile`）提供：`getDbType()` / `getDialect()` / `getUrl()` / `getProductName()` / `getMajorVersion()`，以及 `isMysqlFamily()` / `isOracleFamily()` / `isOceanBase()` / `isBackslashEscape()` 等便捷判断，详见[其他特性](tools/other_features.md)。
 
 > 其余高频 API（LightDao 其余 72 个方法、Link 链式 API、QueryExecutor/EntityQuery/EntityUpdate、既有配置参数）**均无变化**，升级成本主要集中在上面两处。
 
@@ -38,7 +38,7 @@
 
 ## 四、新增能力
 
-- **SAP HANA 方言**：方言总数达到 24 种，见[支持的数据库](db_list.md)；
+- **SAP HANA 方言**：方言总数达到 24 种，见[支持的数据库](introduction/db_list.md)；
 - 内部模型补强：`ExecuteParams`、`ResultColumnMeta` 等（框架内部使用，不影响既有 API）。
 
 > 更完整的版本演进细节可参阅源码仓库的 `sqltoy-orm-core/changelog.md`。
@@ -49,10 +49,10 @@
 
 **SQL 方言体系**
 
-- `<sql>` 元素新增 `dialect` 属性：声明本条 sql 按指定方言形态解析固化，加载时按该方言做函数/保留字转换；执行期当前库方言与声明一致时跳过转换，不一致时惰性转换适配（`mql`/`eql` 不支持），详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)；
+- `<sql>` 元素新增 `dialect` 属性：声明本条 sql 按指定方言形态解析固化，加载时按该方言做函数/保留字转换；执行期当前库方言与声明一致时跳过转换，不一致时惰性转换适配（`mql`/`eql` 不支持），详见[方言自适配与函数扩展](dialect/sqltoy_function.md)；
 - 新增 `spring.sqltoy.realDialectFirst` 配置（默认 `false`）：开启后 sqlId 方言变体查找优先按**连接探测的真实方言**（`DBProfile.realDialect`，典型如 OceanBase 按 mysql 方言配置、代理库场景），真实方言变体不存在时回退原配置方言查找链。
 
-**POJO 生成 DDL（详见[POJO生成表结构DDL](../primarykey/sqltoy_ddl.md)）**
+**POJO 生成 DDL（详见[POJO生成表结构DDL](primarykey/sqltoy_ddl.md)）**
 
 - 新增 `@Partition` / `@PartitionDef` / `@MppTable` 实体注解：描述表分区策略与 MPP 分析库（ClickHouse/Doris/StarRocks）表引擎元数据，配合 quickvo 依据数据库分区/表定义自动产生；
 - 建表语句自动渲染 `PARTITION BY` 分区子句（RANGE/LIST/HASH/RANGE COLUMNS/LIST COLUMNS 及分区明细）；
@@ -71,13 +71,13 @@
 
 6.0.4 在 6.0.3 基础上进一步增强，同样为**增量能力，无需改动既有代码**：
 
-**缓存翻译 rest 模式认证增强（详见[缓存翻译使用](../quickstart/translates.md)）**
+**缓存翻译 rest 模式认证增强（详见[缓存翻译使用](quickstart/translates.md)）**
 
 - `rest-translate` / `rest-checker` / `rest-increment-checker` 新增 `auth-type` 认证模式：`basic`（默认，兼容既有 `username`/`password`）与 `jwt`；
 - jwt 获取 token 三种方式三选一（同配按优先级生效）：`token-url` 登录接口表单提交 username/password 获取 token（响应 json 按 `token-path` 提取，支持 `data.token` 点路径）并缓存、`token-secure-key` 本地自签名 jwt（支持 HS256/384/512 共享密钥与 RS256/384/512 的 PKCS#8 私钥，无需登录接口）、`authorization` 直接配置静态长效 token；
 - 配套 `token-header`（默认 `Authorization`）、`token-prefix`（默认 `Bearer`，设为 `none` 发裸 token）、`token-expire`（默认 1800 秒，响应含 `expires_in` 时以响应为准）；token 缓存复用、临近过期自动刷新、请求遇 401 自动失效重登（或重新签名）并重试一次。
 
-**跨数据库函数适配完善（详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）**
+**跨数据库函数适配完善（详见[方言自适配与函数扩展](dialect/sqltoy_function.md)）**
 
 - 新增源函数识别：`nvl2(a,b,c)`（非 oracle 系转 case when 判空）、单参 `isnull(x)`（mysql 返回 0/1 语义）、`sys_timestamp`（oracle 系透传、mysql 系保留小数秒精度、sqlserver 用 sysdatetime）、`strpos(str,sub)`（pg 系/clickhouse 透传，其余转 instr）、`substr(s,-n)` 负起点、`curdate()`/`CURRENT_DATE` 新函数类（oracle 系转 `TRUNC(CURRENT_DATE)`，db2 用 CURRENT DATE 关键字体，sqlite 取本地时钟）；
 - `group_concat`/`listagg`/`string_agg` 支持 `within group (order by ...)` 尾部子句、参数内嵌 order by 与 DISTINCT 前缀识别；
@@ -96,11 +96,11 @@
 
 6.0.5 在 6.0.4 基础上进一步增强，同样为**增量能力，无需改动既有代码**：
 
-**新增数据库支持（方言总数 24 → 25，详见[支持的数据库](db_list.md)）**
+**新增数据库支持（方言总数 24 → 25，详见[支持的数据库](introduction/db_list.md)）**
 
 - **瀚高 HighGo**：PG12 内核 + oracle 兼容层，SQL 生成层复用 PostgreSQL 系（`HighgoDialect extends PostgreSqlDialect`），差异集中在函数面（无 `uuid()`/`gen_random_uuid()` 但有 `sys_guid()`、`last_day`/`add_months`/`trunc` 原生、无 `listagg` 而 `string_agg` 原生），由函数适配器 HIGHGO 分支承担；同时支持官方驱动 URL `jdbc:highgo://` 与 vanilla pg 驱动（经 `version()` 内核探测区分）。
 
-**跨数据库函数适配完善（详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）**
+**跨数据库函数适配完善（详见[方言自适配与函数扩展](dialect/sqltoy_function.md)）**
 
 - 新增 11 个函数类（均默认注册进 default）：`find_in_set`、`uuid`（唯一 id 生成）、`year/month/day` 分量提取、`last_day/eomonth`、`add_months`、`date_add/date_sub/dateadd` 日期区间加减、`left/right`、`lpad/rpad`、`extract/date_part`、`trunc/date_trunc` 日期截断、`mod` 取模；
 - 既有函数源拼写扩充：`instr` 补 `locate/posstr`、`length` 补 `character_length/octet_length`、`now` 补 `current_timestamp`、`if` 补 `iif`、`substr` 补 `mid`、`to_date` 补 `str_to_date`；
@@ -119,7 +119,7 @@
 
 6.0.6 在 6.0.5 基础上进一步增强，同样为**增量能力，无需改动既有代码**：
 
-**虚表宏 @virtualTable()（详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）**
+**虚表宏 @virtualTable()（详见[方言自适配与函数扩展](dialect/sqltoy_function.md)）**
 
 - 解决"select 常量行 union 真实查询"类 sql（字典下拉兜底行、报表固定合计行等）跨数据库无法统一编写的问题：oracle/db2/hana 必须挂伪表（`from dual` / `from sysibm.sysdummy1` / `from dummy`），而 mysql/pg/sqlserver 等原生支持无 from 的 select（写 `from dual` 反而语法错）；
 - 统一写法：`select '0' id,'全局公共' name @virtualTable() union select id,name from t`，sql 解析期按方言自动展开——oracle 系（oracle/oracle11/dm/oceanbase）→ `from dual`、db2 → `from sysibm.sysdummy1`、hana → `from dummy`、其余方言直接剔除；
@@ -143,9 +143,9 @@
 - 探测到的候选须先通过一次冒烟解析才被采纳——库在 classpath 上并不等于可用（例如 jackson3 的 databind 需要 `jackson-annotations` 2.20+，与 jackson2 共存时旧版本会在冲突仲裁中胜出并抛 `NoSuchFieldError: POJO`），不可用时记 WARN 并降级到下一个候选，marker 类不存在时静默跳过；
 - 启动期即尝试初始化：显式配置非法或不可用时**直接失败并保留根因**（不静默回落，否则配置形同虚设）；仅缺可用 JSON 库时只记 WARN、不阻断启动——**不用 JSON 列与 ES 特性的项目现在无需引入任何 JSON 库**，触及 JSON 功能时才抛出带明确指引的异常，替代原先的 `NoClassDefFoundError`；
 - core 的 jackson2 / jackson3 依赖均为 `provided + optional`，不传递给使用方；
-- 详见[配置说明](../config/sqltoy_config.md)与 [Elasticsearch](../nosql/sqltoy_elasticsearch.md)。
+- 详见[配置说明](config/sqltoy_config.md)与 [Elasticsearch](nosql/sqltoy_elasticsearch.md)。
 
-**字段名列表拼接宏 @joinFields()（详见[补充说明：标签与表达式参考](../appendix/tags.md)）**
+**字段名列表拼接宏 @joinFields()（详见[补充说明：标签与表达式参考](appendix/tags.md)）**
 
 - 面向页面配置化的报表与接口服务：由配置决定 `select` / `group by` / `order by` 的列。写法 `@joinFields(:fields,default)`，也可在 sql 里直写位置参数形态 `@joinFields(?,default)`——它与 `@value` 处于同一处理位置，命名参数转成 `?` 后两种写法完全等价，被消费的参数会从参数集合中剔除、不影响其余 `?` 的对位；
 - `fields` 为 null、空集合或全空白时输出 `default`；`default` 取自 sql 文本（开发者编写，可信）原样输出、不做标识符校验，因此可写 `t.*` 或 `sum(t.amount)`，含逗号或括号时用 `{}`、`''` 或 `""` 包裹；未提供 `default` 则输出空串；
@@ -158,13 +158,13 @@
 
 **`#[]` 剔除后自动清理括号组内悬挂的 and/or**
 
-- 形如 `#[and ( #[t.a=:a] #[or t.b=:b] )]` 的写法，在 `a` 为 null 时既往会展开成 `and ( or t.b=:b )` 的残缺 SQL；现剔除完成后统一清理括号内 trim 后的、以 `and`/`or` 开头或结尾的悬挂连接符，使括号组各成员可独立可选（`and|or` 后紧跟 `\s+` 或 `)` 才命中，`( order by ...)` 这类以 `or` 开头的关键字不受影响），详见[动态 SQL 编写规范](../query/dynamic_sql.md)。
+- 形如 `#[and ( #[t.a=:a] #[or t.b=:b] )]` 的写法，在 `a` 为 null 时既往会展开成 `and ( or t.b=:b )` 的残缺 SQL；现剔除完成后统一清理括号内 trim 后的、以 `and`/`or` 开头或结尾的悬挂连接符，使括号组各成员可独立可选（`and|or` 后紧跟 `\s+` 或 `)` 才命中，`( order by ...)` 这类以 `or` 开头的关键字不受影响），详见[动态 SQL 编写规范](query/dynamic_sql.md)。
 
 ## 十、6.0.8 更新说明
 
 6.0.8 是 6.0 线里**变更最重的一个版本**：lambda 条件体系并入核心、GraalVM AOT 重写。**纯 JVM 运行的项目无需改动代码**；使用 sqltoy-plus 的项目按第 2 条迁移；构建 native 镜像的项目需按第 4 条检查构建环境。
 
-**1. lambda 条件体系并入核心（详见[Lambda 条件查询与更新](../query/lambda_query.md)）**
+**1. lambda 条件体系并入核心（详见[Lambda 条件查询与更新](query/lambda_query.md)）**
 
 - 新增包 `org.sagacity.sqltoy.lambda`：`LambdaQuery` / `LambdaUpdate` / `LambdaDelete` + `JoinCol` / `ExcludeCols` / `LambdaFn` / `OuterRef` 等，以实体属性方法引用（`User::getStatus`）表达条件；
 - `LightDao` 新增三个 default 工厂 `lambdaQuery/lambdaUpdate/lambdaDelete(Class)`，执行全部由构建器终端完成（`find/getOne/findPage/count/exists/update/delete`），也可 `LambdaQuery.create(entityClass).bind(lightDao)` 先构建后执行；
@@ -187,13 +187,13 @@
 | 参数名 | `type.valuePairs.MPG1` → `:p1…` |
 | 字符串 wrapper | `QueryWrapper` 等不再提供：单表字符串条件用 `EntityQuery`，复杂动态用 SQL 模式 |
 
-> 更完整的字段级对照见 [Lambda 条件查询与更新 · 九、自 sqltoy-plus 迁移对照](../query/lambda_query.md)。
+> 更完整的字段级对照见 [Lambda 条件查询与更新 · 九、自 sqltoy-plus 迁移对照](query/lambda_query.md)。
 
 **3. 多表 join 更新与删除**
 
 join 更新/删除并入 `lambdaUpdate()/lambdaDelete()`（与查询同款"不调 join 即单表"判定）：join 更新生成 `UPDATE 主表 别名 JOIN ... SET 别名.字段=:p WHERE ...`、join 删除生成 `DELETE 别名[,...] FROM 主表 别名 JOIN ... WHERE ...`（`deleteTables` 缺省主表），均经 `executeSql` 执行。关系型库采用可移植的 EXISTS-over-derived 改写，已在 mysql/postgresql/sqlserver/oracle/db2 等真库验证；clickhouse/doris/starrocks 等无事务性行级 DML 能力的库不支持。**整对象并入更新不支持 join 通道**（用 `lightDao.update(entity)`）。
 
-**4. GraalVM native / AOT 重写（详见[GraalVM Native Image 指引](../tools/graalvm_native.md)）**
+**4. GraalVM native / AOT 重写（详见[GraalVM Native Image 指引](tools/graalvm_native.md)）**
 
 - 修复 5.6 以来 **AOT 实体反射 hints 恒为空**的缺陷：AOT 期 Spring 不注册 `BeanPostProcessor`、不预实例化单例，原先从 `getBean` 拿到的 `SqlToyContextProperties` 是未绑定的空实例，导致实体 hints 全丢；现改为经 `Binder` 从 `Environment` 直接绑定 `spring.sqltoy` 配置，按 `packagesToScan`/`annotatedClasses` 用 `EntityScanner` 扫描实体。**native 场景必须配置 `packagesToScan`**；
 - 按配置**动态注册**：资源 pattern（`sqlResourcesDir` 多目录/`sqlResources`/`translateConfig`/密钥文件）、15 类扩展点反射（`unifyFieldsHandler`、`typeHandler`、`sqlInterceptors`、`sqlFormater`、`translateCacheManager`、`dataSourceSelector`、`connectionFactory`、`fieldsSecureProvider`、`desensitizeProvider`、`customFilterHandler`、`overTimeSqlHandler`、`dialectDDLGenerator`、`firstBizCodeTrace`、`dynamicCacheFetch`、`dynamicFecthCacheManager`）、经 `FunctionUtils.resolveFunctionClassNames` 解析后的 `functionConverts` 函数类、`lambda` 的 `SerializedLambda`/镜像类序列化，以及 XML 解析反射赋值的 8 个模型类（unpivot/环比/tree-sort 等标签属性，缺失时会**静默丢失**）；
@@ -213,7 +213,7 @@ join 更新/删除并入 `lambdaUpdate()/lambdaDelete()`（与查询同款"不�
 
 **1. CTE 物化 hint 按目标库保留/剔除**
 
-`WITH xx AS [NOT] MATERIALIZED (..)` 仅 PostgreSQL 系（含 openGauss/金仓/Vastbase/GAUSSDB/瀚高）原生支持；其余库（mysql/sqlserver/oracle/db2 等）执行时框架在解析期自动剔除 hint——只失去物化优化、不改查询语义，无需再按方言各写一份 sqlId。lambda 侧 `.with(name, q, Boolean.TRUE/FALSE)` 的渲染门禁与之同源（详见[Lambda 条件查询与更新](../query/lambda_query.md)）。
+`WITH xx AS [NOT] MATERIALIZED (..)` 仅 PostgreSQL 系（含 openGauss/金仓/Vastbase/GAUSSDB/瀚高）原生支持；其余库（mysql/sqlserver/oracle/db2 等）执行时框架在解析期自动剔除 hint——只失去物化优化、不改查询语义，无需再按方言各写一份 sqlId。lambda 侧 `.with(name, q, Boolean.TRUE/FALSE)` 的渲染门禁与之同源（详见[Lambda 条件查询与更新](query/lambda_query.md)）。
 
 **2. 函数适配真库实证修正**
 

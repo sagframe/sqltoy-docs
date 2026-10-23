@@ -37,7 +37,7 @@ SysLog sysLog = lightDao.findOne("sys_log_findlist", new SysLog(), SysLog.class)
 #### find: Find a List
 
 ```java
-List<SysLog> list = lightDao.find("sys_log_find_list", new SysLog(), SysLog.class);
+List<SysLog> list = lightDao.find("sys_log_findlist", new SysLog(), SysLog.class);
 ```
 
 #### findEntity: Entity Query
@@ -49,25 +49,25 @@ List<SysLog> list = lightDao.findEntity(SysLog.class, EntityQuery.create().names
 #### findPage: Paginated Query
 
 ```java
-Page<SysLog> page = lightDao.findPage(new Page<>(1, 10), "sys_log_find_list", new SysLog(), SysLog.class);
+Page<SysLog> page = lightDao.findPage(new Page<>(10, 1), "sys_log_findlist", new SysLog(), SysLog.class);
 ```
 
 #### findPageEntity: Paginated Entity Query
 
 ```java
-Page<SysLog> page = lightDao.findPageEntity(new Page<>(1, 10), SysLog.class, EntityQuery.create().names("operator").values("112233"));
+Page<SysLog> page = lightDao.findPageEntity(new Page<>(10, 1), SysLog.class, EntityQuery.create().names("operator").values("112233"));
 ```
 
 #### findTop: Find Top-N Records
 
 ```java
-List<SysLog> list = lightDao.findTop("sys_log_find_list", new SysLog(), SysLog.class, 12);
+List<SysLog> list = lightDao.findTop("sys_log_findlist", new SysLog(), SysLog.class, 12);
 ```
 
 #### findRandom: Find N Random Records
 
 ```java
-List<SysLog> list = lightDao.findRandom("sys_log_find_list", new SysLog(), SysLog.class, 12);
+List<SysLog> list = lightDao.findRandom("sys_log_findlist", new SysLog(), SysLog.class, 12);
 ```
 
 #### getValue, getCount, isUnique: Shortcut Queries
@@ -208,13 +208,13 @@ The packaged result looks like:
 > - The method names are `hiberarchy` / `hiberarchyFieldsMap` (a historical spelling in the framework, not hierarchy).
 > - `hiberarchyFieldsMap` **automatically enables** hierarchy packaging and registers the involved classes, so once it is set there is no need to call `hiberarchy(true)` again.
 > - `hiberarchyFieldsMap` only targets the scenario where **parent and child objects have same-named properties**; without name conflicts, `hiberarchy(true)` alone is enough.
-> - Hierarchy packaging means "packaging directly from a single join sql", which is complementary to the cascading load in [Object CRUD](../crud/sqltoy_crud.md) (batch secondary queries by primary key).
+> - Hierarchy packaging means "packaging directly from a single join sql", which is complementary to the cascading load in [Object CRUD](en/crud/sqltoy_crud.md) (batch secondary queries by primary key).
 
 > 🎬 Full runnable example: `HierarchyPackagingTest.java` in the demo project `sqltoy-showcase` (its `DictTypeVO` has `notNullField = "dictKey"` configured on @OneToMany; the child order follows the join SQL's `ORDER BY`).
 
 #### Stored Procedure Calls
 
-For the complete description and examples of stored procedure calls (`executeStore` / `executeMoreResultStore`, the fluent `store()`, out parameters, **multiple result sets**), see [Stored Procedures](store_procedure.md).
+For the complete description and examples of stored procedure calls (`executeStore` / `executeMoreResultStore`, the fluent `store()`, out parameters, **multiple result sets**), see [Stored Procedures](en/query/store_procedure.md).
 
 ```java
 // quick example: call a stored procedure and get the result set (pass null for outParamsType when there are no out parameters)

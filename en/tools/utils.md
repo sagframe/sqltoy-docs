@@ -57,7 +57,7 @@ private String postType;
 
 This way `convertType` maps fields with different names correctly.
 
-> For a complete example of strict layering, see the project https://github.com/sagframe/sqltoy-strict , where POJOs/VOs are generated into different packages by [quickvo](../prepare/quickvo.md).
+> For a complete example of strict layering, see the project https://github.com/sagframe/sqltoy-strict , where POJOs/VOs are generated into different packages by [quickvo](en/prepare/quickvo.md).
 
 ## 4. Common utility classes
 
@@ -93,4 +93,4 @@ Object result = DBTransUtils.doTrans(lightDao.getDataSource(), () -> {
 });
 ```
 
-> These utilities are almost all **stateless static methods** (except instance-based ones such as `SnowflakeIdWorker`) and are safe to call from multiple threads; `DBTransUtils` transaction state is bound to the current thread. For more entry points see the [API Cheat Sheet](../appendix/api.md).
+> These utilities are almost all **stateless static methods** (except instance-based ones such as `SnowflakeIdWorker`) and are safe to call from multiple threads; `DBTransUtils` transaction state is bound to the current thread. For more entry points see the [API Cheat Sheet](en/appendix/api.md).

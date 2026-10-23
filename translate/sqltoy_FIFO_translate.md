@@ -182,7 +182,7 @@ spring:
 
 **keep-alive 过期**：按"缓存名称 + cacheType"整组生效——从该组数据初始化起计时，超过 `keep-alive` 秒后由后台守护线程（每 3 分钟检测一轮）整组清空，下次使用时重新动态加载；设置为负数则永不过期。
 
-**与 cache-update-checker 增量更新协同**：动态缓存同样可以配置 [缓存更新检测](../quickstart/translates.md)，但更新时**只覆盖本地已存在的 key**——未加载的 key 本地没有旧值，下次动态获取时自然拿到最新数据。
+**与 cache-update-checker 增量更新协同**：动态缓存同样可以配置 [缓存更新检测](quickstart/translates.md)，但更新时**只覆盖本地已存在的 key**——未加载的 key 本地没有旧值，下次动态获取时自然拿到最新数据。
 
 **使用侧零感知**：翻译的引用方式与普通缓存完全一致，无论是 sql xml 中的 `<translate cache="skuDict" ... />` 还是 VO 上的 `@Translate(cache="skuDict")`，无需任何额外代码。
 
@@ -229,5 +229,5 @@ spring:
 
 ## 相关页面
 
-- [缓存翻译使用](../quickstart/translates.md)：缓存翻译的基础配置与各种附加用法
-- [动态控制缓存](dynamic_cache.md)：通过 `TranslateManager` 在运行时动态扩展、刷新缓存
+- [缓存翻译使用](quickstart/translates.md)：缓存翻译的基础配置与各种附加用法
+- [动态控制缓存](translate/dynamic_cache.md)：通过 `TranslateManager` 在运行时动态扩展、刷新缓存

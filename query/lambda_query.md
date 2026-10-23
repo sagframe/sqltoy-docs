@@ -10,7 +10,7 @@ sqltoy 提供三种组织查询的方式，按场景选择：
 | --- | --- | --- |
 | **Lambda 条件**（本文） | 单表/多表 join 的常规条件查询、按条件更新删除，条件以属性引用表达 | `lightDao.lambdaQuery/lambdaUpdate/lambdaDelete` |
 | **EntityQuery/EntityUpdate** | 单表字符串条件（where 文本 + 命名参数） | `lightDao.findEntity/updateByQuery` 等 |
-| **SQL 模式**（sqlId + `#[...]` 动态段 + `@if` 宏） | 复杂动态 SQL、多分支条件组合、方言差异、配置化报表 | `lightDao.find/findPage` + sqlId，见[动态 SQL 编写规范](dynamic_sql.md) |
+| **SQL 模式**（sqlId + `#[...]` 动态段 + `@if` 宏） | 复杂动态 SQL、多分支条件组合、方言差异、配置化报表 | `lightDao.find/findPage` + sqlId，见[动态 SQL 编写规范](query/dynamic_sql.md) |
 
 Lambda 层的动态化以 `IfPresent` 语法糖为推荐惯用法（见[动态化](#二动态化条件)）；**复杂动态场景不要试图在 lambda 层堆条件，直接走 SQL 模式**——动态段、宏、方言变体与热更新是 SQL 模式的既有能力。
 
@@ -190,7 +190,7 @@ lightDao.lambdaQuery(StaffInfo.class).eq(StaffInfo::getStatus, 1)
 lightDao.lambdaQuery(StaffInfo.class).eq(StaffInfo::getStatus, 1).last("limit 10").find();
 ```
 
-相邻条件自动补 `AND`；`and()/or()` 显式连接符相邻时合并保留最后一个；首尾悬挂连接符自动剔除；每层嵌套整体以括号包裹，**层数不限**（实际受 JVM 栈深度与目标库表达式嵌套上限约束，现实 1~3 层毫无压力，极复杂动态分组建议走 SQL 模式）。**空分组自动丢弃**：当组内条件全被 `condition=false` 或 `IfPresent` 跳过时，整组连同多余连接符一并消失，不会渲染出 `()` 这类非法 SQL——因此动态分组可放心写，参数缺失时该组自然不参与查询。
+相邻条件自动补 `AND`；`and()/or()` 显式连接符相邻时合并保留最后一个；首尾悬挂连接符自动剔除；每层嵌套整体以括号包裹，**层数不限**（实际受 JVM 栈深度与目标库表达式嵌套上限约束，常见业务 1~3 层即可满足，更复杂的动态分组建议使用 SQL 模式）。**空分组自动丢弃**：当组内条件全被 `condition=false` 或 `IfPresent` 跳过时，整组连同多余连接符一并消失，不会渲染出 `()` 这类非法 SQL——因此动态分组可放心写，参数缺失时该组自然不参与查询。
 
 ### 分组、排序与聚合过滤
 

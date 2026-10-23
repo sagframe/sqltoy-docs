@@ -16,7 +16,7 @@
   
 ```java
   //逻辑示意: 
-  if(entity.getCreateBy()!=null){entity.setCreateBy(unifyCreateMap.get("createBy"));}
+  if(entity.getCreateBy()==null){entity.setCreateBy(unifyCreateMap.get("createBy"));}
 ```
 
 * 2、在application.yml中配置sqltoy的公共字段处理类

@@ -50,4 +50,4 @@ public class OrderInfo implements Serializable {
 
 参考实现：`org.sagacity.sqltoy.plugins.interceptors.TenantFilterInterceptor`。
 
-> 多租户的完整配置与 `@Tenant`、统一字段处理器、越权过滤详见[多租户支持](sqltoy_multitenant.md)与[数据权限传参和越权校验](sqltoy_permission.md)。
+> 多租户的完整配置与 `@Tenant`、统一字段处理器、越权过滤详见[多租户支持](enterprise/sqltoy_multitenant.md)与[数据权限传参和越权校验](enterprise/sqltoy_permission.md)。

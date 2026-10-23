@@ -5,7 +5,7 @@
 
 # 快速搭建sqltoy项目的步骤
 
-> 本文与演示项目 [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld) 完全同步：该项目默认运行在 **H2 内存库**上（建表与种子数据自动加载），clone 后 `mvn test` 零安装即可运行（7 个演示用例全绿）。
+> 本文与演示项目 [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld) 完全同步：该项目默认运行在 **H2 内存库**上（建表与种子数据自动加载），clone 后 `mvn test` 零安装即可运行（9 个演示用例全绿）。
 
 ## 1、创建一个springboot项目，并配置好数据源
 * 参见:[sqltoy演示项目sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld)
@@ -193,8 +193,8 @@ CREATE TABLE SQLTOY_ORDER_INFO(
 ```xml
 <plugin>
 	<groupId>com.sagframe</groupId>
-	<artifactId>quickvo-maven-plugin</artifactId>
-	<version>2.0.3</version>
+		<artifactId>quickvo-maven-plugin</artifactId>
+		<version>2.0.4</version>
 	<configuration>
 		<configFile>./src/main/resources/quickvo.xml</configFile>
 		<baseDir>${project.basedir}</baseDir>
@@ -221,9 +221,9 @@ CREATE TABLE SQLTOY_ORDER_INFO(
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<quickvo xmlns="http://www.sagacity.com/schema/quickvo"
+<quickvo xmlns="http://www.sagframe.com/schema/quickvo"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.sagacity.com/schema/quickvo https://sagframe.github.io/schema/quickvo.xsd">
+	xsi:schemaLocation="http://www.sagframe.com/schema/quickvo https://sagframe.github.io/schema/quickvo.xsd">
 	<property name="project.version" value="1.0.0" />
 	<property name="project.name" value="sqltoy-helloworld" />
 	<!-- 定义项目的默认包路径 -->
@@ -297,6 +297,8 @@ public class OrderInfo implements Serializable {
 
 ```java
 package com.sqltoy.helloworld.service;
+
+import java.util.Map;
 
 import org.sagacity.sqltoy.model.Page;
 import com.sqltoy.helloworld.dto.OrderInfoVO;
@@ -442,4 +444,4 @@ mvn test
 Tests run: 9, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
 ```
 
-除本文的 CRUD/分页用例外,演示项目还包含:缓存翻译四种用法的 `TranslateTest`(xml `<translate>` 标签、`QueryExecutor.translates`、`EntityQuery.translates`、VO 属性 `@Translate` 注解,详见[缓存翻译使用](translates.md)与[公共字段赋值](helloworld_improve.md));以及 lambda 条件查询的 `LambdaQueryTest`(实体属性方法引用表达条件 + `setExpr` 表达式更新,详见[Lambda 条件查询与更新](../query/lambda_query.md))。
+除本文的 CRUD/分页用例外,演示项目还包含:缓存翻译四种用法的 `TranslateTest`(xml `<translate>` 标签、`QueryExecutor.translates`、`EntityQuery.translates`、VO 属性 `@Translate` 注解,详见[缓存翻译使用](quickstart/translates.md)与[公共字段赋值](quickstart/helloworld_improve.md));以及 lambda 条件查询的 `LambdaQueryTest`(实体属性方法引用表达条件 + `setExpr` 表达式更新,详见[Lambda 条件查询与更新](query/lambda_query.md))。

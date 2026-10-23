@@ -15,7 +15,7 @@ sqltoy 的 **sqlId + 命名参数** 模式天然适合把查询做成配置：SQ
 | `XMLBinding` 动态执行 | 配置频繁变化的查询 | 每次请求带 id + lastUpdateTime，框架按时间判断命中解析缓存，变化才重新解析 |
 | `parseSqlSegment` + `putSqlToyConfig` 注册 | 相对稳定的查询 | 启动 / 变更时解析注册一次，后续 `lightDao.find(id, params)` 与静态 sqlId 完全一致 |
 
-动态列：用 `@joinFields(:fields, default)` 让配置决定 `select` / `group by` / `order by` 的列（字段白名单校验 + 保留字按方言加引用符），详见[标签与表达式](../appendix/tags.md)。
+动态列：用 `@joinFields(:fields, default)` 让配置决定 `select` / `group by` / `order by` 的列（字段白名单校验 + 保留字按方言加引用符），详见[标签与表达式](appendix/tags.md)。
 
 ## 二、配置存储示例（数据库）
 
@@ -40,6 +40,8 @@ public class ReportService {
     private String loadSqlXml(String reportId) {
         // 例如：select sql_xml from report_sql_config where report_id = ?
         // 或从配置中心、报表模型读取
+        return lightDao.getValue("select sql_xml from report_sql_config where report_id = :reportId",
+                MapKit.keys("reportId").values(reportId), String.class);
     }
 
     public List<Map> query(String reportId, LocalDateTime updateTime,
@@ -119,6 +121,6 @@ List rows = lightDao.findByQuery(
 
 ## 相关
 
-- [动态 SQL 编写规范](../query/dynamic_sql.md)（`#[]` 动态段、`@include`、`@joinFields` 所在体系）
-- [标签与表达式](../appendix/tags.md)（`@joinFields`、`@value`、`@loop` / `@secure-loop` 等）
-- [平台集成（报表 / 低代码）](../tools/integration.md)
+- [动态 SQL 编写规范](query/dynamic_sql.md)（`#[]` 动态段、`@include`、`@joinFields` 所在体系）
+- [标签与表达式](appendix/tags.md)（`@joinFields`、`@value`、`@loop` / `@secure-loop` 等）
+- [平台集成（报表 / 低代码）](tools/integration.md)

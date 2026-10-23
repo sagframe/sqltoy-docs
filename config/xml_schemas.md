@@ -72,6 +72,6 @@ sqltoy 的三类 XML 配置文件均提供官方 XSD schema（托管在 GitHub�
 
 ## 相关页面
 
-- [动态 SQL 编写规范](../query/dynamic_sql.md)：`*.sql.xml` 中 `<sql>` 元素与子标签的完整规范
-- [缓存翻译使用](../quickstart/translates.md)：translate.xml 的配置与用法
-- [quickvo 代码生成工具](../prepare/quickvo.md)：quickvo.xml 的配置要点
+- [动态 SQL 编写规范](query/dynamic_sql.md)：`*.sql.xml` 中 `<sql>` 元素与子标签的完整规范
+- [缓存翻译使用](quickstart/translates.md)：translate.xml 的配置与用法
+- [quickvo 代码生成工具](prepare/quickvo.md)：quickvo.xml 的配置要点

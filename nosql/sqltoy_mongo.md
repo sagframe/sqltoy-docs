@@ -62,7 +62,7 @@ Mongo 查询用 `<mql>` 标签定义，`value` 中写 mongo 的 JSON 查询/聚�
 要点：
 
 - **字段别名**：mongo 无法像 SQL 那样 `select trans_type as transTypeName`，sqltoy 用 `fields` 中的 `源字段:别名` 语法把同一字段值复制到别名列，再用 `<translate original-columns="源字段" columns="别名">` 对别名列做缓存翻译，原代码列保持不变。
-- **动态条件**：`<#>...</#>` 内参数为 null 时整段剔除；可配合 `@if()/@else` 做分支（见[补充说明：标签与表达式参考](../appendix/tags.md)）。
+- **动态条件**：`<#>...</#>` 内参数为 null 时整段剔除；可配合 `@if()/@else` 做分支（见[补充说明：标签与表达式参考](appendix/tags.md)）。
 - **脱敏**：`<secure-mask>` 与 SQL 查询用法一致。
 
 ### 2.2 聚合查询
@@ -136,7 +136,7 @@ Mongo 查询用 `<mql>` 标签定义，`value` 中写 mongo 的 JSON 查询/聚�
 </sagacity>
 ```
 
-缓存翻译的完整用法见[缓存翻译使用](../quickstart/translates.md)。
+缓存翻译的完整用法见[缓存翻译使用](quickstart/translates.md)。
 
 ## 四、Java 调用
 

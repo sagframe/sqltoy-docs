@@ -20,6 +20,6 @@ Elasticsearch、MongoDB
 
 ## 其他
 
-所有基于 SQL 和 JDBC 的各类数据库均可进行查询。对于未单独列出方言的数据库（尤其 PostgreSQL 系的衍生库），可通过配置 `dialect` / `dialectMap` 指定按某种方言处理，详见[常见 SQL 案例](../query/sql_showcase.md)。
+所有基于 SQL 和 JDBC 的各类数据库均可进行查询。对于未单独列出方言的数据库（尤其 PostgreSQL 系的衍生库），可通过配置 `dialect` / `dialectMap` 指定按某种方言处理，详见[常见 SQL 案例](query/sql_showcase.md)。
 
-> 跨数据库适配（函数自动替换、方言 sqlId、多库适配验证）见[跨库与方言](../dialect/sqltoy_function.md)章节。
+> 跨数据库适配（函数自动替换、方言 sqlId、多库适配验证）见[跨库与方言](dialect/sqltoy_function.md)章节。

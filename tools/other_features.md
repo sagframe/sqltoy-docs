@@ -11,7 +11,7 @@
 mvn -Pnative native:compile
 ```
 
-> 完整指引（构建前置条件、应用侧必要配合、已知限制、演示工程）见 [GraalVM Native Image 指引](graalvm_native.md)。
+> 完整指引（构建前置条件、应用侧必要配合、已知限制、演示工程）见 [GraalVM Native Image 指引](tools/graalvm_native.md)。
 
 ## 二、geometry 空间类型支持（JTS）
 
@@ -34,7 +34,7 @@ sqltoy 内置对数据库 **geometry 空间列**的自动适配（GIS 场景）�
 
 ## 三、公共字段赋值开关（UnifyUpdateFieldsController）
 
-配置了[统一字段处理器](../quickstart/helloworld_improve.md)（unifyFieldsHandler）后，save/update 会自动补漏 `updateBy`/`updateTime` 等公共字段。个别场景（如系统级数据修复脚本，不希望改动"最后更新人"）可临时**暂停**当前线程的公共字段赋值：
+配置了[统一字段处理器](quickstart/helloworld_improve.md)（unifyFieldsHandler）后，save/update 会自动补漏 `updateBy`/`updateTime` 等公共字段。个别场景（如系统级数据修复脚本，不希望改动"最后更新人"）可临时**暂停**当前线程的公共字段赋值：
 
 ```java
 try {

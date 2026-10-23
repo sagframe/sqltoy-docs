@@ -1,6 +1,6 @@
 # quickvo-maven-plugin
 
-Besides running quickvo standalone (see [quickvo Code Generator](quickvo.md)), the recommended approach is **quickvo-maven-plugin**, which integrates code generation into the Maven build — a single command generates/updates the POJO and VO classes from database tables.
+Besides running quickvo standalone (see [quickvo Code Generator](en/prepare/quickvo.md)), the recommended approach is **quickvo-maven-plugin**, which integrates code generation into the Maven build — a single command generates/updates the POJO and VO classes from database tables.
 
 > [!NOTE]
 > The current version is **2.0.4**; the 2.0.0 release was a major refactoring of previous releases and has been tested against 19 databases (Oracle, DB2, SQL Server, MySQL, PostgreSQL, HANA, Kingbase, DM, openGauss, OceanBase, Doris, TiDB, StarRocks, ClickHouse, etc.). See the plugin repository README for the full feature list and configuration.
@@ -47,7 +47,7 @@ Create `quickvo.xml` under `src/main/resources`. It can directly reuse the datas
 
     <!-- database definition; concrete values can also be written here directly -->
     <datasource name="helloworld" url="${spring.datasource.url}"
-        driver="com.mysql.cj.jdbc.Driver" schema="${spring.datasource.username}"
+        driver="com.mysql.cj.jdbc.Driver" schema="helloworld"
         username="${spring.datasource.username}" password="${spring.datasource.password}" />
 
     <!-- dist: where generated code goes (relative to baseDir in the pom); encoding: file charset -->
@@ -80,7 +80,7 @@ Common configuration:
 | `<task include active>` | `include` matches the tables to generate with a regex (e.g. `^SQLTOY_\w+`); `active` enables/disables the task |
 | `<entity>` / `<vo>` | Generate POJO and DTO/VO respectively; `package` is the target package, `substr` strips the table-name prefix, `name` is the class-name template (`#{subName}` is the table name with the prefix removed), `lombok-chain` generates chained setters |
 
-> For more options such as primary key strategy (`primary-key`), cascade (`cascade`), type mapping (`type-mapping`), and swagger annotations, see [quickvo Code Generator](quickvo.md) and the official README.
+> For more options such as primary key strategy (`primary-key`), cascade (`cascade`), type mapping (`type-mapping`), and swagger annotations, see [quickvo Code Generator](en/prepare/quickvo.md) and the official README.
 
 ## 3. Run the Generation
 
@@ -117,4 +117,4 @@ public class OrderInfo implements Serializable {
 > [!WARNING]
 > The content between `begin-auto-generate` and `end-auto-generate` is generated automatically by quickvo — **do not modify it manually** (it will be overwritten on regeneration). Put extension properties/methods outside the marked section.
 
-For the complete create-project → generate → query workflow, see the [helloworld quick start](../quickstart/helloworld.md).
+For the complete create-project → generate → query workflow, see the [helloworld quick start](en/quickstart/helloworld.md).

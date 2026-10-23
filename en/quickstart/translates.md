@@ -30,7 +30,7 @@ spring:
 ```
 ### The sqltoy-translate.xml file
 
-> For the schema location of `sqltoy-translate.xml` and IDE completion setup, see the [XML Schema Guide](../config/xml_schemas.md).
+> For the schema location of `sqltoy-translate.xml` and IDE completion setup, see the [XML Schema Guide](en/config/xml_schemas.md).
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -95,7 +95,7 @@ spring:
 | `<sql-translate>` | The most common: one sql query loads the full key/name cache | `cache`, `datasource`, `sql` (attribute or child element) |
 | `<service-translate>` | Cache data must be post-processed by a service (multi-source aggregation, decryption before caching, etc.) | `service` (spring bean name), `method` |
 | `<rest-translate>` | Cache data comes from a REST service (with basic/jwt auth, see next section) | `url`, `username`, `password`, `auth-type`, etc. |
-| `<local-translate>` | Local static/dynamic data: a properties file, or combined with the FIFO dynamic cache | `properties`, `sid`, `dynamic-cache` series (see [FIFO cache](../translate/sqltoy_FIFO_translate.md)) |
+| `<local-translate>` | Local static/dynamic data: a properties file, or combined with the FIFO dynamic cache | `properties`, `sid`, `dynamic-cache` series (see [FIFO cache](en/translate/sqltoy_FIFO_translate.md)) |
 
 All 4 cache definitions share a set of capacity/lifecycle attributes: `cache` (required), `keep-alive` (seconds alive, default 3600), `heap` (max in-heap entries, default 10000), `off-heap` (off-heap MB, default 0), `disk-size` (disk MB, default 0), `i18n` (e.g. `zh_cn:1,en_us:2`), `desc`.
 
@@ -159,7 +159,7 @@ The three ways of obtaining the jwt token — **token-url / token-secure-key / a
 Runtime behavior: the token is cached and refreshed automatically when nearly expired; on a 401 the token is invalidated and re-fetched (or re-signed) with one retry. The self-signing mode generates the jwt locally (claims include sub=username, iat, exp); HS keys are shared secrets, RS keys are PKCS#8 PEM private keys (convertible via `openssl pkcs8 -topk8 -nocrypt`).
 
 > [!TIP]
-> The caches above are all **full-load** mode. If your data reaches millions of rows (e.g. marketplace SKUs, phone-number regions), use the [Large-Scale Master-Data Cache (FIFO)](../translate/sqltoy_FIFO_translate.md): the cache is not fully loaded; missing keys are fetched in batches on demand, and the local cache keeps only the hottest data.
+> The caches above are all **full-load** mode. If your data reaches millions of rows (e.g. marketplace SKUs, phone-number regions), use the [Large-Scale Master-Data Cache (FIFO)](en/translate/sqltoy_FIFO_translate.md): the cache is not fully loaded; missing keys are fetched in batches on demand, and the local cache keeps only the hottest data.
 
 ## Test it
 ### Add 2 properties to OrderInfoVO
@@ -280,9 +280,9 @@ public class TranslateTest {
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <sagacity
-	xmlns="http://www.sagframe.com/schema/sqltoy-translate"
+	xmlns="https://www.sagframe.com/schema/sqltoy-translate"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.sagframe.com/schema/sqltoy-translate https://sagframe.github.io/schema/sqltoy-translate.xsd">
+	xsi:schemaLocation="https://www.sagframe.com/schema/sqltoy-translate https://sagframe.github.io/schema/sqltoy-translate.xsd">
 	<!-- caches expire by default after 1 hour, so only frequently-changing caches need timely checkers -->
 	<cache-translates>
 		<!-- cache loaded directly by a sql query -->
@@ -369,7 +369,7 @@ public void translate(Collection dataSet, String cacheName, String cacheType, In
 		TranslateHandler handler);
 		
 // usage example
-lightDao.translate(staffVOs<StaffInfoVO>, "staffIdName",	1， new TranslateHandler() {
+lightDao.translate(staffVOs, "staffIdName", null, 1, new TranslateHandler() {
 	// provide the key
 	public Object getKey(Object row) {
 		return ((StaffInfoVO)row).getStaffId();

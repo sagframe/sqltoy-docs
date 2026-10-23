@@ -4,7 +4,7 @@
 
 The implementation itself is not hard; what's complex is the pagination merge after querying across multiple databases and tables. sqltoy deliberately skips this — **not because it can't be done, but because it isn't necessary** — such a requirement is essentially a design problem. The common practice today is to solve it with an MPP database such as ClickHouse or StarRocks, both of which sqltoy supports.
 
-See [Sharding](../enterprise/sqltoy_sharding.md).
+See [Sharding](en/enterprise/sqltoy_sharding.md).
 
 ## 2. How is sqltoy-orm's performance?
 
@@ -39,7 +39,7 @@ select `maxvalue`,name from table
 
 ## 4. How do I set up multiple datasources?
 
-For the complete dynamic-datasource configuration, `@DS` switching and `@DSTransactional` cross-database transaction examples, see [Multi-Datasource & Transactions](../config/dynamic_datasource.md).
+For the complete dynamic-datasource configuration, `@DS` switching and `@DSTransactional` cross-database transaction examples, see [Multi-Datasource & Transactions](en/config/dynamic_datasource.md).
 
 sqltoy supports configuring a default datasource:
 
@@ -49,9 +49,9 @@ spring.sqltoy.defaultDataSource=primaryDB
 
 Several implementation options:
 
-1. **dynamic-datasource** (with transaction support): see [Multi-datasource & transactions](../config/dynamic_datasource.md)
+1. **dynamic-datasource** (with transaction support): see [Multi-datasource & transactions](en/config/dynamic_datasource.md)
 2. **Define multiple `LightDao` beans**, injecting a different dataSource into each, and wire them by bean name in the service layer.
-3. **Query-level switching**: in the `QueryExecutor` of `findByQuery`/`findPageByQuery` etc. you can call `.dataSource(xxx)` directly; the chain API also supports `.dataSource(...)` (see [Link Chain API](../query/link_api.md)).
+3. **Query-level switching**: in the `QueryExecutor` of `findByQuery`/`findPageByQuery` etc. you can call `.dataSource(xxx)` directly; the chain API also supports `.dataSource(...)` (see [Link Chain API](en/query/link_api.md)).
 4. When **multi-database transactions** are involved, JTA can be used (e.g. Atomikos/Narayana). For sqltoy's native named multi-datasource demo see `MultiDataSourceTest` in [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase).
 
 ## 5. Can sqltoy be combined with other ORM frameworks?
@@ -66,11 +66,11 @@ Use the tuple-in syntax directly, passing arrays/collections as parameters:
 #[and (t.TECH_GROUP,t.PROD_GROUP) in (:techGroups,:prodGroups)]
 ```
 
-When the in-condition parameter array exceeds 1000 entries (e.g. the Oracle limit), the framework (since 5.1.32 / 4.19.25) **splits it automatically**, so no manual handling is needed. You can also use `@secure-loop` to assemble complex conditions; see [Tags & Expressions Reference](../appendix/tags.md).
+When the in-condition parameter array exceeds 1000 entries (e.g. the Oracle limit), the framework (since 5.1.32 / 4.19.25) **splits it automatically**, so no manual handling is needed. You can also use `@secure-loop` to assemble complex conditions; see [Tags & Expressions Reference](en/appendix/tags.md).
 
 ## 7. Can sqltoy be used outside Spring and Solon?
 
-Yes. The core module `sagacity-sqltoy` can be used in pure Java: build `SqlToyContext` + a datasource + `DefaultLightDaoImpl` yourself, and use `DBTransUtils` for transactions. See [Pure Java Usage](../config/pure_java.md).
+Yes. The core module `sagacity-sqltoy` can be used in pure Java: build `SqlToyContext` + a datasource + `DefaultLightDaoImpl` yourself, and use `DBTransUtils` for transactions. See [Pure Java Usage](en/config/pure_java.md).
 
 ## 8. Startup fails with a duplicate sqlId — or a later SQL overwrites an earlier one?
 
@@ -87,7 +87,7 @@ spring.sqltoy.breakWhenSqlRepeat=false
 - **Remember**: `sqlId` is a global namespace with no module prefix, so add a business prefix (e.g. `crm_staff_findlist`);
 - If you really need the same name per datasource, use `<sql dataSource="...">` or dialect variants (`xxx_mysql`) rather than two same-named files.
 
-See [Dynamic SQL Guide](../query/dynamic_sql.md).
+See [Dynamic SQL Guide](en/query/dynamic_sql.md).
 
 ## 9. Cache translate does not work, or the page still shows old values
 
@@ -100,7 +100,7 @@ Work through these in order:
 5. **FIFO dynamic cache behaves as designed**: in `dynamic-cache` mode only keys **already present locally** are refreshed; a key that was never loaded naturally gets the new value on its next dynamic fetch — this is not a bug;
 6. **Several instances**: local caches (ehcache/caffeine) are per-instance, so instances can disagree briefly inside a check interval; for strongly consistent code tables shorten the interval or use `rest-checker`.
 
-See [Cache Translate](../quickstart/translates.md) and [Large-Scale Cache (FIFO)](../translate/sqltoy_FIFO_translate.md).
+See [Cache Translate](en/quickstart/translates.md) and [Large-Scale Cache (FIFO)](en/translate/sqltoy_FIFO_translate.md).
 
 ## 10. The count and the data disagree after using `@fast`
 
@@ -112,7 +112,7 @@ Options, in order:
 2. Provide the count explicitly with `<count-sql>` (`QueryExecutor.countSql(...)` works too) — the most controllable option;
 3. Check for `union`: union counts have a dedicated union-all-count optimization (summing branches), and when combined with `@fast` the explicit `count-sql` wins.
 
-See [Pagination Optimize](../query/pagination.md).
+See [Pagination Optimize](en/query/pagination.md).
 
 ## 11. Pagination returns nothing, or raises "maximum records per page exceeded"
 
@@ -130,7 +130,7 @@ spring.sqltoy.pageFetchSizeLimit=500000
 spring.sqltoy.overPageToFirst=true
 ```
 
-> For large exports prefer `fetchStream` (streaming callbacks) or batched `findTop` over pagination. See [Pagination Optimize](../query/pagination.md).
+> For large exports prefer `fetchStream` (streaming callbacks) or batched `findTop` over pagination. See [Pagination Optimize](en/query/pagination.md).
 
 ## 12. Why does lambda's `getOne()` throw?
 
@@ -142,7 +142,7 @@ How to proceed:
 - If several rows are legitimate but you only want one, use `find()` and take the first, or add `orderBy` + `findTop(1)`;
 - Likewise, **`update()/delete()` with no where condition throws by default**; use an explicit `.matchAll()` when a whole-table operation is truly intended.
 
-See [Lambda Conditions](../query/lambda_query.md).
+See [Lambda Conditions](en/query/lambda_query.md).
 
 ## 13. Lambda conditions are unavailable in a native image, or startup reports missing reflection
 
@@ -152,9 +152,9 @@ Lambda relies on `SerializedLambda` and serialization mirroring to extract prope
 - Without registration the whole lambda system is unavailable under native (JVM mode is unaffected);
 - Separately, **`updateSaveFetch` under native needs `native-entity-proxies`** to pre-generate the proxy, otherwise that branch is unavailable.
 
-The complete checklist (entity scanning, DTO reflection, extension classes, function classes, JSON/vector/geometry driver classes) is in the [GraalVM Native Image Guide](../tools/graalvm_native.md).
+The complete checklist (entity scanning, DTO reflection, extension classes, function classes, JSON/vector/geometry driver classes) is in the [GraalVM Native Image Guide](en/tools/graalvm_native.md).
 
 ## 14. What must change when migrating from sqltoy-plus or MyBatis?
 
-- **sqltoy-plus**: 6.0.8 folds the lambda capability into core. Drop the plugin dependency and `@EnableSqlToyPlus`, then follow the mapping table in [upgrade guide section 10.2](../introduction/upgrade_6.0.md) for package/class renames, and regression-test the two behaviour changes (`getOne()` with multiple matches, unconditional update/delete);
-- **MyBatis / MyBatis-Plus**: `<if>` → `#[]`, `QueryWrapper` → `EntityQuery` or lambda, `ResultMap` → result type/VO mapping, pagination plugin → `findPage`. The full mapping and rollout order are in [Migrating from MyBatis](../introduction/migration.md).
+- **sqltoy-plus**: 6.0.8 folds the lambda capability into core. Drop the plugin dependency and `@EnableSqlToyPlus`, then follow the mapping table in [upgrade guide section 10.2](en/introduction/upgrade_6.0.md) for package/class renames, and regression-test the two behaviour changes (`getOne()` with multiple matches, unconditional update/delete);
+- **MyBatis / MyBatis-Plus**: `<if>` → `#[]`, `QueryWrapper` → `EntityQuery` or lambda, `ResultMap` → result type/VO mapping, pagination plugin → `findPage`. The full mapping and rollout order are in [Migrating from MyBatis](en/introduction/migration.md).

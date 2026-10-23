@@ -17,22 +17,21 @@ Register interceptors by configuring the `spring.sqltoy.sqlInterceptors` array. 
 spring:
   sqltoy:
     # Keep sqltoy at the start, so developers do not overlook the spring.sqltoy prefix and write sqltoy instead, which would prevent loading
-    sqltoy:
-      # Separate multiple paths with commas (please read carefully)
-      sqlResourcesDir: classpath:/sqltoy/quickstart
-      # Defaults to classpath:sqltoy-translate.xml; no need to set it if identical
-      translateConfig: classpath:sqltoy-translate.xml
-      # Handles special types such as json (optional configuration)
-      typeHandler: com.sqltoy.plugins.JsonTypeHandler
-      # Can be default, defaultFormatter, defaultSqlFormatter, or a concrete class (with package name); the ones provided by sqltoy require the druid jar
-      sqlFormatter: defaultSqlFormatter
-      
-      # SQL interceptors, which can rewrite SQL, e.g. multi-tenancy, SQL injection validation, schema rewriting, etc.
-      sqlInterceptors:
-        # If a concrete package path and class name is given, sqltoy will instantiate it automatically
-        - org.sagacity.sqltoy.plugins.interceptors.TenantFilterInterceptor
-        # You can also register a spring bean by putting the bean name here
-        # - yourInterceptorBeanName
+    # Separate multiple paths with commas (please read carefully)
+    sqlResourcesDir: classpath:/sqltoy/quickstart
+    # Defaults to classpath:sqltoy-translate.xml; no need to set it if identical
+    translateConfig: classpath:sqltoy-translate.xml
+    # Handles special types such as json (optional configuration)
+    typeHandler: com.sqltoy.plugins.JsonTypeHandler
+    # Can be default, defaultFormatter, defaultSqlFormatter, or a concrete class (with package name); the ones provided by sqltoy require the druid jar
+    sqlFormatter: defaultSqlFormatter
+
+    # SQL interceptors, which can rewrite SQL, e.g. multi-tenancy, SQL injection validation, schema rewriting, etc.
+    sqlInterceptors:
+      # If a concrete package path and class name is given, sqltoy will instantiate it automatically
+      - org.sagacity.sqltoy.plugins.interceptors.TenantFilterInterceptor
+      # You can also register a spring bean by putting the bean name here
+      # - yourInterceptorBeanName
 ```
 
 ### 2. Entity Class Annotation

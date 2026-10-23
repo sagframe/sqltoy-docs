@@ -221,7 +221,7 @@ spring.sqltoy.taskExecutor.awaitTerminationSeconds=-1
 
 ## 10. NoSQL (Elasticsearch)
 
-ES node configuration uses the prefix `spring.sqltoy.elastic.` (multiple nodes/clusters supported); for full details see [Elasticsearch Support](../nosql/sqltoy_elasticsearch.md):
+ES node configuration uses the prefix `spring.sqltoy.elastic.` (multiple nodes/clusters supported); for full details see [Elasticsearch Support](en/nosql/sqltoy_elasticsearch.md):
 
 ```properties
 spring.sqltoy.elastic.defaultId=default
@@ -232,13 +232,13 @@ spring.sqltoy.elastic.endpoints[0].password=skyline
 spring.sqltoy.elastic.endpoints[0].sqlPath=_nlpcn/sql
 ```
 
-> MongoDB reuses spring-data's `spring.data.mongodb.*` configuration; see [MongoDB Support](../nosql/sqltoy_mongo.md).
+> MongoDB reuses spring-data's `spring.data.mongodb.*` configuration; see [MongoDB Support](en/nosql/sqltoy_mongo.md).
 
 ---
 
 ## 11. GraalVM native build-time parameters (since 6.0.8)
 
-These three parameters **only take effect while building a native image**; JVM mode ignores them entirely. They fill in the reflection and proxy needs the framework cannot infer from configuration. Background and verification results are in the [GraalVM Native Image Guide](../tools/graalvm_native.md).
+These three parameters **only take effect while building a native image**; JVM mode ignores them entirely. They fill in the reflection and proxy needs the framework cannot infer from configuration. Background and verification results are in the [GraalVM Native Image Guide](en/tools/graalvm_native.md).
 
 ```properties
 # Reflection registration for non-entity DTO/VOs (packagesToScan only sees @Entity)
@@ -258,7 +258,7 @@ spring.sqltoy.native-entity-proxies[0]=com.yourcorp.project.entity.StockVO
 | `native-reflection-classes` | array of fully qualified class names | Registers individual classes (DTO/VOs, classes referenced by name) |
 | `native-entity-proxies` | array of fully qualified class names | Pre-generates the `updateSaveFetch` proxy for the listed entities at build time (the entity must not be `final` and needs an accessible no-arg constructor) |
 
-> On Solon the prefix is `solon.sqltoy.*` with the same parameter names. For YAML forms and complete examples on both stacks see section 3 of the [GraalVM Native Image Guide](../tools/graalvm_native.md).
+> On Solon the prefix is `solon.sqltoy.*` with the same parameter names. For YAML forms and complete examples on both stacks see section 3 of the [GraalVM Native Image Guide](en/tools/graalvm_native.md).
 
 ---
 

@@ -203,7 +203,7 @@ solon:
 
 ## 五、Solon 集成
 
-solon-plugin 内置 `SqltoyRuntimeNativeRegistrar`（实现 solon 的 `RuntimeNativeRegistrar` 接口，`SqlToyPluginImpl` 在 AOT 模式下自动挂载），注册内容与 spring 侧对称：固定资源 pattern、配置属性类与 6 个内置主键生成器反射、实体反射，6.0.8 起同样按配置动态注册资源 pattern、扩展类反射以及 `native-reflection-classes` / `native-reflection-packages` 指定的 DTO/VO 与特殊类，并支持 `native-entity-proxies` 在构建期预生成 updateSaveFetch 代理。solon 默认 `sqlResourcesDir=classpath:sqltoy` 命中内置 pattern，零配置即可。构建方式参见 solon 官方 native 文档与 [Solon 集成参考](../config/solon.md)。
+solon-plugin 内置 `SqltoyRuntimeNativeRegistrar`（实现 solon 的 `RuntimeNativeRegistrar` 接口，`SqlToyPluginImpl` 在 AOT 模式下自动挂载），注册内容与 spring 侧对称：固定资源 pattern、配置属性类与 6 个内置主键生成器反射、实体反射，6.0.8 起同样按配置动态注册资源 pattern、扩展类反射以及 `native-reflection-classes` / `native-reflection-packages` 指定的 DTO/VO 与特殊类，并支持 `native-entity-proxies` 在构建期预生成 updateSaveFetch 代理。solon 默认 `sqlResourcesDir=classpath:sqltoy` 命中内置 pattern，零配置即可。构建方式参见 solon 官方 native 文档与 [Solon 集成参考](config/solon.md)。
 
 > [!NOTE]
 > solon 把 yml **标量**绑定到 `String[]` 时元素会带上引号（`packagesToScan: com.x.entity` 绑定为 `"com.x.entity"`），带引号包名会让实体扫描静默为空。6.0.8 起插件已自动剥离首尾成对引号，标量与 yaml 列表两种写法均可；6.0.7 及以下请使用 yaml 列表写法。
@@ -221,6 +221,6 @@ solon-plugin 内置 `SqltoyRuntimeNativeRegistrar`（实现 solon 的 `RuntimeNa
 
 ## 相关文档
 
-- [其他特性](other_features.md)
-- [Solon 集成参考](../config/solon.md)
-- [sqltoy 配置参数](../config/sqltoy_config.md)
+- [其他特性](tools/other_features.md)
+- [Solon 集成参考](config/solon.md)
+- [sqltoy 配置参数](config/sqltoy_config.md)

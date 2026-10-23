@@ -20,9 +20,9 @@ java -cp ./libs/* org.sagacity.quickvo.QuickVOStart quickvo.xml
 
 ## 2. Key quickvo.xml Configuration
 
-> For the schema location of `quickvo.xml` and IDE completion setup, see the [XML Schema Guide](../config/xml_schemas.md).
+> For the schema location of `quickvo.xml` and IDE completion setup, see the [XML Schema Guide](en/config/xml_schemas.md).
 
-`quickvo.xml` mainly consists of `property` (parameters), `datasource` (database connection), and `tasks/task` (generation tasks). The structure below is for standalone execution (for the full configuration when using the Maven plugin, see [quickvo-maven-plugin](quickvo_plugin.md)):
+`quickvo.xml` mainly consists of `property` (parameters), `datasource` (database connection), and `tasks/task` (generation tasks). The structure below is for standalone execution (for the full configuration when using the Maven plugin, see [quickvo-maven-plugin](en/prepare/quickvo_plugin.md)):
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -71,7 +71,7 @@ Each table generates **two classes, AbstractVO + VO**, where the VO extends Abst
 - `@Entity(tableName="sqltoy_dict_detail", pk_constraint="PRIMARY")`: corresponds to the concrete table (`org.sagacity.sqltoy.config.annotation.Entity`);
 - `@SqlToyEntity`: marks the precise anchor when resolving a VO — after finding `@SqlToyEntity`, sqltoy looks at its parent class to locate the class that actually maps to the table, then collects `@Id` and `@Column` to build the complete object-to-table mapping;
 - `@Id`, `@Column`: primary key and column mapping;
-- `@PartitionKey`: partition column marker (the partition key hint for MPP table creation and DML); partitioned tables additionally get `@Partition`/`@PartitionDef` (partition strategy and partition details) on the entity, and ClickHouse/Doris/StarRocks tables get `@MppTable` (table engine metadata) — these three work with sqltoy 6.0.4's POJO-to-DDL feature (see [POJO to DDL](../primarykey/sqltoy_ddl.md)); with older quickvo versions you can annotate them by hand.
+- `@PartitionKey`: partition column marker (the partition key hint for MPP table creation and DML); partitioned tables additionally get `@Partition`/`@PartitionDef` (partition strategy and partition details) on the entity, and ClickHouse/Doris/StarRocks tables get `@MppTable` (table engine metadata) — these three work with sqltoy 6.0.4's POJO-to-DDL feature (see [POJO to DDL](en/primarykey/sqltoy_ddl.md)); with older quickvo versions you can annotate them by hand.
 
 quickvo also writes the database table/column comments into the VO, which makes it easier to read and maintain.
 
@@ -86,11 +86,11 @@ Solution: **configure the datasource's `schema` or `catalog` correctly** (config
 
 ## 5. Strict VO (DTO) / POJO (entity) Layering
 
-For medium and large projects we recommend strictly separating the VO/DTO used for external interaction from the persistence-layer POJO, generating them into different packages via quickvo configuration, and converting between VO and POJO in the business layer (see [Utility classes: DTO ↔ POJO conversion](../tools/utils.md)).
+For medium and large projects we recommend strictly separating the VO/DTO used for external interaction from the persistence-layer POJO, generating them into different packages via quickvo configuration, and converting between VO and POJO in the business layer (see [Utility classes: DTO ↔ POJO conversion](en/tools/utils.md)).
 
 - Layered example project: https://github.com/sagframe/sqltoy-strict
 
 ## 6. See Also
 
-- To integrate quickvo into the Maven build, see [quickvo-maven-plugin](quickvo_plugin.md).
-- For primary key strategy details, see [Primary Key Strategies](../primarykey/sqltoy_primarykey.md).
+- To integrate quickvo into the Maven build, see [quickvo-maven-plugin](en/prepare/quickvo_plugin.md).
+- For primary key strategy details, see [Primary Key Strategies](en/primarykey/sqltoy_primarykey.md).

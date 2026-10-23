@@ -148,7 +148,7 @@ List<CompanyInfoVO> jsonResult = (List<CompanyInfoVO>) lightDao.elastic()
 - 多集群/多节点通过配置多个 `endpoints[n]` 实现，查询时可用 `end-point` 属性或 `.endPoint(id)` 指定。
 - 纯 CRUD 建议直接用 ES 官方客户端；sqltoy 的价值在于**动态条件 + 缓存翻译 + 结果集算法**的组合。
 
-## 四、接入注意事项（实测）
+## 五、接入注意事项（实测）
 
 1. **endpoint 的 `id` 必填**：`endpoints[0].id` 缺省不写会在 `SqlToyContext` 初始化时报 `getId()` 为 null 的 NPE，务必为每个 endpoint 显式设置 id（或配置 `default-id`）。
 2. **依赖**：sqltoy 的 ES 客户端（Rest5Client）基于 Apache HttpClient 5，项目需显式引入 `org.apache.httpcomponents.client5:httpclient5`（sqltoy 未传递该依赖）。
@@ -157,7 +157,7 @@ List<CompanyInfoVO> jsonResult = (List<CompanyInfoVO>) lightDao.elastic()
 
 > 完整可运行示例：`sqltoy-showcase` 的 `NoSqlTest`（Testcontainers 起真实 ES 容器，`<eql>` json 模式动态查询实测）。
 
-## 五、安全连接（认证与 TLS）
+## 六、安全连接（认证与 TLS）
 
 生产环境的 ES 通常开启安全（认证 + TLS）。sqltoy 的 endpoint 支持完整的连接安全配置：
 

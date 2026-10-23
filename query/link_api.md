@@ -208,7 +208,7 @@ Page page = lightDao.elastic().sql("es_sql_id").findPage(new Page(10, 1));
 List mList = lightDao.mongo().sql("mql_id").entity(queryVO).resultType(...).find();
 ```
 
-详见 [Elasticsearch 支持](../nosql/sqltoy_elasticsearch.md) 与 [MongoDB 支持](../nosql/sqltoy_mongo.md)。
+详见 [Elasticsearch 支持](nosql/sqltoy_elasticsearch.md) 与 [MongoDB 支持](nosql/sqltoy_mongo.md)。
 
 ---
 

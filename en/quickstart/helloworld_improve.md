@@ -18,7 +18,7 @@
 
 ```java
   // logic sketch:
-  if(entity.getCreateBy()!=null){entity.setCreateBy(unifyCreateMap.get("createBy"));}
+  if(entity.getCreateBy()==null){entity.setCreateBy(unifyCreateMap.get("createBy"));}
 ```
 
 * 2. Register the handler in application.yml

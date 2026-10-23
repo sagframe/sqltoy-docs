@@ -31,4 +31,4 @@ spring.sqltoy.overTimeSqlHandler=com.yourpkg.YourOverTimeHandler
 
 在实现类中可拿到超时 SQL 的语句、参数、耗时等信息，按需要落库、告警或上报。
 
-> 相关：SQL 执行统计还可参考 `org.sagacity.sqltoy.SqlExecuteStat`、`SqlExecuteTrace`、`SqlExecuteLog`。常见 SQL 优化写法见[常见 SQL 案例](../query/sql_showcase.md)。
+> 相关：SQL 执行统计还可参考 `org.sagacity.sqltoy.SqlExecuteStat`、`SqlExecuteTrace`、`SqlExecuteLog`。常见 SQL 优化写法见[常见 SQL 案例](query/sql_showcase.md)。

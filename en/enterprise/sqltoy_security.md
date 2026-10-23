@@ -8,7 +8,7 @@
 * For non-fixed-length characters, set the proportion via the mask-rate masking ratio, e.g.: mask-rate="50"
 * You can also define your own masking handler
 
-```java
+```properties
 # Implement org.sagacity.sqltoy.plugins.secure.DesensitizeProvider
 # Default implementation class: org.sagacity.sqltoy.plugins.secure.impl.DesensitizeDefaultProvider
 spring.sqltoy.desensitizeProvider=your.DesensitizeProvider
@@ -57,10 +57,8 @@ List result = lightDao
 # then strip headers and squeeze to single-line Base64
 openssl genrsa 1024 2>/dev/null | openssl pkcs8 -topk8 -nocrypt > private.pem
 openssl rsa -in private.pem -pubout > public.pem
-grep -v '^-' private.pem | tr -d '
-' > rsa_private.key && echo >> rsa_private.key
-grep -v '^-' public.pem  | tr -d '
-' > rsa_public.key  && echo >> rsa_public.key
+grep -v '^-' private.pem | tr -d '\n' > rsa_private.key && echo >> rsa_private.key
+grep -v '^-' public.pem  | tr -d '\n' > rsa_public.key  && echo >> rsa_public.key
 ```
 
 > Or generate with plain Java (JDK built-in JCE, zero dependencies) — the `org.sagacity.sqltoy.utils.SecureUtils` class under `src/test` of the framework source wraps exactly this logic:
@@ -81,7 +79,9 @@ public class GenerateRsaKeys {
         System.out.println(Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
     }
 }
-``` A 1024-bit ciphertext is about 172 characters per field, so encrypted columns should be `varchar(500)`; longer keys are fine for production as long as the column width grows accordingly.
+```
+
+A 1024-bit ciphertext is about 172 characters per field, so encrypted columns should be `varchar(500)`; longer keys are fine for production as long as the column width grows accordingly.
 
 ```properties
 # You can provide a custom encryption/decryption algorithm implementation; the framework ships a default one

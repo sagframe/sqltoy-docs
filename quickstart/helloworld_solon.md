@@ -18,7 +18,7 @@
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-    <version>最新版</version>
+    <version>6.0.9</version>
 </dependency>
 ```
 
@@ -91,12 +91,12 @@ public class TestController {
     @Get
     @Mapping("/order/findAll")
     public Object query() {
-        return lightDao.find("findAll", new HashMap<>());
+        return lightDao.find("sqltoy_order_info_find", new HashMap<>());
     }
 }
 ```
 
-2. 创建模板sql（sqltoy/sqltoy_order_info.sql.sql.xml）
+2. 创建模板sql（sqltoy/sqltoy_order_info.sql.xml）
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -120,4 +120,4 @@ public class TestController {
 ## 五、调试
 
 1. 运行程序（App.java）
-2. 访问接口：```http://localhost:8080/order/findAll```
+2. 访问接口：`http://localhost:8080/order/findAll`

@@ -39,4 +39,4 @@ tableApi.dataSource(otherDataSource).truncate("sqltoy_staff_info");
 - `TableMeta` / `ColumnMeta` wrap database metadata and can be used for dynamic forms, code generation, data dictionaries, and similar scenarios.
 - Different databases expose table information differently; some require a SQL query (e.g. Oracle's `select * from user_tab_comments`). In that case simply use sqltoy's SQL query directly; if you need to process the `ResultSet` yourself, write a custom Dao extending `SpringDaoSupport` and use the `DataSourceCallbackHandler` callback pattern.
 
-> To generate table DDL from POJOs, see [POJO to DDL](../primarykey/sqltoy_ddl.md).
+> To generate table DDL from POJOs, see [POJO to DDL](en/primarykey/sqltoy_ddl.md).

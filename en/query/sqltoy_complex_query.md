@@ -206,12 +206,12 @@ Effect (excerpt):
     <tr>
         <td>Banana</td><td>13</td><td>2300</td><td></td><td>2700</td><td></td>
         <td>12</td><td>2400</td><td>4.30%</td><td>2700</td><td>0.00%</td>
-        <td>10</td><td>2000</td><td>-16.70%</td><td>2000</td><td>-26.00%</td>
+        <td>10</td><td>2000</td><td>-16.70%</td><td>2000</td><td>-25.90%</td>
     </tr>
     <tr>
         <td>Apple</td><td>13</td><td>2000</td><td></td><td>2500</td><td></td>
-        <td>11</td><td>1900</td><td>-5.10%</td><td>2600</td><td>4.00%</td>
-        <td>12</td><td>2000</td><td>5.20%</td><td>2400</td><td>-7.70%</td>
+        <td>11</td><td>1900</td><td>-5.00%</td><td>2600</td><td>4.00%</td>
+        <td>12</td><td>2000</td><td>5.30%</td><td>2400</td><td>-7.70%</td>
     </tr>
 </tbody>
 </table>

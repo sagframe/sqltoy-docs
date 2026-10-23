@@ -64,7 +64,7 @@ MongoDB queries are defined with the `<mql>` tag; the MongoDB JSON query/aggrega
 Key points:
 
 - **Field alias**: MongoDB cannot do `select trans_type as transTypeName` as SQL does; sqltoy uses the `source:alias` syntax in `fields` to copy the same field value into an alias column, then applies Cache Translate to the alias column via `<translate original-columns="sourceField" columns="aliasName">`, keeping the original code column unchanged.
-- **Dynamic conditions**: when a parameter inside `<#>...</#>` is null, the whole segment is removed; it can be combined with `@if()/@else` for branching (see [Tags & Expressions reference](../appendix/tags.md)).
+- **Dynamic conditions**: when a parameter inside `<#>...</#>` is null, the whole segment is removed; it can be combined with `@if()/@else` for branching (see [Tags & Expressions reference](en/appendix/tags.md)).
 - **Data masking**: `<secure-mask>` is used the same way as in SQL queries.
 
 ### 2.2 Aggregation Query
@@ -139,7 +139,7 @@ The `dictKeyName` cache in the example above is defined in `sqltoy-translate.xml
 </sagacity>
 ```
 
-For the full usage of Cache Translate, see [Cache Translate usage](../quickstart/translates.md).
+For the full usage of Cache Translate, see [Cache Translate usage](en/quickstart/translates.md).
 
 ## 4. Java Invocation
 

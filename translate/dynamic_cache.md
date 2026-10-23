@@ -34,4 +34,4 @@ TranslateManager translateManager = lightDao.getSqlToyContext().getTranslateMana
 
 **2）动态扩展缓存**（运行时新增缓存定义）：用 `putCache(TranslateConfigModel)` 动态注册一个新缓存，并可用 `putCacheUpdater` 为其挂载更新检测器，实现运行时按需扩展缓存翻译能力。
 
-> 缓存翻译的基本用法见[缓存翻译使用](../quickstart/translates.md)；超大规模主数据的 FIFO 动态缓存见[超大规模主数据缓存](sqltoy_FIFO_translate.md)。
+> 缓存翻译的基本用法见[缓存翻译使用](quickstart/translates.md)；超大规模主数据的 FIFO 动态缓存见[超大规模主数据缓存](translate/sqltoy_FIFO_translate.md)。

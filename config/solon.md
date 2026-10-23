@@ -1,6 +1,6 @@
 # Solon 集成参考
 
-sqltoy 通过独立的 `sagacity-sqltoy-solon-plugin` 模块支持 [Solon](https://solon.noear.org/) 框架，API 与 Spring 版完全一致（LightDao / SqlToyLazyDao / SqlToyCRUDService 等），差异只在配置与注入方式。入门实战见 [helloworld-solon 案例](../quickstart/helloworld_solon.md)。
+sqltoy 通过独立的 `sagacity-sqltoy-solon-plugin` 模块支持 [Solon](https://solon.noear.org/) 框架，API 与 Spring 版完全一致（LightDao / SqlToyLazyDao / SqlToyCRUDService 等），差异只在配置与注入方式。入门实战见 [helloworld-solon 案例](quickstart/helloworld_solon.md)。
 
 ## 一、依赖与版本要求
 
@@ -18,7 +18,7 @@ sqltoy 通过独立的 `sagacity-sqltoy-solon-plugin` 模块支持 [Solon](https
 
 ## 二、配置（solon.sqltoy 前缀）
 
-配置前缀为 **`solon.sqltoy`**（兼容旧前缀 `sqltoy`）；属性名与 Spring 版 `spring.sqltoy.*` 几乎一一对应，参数含义直接参阅[sqltoy 配置参数](sqltoy_config.md)即可：
+配置前缀为 **`solon.sqltoy`**（兼容旧前缀 `sqltoy`）；属性名与 Spring 版 `spring.sqltoy.*` 几乎一一对应，参数含义直接参阅[sqltoy 配置参数](config/sqltoy_config.md)即可：
 
 ```yaml
 solon.sqltoy:
@@ -65,10 +65,10 @@ public class TestController {
 }
 ```
 
-多数据源的选择机制（sql 中 `datasource` 属性、lazyDao 链式 `.dataSource(...)`、`defaultDataSource` 兜底等）与 Spring 版一致，参见[多数据源与事务](dynamic_datasource.md)。
+多数据源的选择机制（sql 中 `datasource` 属性、lazyDao 链式 `.dataSource(...)`、`defaultDataSource` 兜底等）与 Spring 版一致，参见[多数据源与事务](config/dynamic_datasource.md)。
 
 ## 四、GraalVM Native
 
 solon-plugin 内置 `org.sagacity.sqltoy.solon.integration.aot.SqltoyRuntimeNativeRegistrar`（实现 Solon 的 `RuntimeNativeRegistrar` 接口），构建 native image 时自动注册 sqltoy 配置资源（`sqltoy-translate.xml` 等）与实体类反射元数据，无需手工追加 reflect-config；6.0.8 起同样按配置动态注册资源 pattern、扩展类反射，并支持用 `native-reflection-packages` / `native-reflection-classes` 登记非实体 DTO/VO 的反射。
 
-> Spring Boot 侧的 AOT 说明与完整 native 指引见 [GraalVM Native Image 指引](../tools/graalvm_native.md)。
+> Spring Boot 侧的 AOT 说明与完整 native 指引见 [GraalVM Native Image 指引](tools/graalvm_native.md)。

@@ -63,7 +63,7 @@ public void testMultiInnerIfElse1() throws Exception {
 + Date expressions: day(), sysdate(), ${.day}
 + include containment check: @if(:statusAry include 1) — if statusAry is an array containing 1, it returns true; if statusAry is a string, it returns the result of statusAry.contains("1").
 + exclude: @if(:statusAry exclude 1), the opposite of include, meaning "does not contain"
-+ Get the size: @if(size(:statusAry)>1)), i.e. get the length of a collection/array via size(:paramName)
++ Get the size: @if(size(:statusAry)>1), i.e. get the length of a collection/array via size(:paramName)
 + in usage: @if(:status in '1,2,3') returns true when status equals 1, 2, or 3
 + out usage: @if(:status out '1,2,3') returns true when status is none of 1, 2, or 3
 
@@ -87,7 +87,7 @@ Three formats:
 <sql id="qstart_loop_sql">
     <value><![CDATA[
         select ORDER_ID
-        @loop(:fields,",",:fields[i])
+        @loop(:fields,:fields[i],",")
         from sqltoy_device_order t
         where #[t.ORDER_ID=:orderId]
         -- @blank(:param) exists to work with sqltoy's #[] null-elimination feature: when the value is not null, @blank() is replaced with an empty string (you can also use @if instead of @blank)
@@ -133,7 +133,7 @@ sqlToyConfig.setId(reportId+"_"+sqlScriptIndex);
 lightDao.getSqlToyContext().putSqlToyConfig(sqlToyConfig);
 ```
 
-> For the complete closed-loop example of "store configuration in DB → dynamic parse → report / API service" (including the `XMLBinding` cache mechanism and `@joinFields` dynamic columns), see [Configurable Service Foundation (Reports / Configurable API Services)](../tools/configurable_service.md).
+> For the complete closed-loop example of "store configuration in DB → dynamic parse → report / API service" (including the `XMLBinding` cache mechanism and `@joinFields` dynamic columns), see [Configurable Service Foundation (Reports / Configurable API Services)](en/tools/configurable_service.md).
 
 ## 6. Collecting slow-query SQL statistics
 

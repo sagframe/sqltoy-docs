@@ -10,7 +10,7 @@ sqltoy offers three ways to organize a query; pick by scenario:
 | --- | --- | --- |
 | **Lambda conditions** (this page) | Everyday conditional queries over one or more joined tables; conditional update/delete with conditions expressed as property references | `lightDao.lambdaQuery/lambdaUpdate/lambdaDelete` |
 | **EntityQuery/EntityUpdate** | Single-table string conditions (where text + named parameters) | `lightDao.findEntity/updateByQuery` etc. |
-| **SQL mode** (sqlId + `#[...]` segments + `@if` macros) | Complex dynamic SQL, multi-branch condition combinations, dialect variants, configurable reports | `lightDao.find/findPage` + sqlId, see [Dynamic SQL Guide](dynamic_sql.md) |
+| **SQL mode** (sqlId + `#[...]` segments + `@if` macros) | Complex dynamic SQL, multi-branch condition combinations, dialect variants, configurable reports | `lightDao.find/findPage` + sqlId, see [Dynamic SQL Guide](en/query/dynamic_sql.md) |
 
 Dynamism in the lambda layer is expressed with the `IfPresent` sugar (see [Dynamic conditions](#dynamic-conditions)); **do not try to pile complex dynamic logic into the lambda layer — switch to SQL mode instead**, where segments, macros, dialect variants and hot reload already exist.
 

@@ -30,5 +30,5 @@ String[] paramNames = config.getFullParamNames();
 
 ## 四、相关
 
-- SQL 配置驱动（报表/API 服务）的实战写法见[常见 SQL 案例](../query/sql_showcase.md)。
-- 配置参数总览见[sqltoy 配置参数](../config/sqltoy_config.md)。
+- SQL 配置驱动（报表/API 服务）的实战写法见[常见 SQL 案例](query/sql_showcase.md)。
+- 配置参数总览见[sqltoy 配置参数](config/sqltoy_config.md)。

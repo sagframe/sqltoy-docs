@@ -39,7 +39,7 @@
 </sql>
 ```
 
-一眼就能看明白业务含义，后期维护、优化、调整都更容易。详见[动态 SQL 编写规范](../query/dynamic_sql.md)。
+一眼就能看明白业务含义，后期维护、优化、调整都更容易。详见[动态 SQL 编写规范](query/dynamic_sql.md)。
 
 ## 二、快速分页与 count 优化
 
@@ -49,15 +49,15 @@ sqltoy 自动提供智能分页，开发者无需了解各数据库分页方言�
 - 剔除 `select` 与 `from` 之间不必要的函数运算与无关信息；
 - 充分辨别 `union` 与 `group` 类型查询。
 
-配合 `@fast()`（先分页后关联）与 `<page-optimize>`（缓存 count），可让原本 2 次的分页查询降到约 **1.35 次**。详见[分页优化](../query/pagination.md)。
+配合 `@fast()`（先分页后关联）与 `<page-optimize>`（缓存 count），可让原本 2 次的分页查询降到约 **1.35 次**。详见[分页优化](query/pagination.md)。
 
 ## 三、缓存翻译
 
-把"码值→名称"的转换交给缓存，而不是写一堆 `left join`。没有缓存翻译时，多表关联的 SQL 又长又慢；用了缓存翻译，SQL 简洁清晰、效率几何级提升。详见[缓存翻译使用](../quickstart/translates.md)。
+把"码值→名称"的转换交给缓存，而不是写一堆 `left join`。没有缓存翻译时，多表关联的 SQL 又长又慢；用了缓存翻译，SQL 简洁清晰、效率几何级提升。详见[缓存翻译使用](quickstart/translates.md)。
 
 ## 四、函数替换（跨库）
 
-对象操作容易跨库，但**手写的 SQL** 呢？用 MySQL 写的 SQL 能直接跑在 Oracle/SQL Server 上吗？sqltoy 给了答案：在首次加载或动态执行时，**根据数据库类型自动替换 SQL 中的函数**（如 `nvl`/`ifnull`/`isnull`、`concat`、`to_char`、`date_format` 等）。详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)。
+对象操作容易跨库，但**手写的 SQL** 呢？用 MySQL 写的 SQL 能直接跑在 Oracle/SQL Server 上吗？sqltoy 给了答案：在首次加载或动态执行时，**根据数据库类型自动替换 SQL 中的函数**（如 `nvl`/`ifnull`/`isnull`、`concat`、`to_char`、`date_format` 等）。详见[方言自适配与函数扩展](dialect/sqltoy_function.md)。
 
 ## 五、防止 SQL 注入
 
@@ -72,7 +72,7 @@ select * from sqltoy_staff_info t where t.staff_name=:staffName
 select * from sqltoy_staff_info t where t.staff_name=?
 ```
 
-此外还可用 `<valid-sqlInjection>` 过滤器对参数做注入校验（见[动态 SQL 编写规范](../query/dynamic_sql.md)）。
+此外还可用 `<valid-sqlInjection>` 过滤器对参数做注入校验（见[动态 SQL 编写规范](query/dynamic_sql.md)）。
 
 ## 六、SQL 中可以加注释
 
@@ -83,4 +83,4 @@ sqltoy 坚持让开发者把在 DBeaver 等客户端写好的 SQL **直接 copy 
 
 ---
 
-> 更多实战写法见[常见 SQL 案例](../query/sql_showcase.md)与[补充说明：标签与表达式参考](../appendix/tags.md)。
+> 更多实战写法见[常见 SQL 案例](query/sql_showcase.md)与[补充说明：标签与表达式参考](appendix/tags.md)。

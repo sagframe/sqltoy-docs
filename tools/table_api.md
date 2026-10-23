@@ -39,4 +39,4 @@ tableApi.dataSource(otherDataSource).truncate("sqltoy_staff_info");
 - `TableMeta` / `ColumnMeta` 封装了数据库元数据，可用于动态表单、代码生成、数据字典等场景。
 - 不同数据库获取表信息的方式不同，有的需要通过 SQL 查询（如 Oracle 的 `select * from user_tab_comments`），此时直接用 sqltoy 的 SQL 查询即可；如需自行处理 `ResultSet`，可自定义 Dao 继承 `SpringDaoSupport`，使用 `DataSourceCallbackHandler` 反调模式。
 
-> 由 POJO 反向生成建表 DDL 见 [POJO 生成表结构 DDL](../primarykey/sqltoy_ddl.md)。
+> 由 POJO 反向生成建表 DDL 见 [POJO 生成表结构 DDL](primarykey/sqltoy_ddl.md)。

@@ -1,6 +1,6 @@
 # quickvo-maven-plugin
 
-除了独立运行 quickvo（见 [quickvo 代码生成工具](quickvo.md)），更推荐用 **quickvo-maven-plugin** 把代码生成集成进 Maven 构建，一条命令即可根据数据库表生成/更新 POJO 与 VO。
+除了独立运行 quickvo（见 [quickvo 代码生成工具](prepare/quickvo.md)），更推荐用 **quickvo-maven-plugin** 把代码生成集成进 Maven 构建，一条命令即可根据数据库表生成/更新 POJO 与 VO。
 
 > [!NOTE]
 > 当前版本 **2.0.4**；自 2.0.0 起对之前的版本进行了大幅重构，并针对 19 种数据库（oracle、db2、sqlserver、mysql、postgresql、hana、kingbase、dm、opengauss、oceanbase、doris、tidb、starrocks、clickhouse 等）进行了测试验证。完整功能清单与配置说明见插件仓库 README。
@@ -47,7 +47,7 @@
 
     <!-- 数据库定义，这里也可直接写具体值 -->
     <datasource name="helloworld" url="${spring.datasource.url}"
-        driver="com.mysql.cj.jdbc.Driver" schema="${spring.datasource.username}"
+        driver="com.mysql.cj.jdbc.Driver" schema="helloworld"
         username="${spring.datasource.username}" password="${spring.datasource.password}" />
 
     <!-- dist: 生成代码存放路径(相对 pom 中 baseDir); encoding: 文件编码 -->
@@ -80,7 +80,7 @@
 | `<task include active>` | `include` 用正则匹配要生成的表（如 `^SQLTOY_\w+`），`active` 是否启用 |
 | `<entity>` / `<vo>` | 分别生成 POJO 与 DTO/VO；`package` 目标包，`substr` 去除表名前缀，`name` 类名模板（`#{subName}` 为去前缀后的表名），`lombok-chain` 生成链式 set |
 
-> 主键策略（`primary-key`）、级联（`cascade`）、类型映射（`type-mapping`）、swagger 注解等更多配置项，参见 [quickvo 代码生成工具](quickvo.md) 与官方 README。
+> 主键策略（`primary-key`）、级联（`cascade`）、类型映射（`type-mapping`）、swagger 注解等更多配置项，参见 [quickvo 代码生成工具](prepare/quickvo.md) 与官方 README。
 
 ## 三、执行生成
 
@@ -117,4 +117,4 @@ public class OrderInfo implements Serializable {
 > [!WARNING]
 > `begin-auto-generate` 与 `end-auto-generate` 之间的内容由 quickvo 自动生成，**请勿手工修改**（重新生成会覆盖）；扩展属性/方法请写在区间之外。
 
-完整建项目→生成→查询流程见 [helloworld 快速上手](../quickstart/helloworld.md)。
+完整建项目→生成→查询流程见 [helloworld 快速上手](quickstart/helloworld.md)。

@@ -17,22 +17,21 @@
 spring:
   sqltoy:
     # 将 sqltoy 放于开始位置，避免很多开发者忽视了 spring.sqltoy 开头，变成了 sqltoy 开头导致无法加载
-    sqltoy:
-      # 多个路径用逗号分隔 (请务必看仔细)
-      sqlResourcesDir: classpath:/sqltoy/quickstart
-      # 默认为 classpath:sqltoy-translate.xml，一致则可以不用设置
-      translateConfig: classpath:sqltoy-translate.xml
-      # 针对 json 等特殊类型做处理 (可选配置)
-      typeHandler: com.sqltoy.plugins.JsonTypeHandler
-      # 可以填 default、defaultFormatter、defaultSqlFormatter 或者具体的类 (含包名)，sqltoy 提供的需要引入 druid jar
-      sqlFormatter: defaultSqlFormatter
-      
-      # sql 拦截器，可以实现对 sql 的改写，比如多租户、sql 注入校验、改写的 schema 等
-      sqlInterceptors:
-        # 如果是具体的包路径和类名称，sqltoy 会自动实例化
-        - org.sagacity.sqltoy.plugins.interceptors.TenantFilterInterceptor
-        # 也可以注册一个 spring 的 bean，这里放入 bean 的名称
-        # - yourInterceptorBeanName
+    # 多个路径用逗号分隔 (请务必看仔细)
+    sqlResourcesDir: classpath:/sqltoy/quickstart
+    # 默认为 classpath:sqltoy-translate.xml，一致则可以不用设置
+    translateConfig: classpath:sqltoy-translate.xml
+    # 针对 json 等特殊类型做处理 (可选配置)
+    typeHandler: com.sqltoy.plugins.JsonTypeHandler
+    # 可以填 default、defaultFormatter、defaultSqlFormatter 或者具体的类 (含包名)，sqltoy 提供的需要引入 druid jar
+    sqlFormatter: defaultSqlFormatter
+
+    # sql 拦截器，可以实现对 sql 的改写，比如多租户、sql 注入校验、改写的 schema 等
+    sqlInterceptors:
+      # 如果是具体的包路径和类名称，sqltoy 会自动实例化
+      - org.sagacity.sqltoy.plugins.interceptors.TenantFilterInterceptor
+      # 也可以注册一个 spring 的 bean，这里放入 bean 的名称
+      # - yourInterceptorBeanName
 ```
 
 ### 2. 实体类标注

@@ -151,7 +151,7 @@ public class SqlToyTransInfo implements Serializable {
 @Sharding(table = @Strategy(name = "realHisTable", fields = { "bizDate" }))
 ```
 
-> `@Sharding` 的属性完整说明（含 `maxConcurrents`、`maxWaitSeconds`、`is_global_rollback`）见[注解速查 · @Sharding](../appendix/annotations.md)。
+> `@Sharding` 的属性完整说明（含 `maxConcurrents`、`maxWaitSeconds`、`is_global_rollback`）见[注解速查 · @Sharding](appendix/annotations.md)。
 
 ## 四、声明方式二：XML（查询）
 
@@ -193,13 +193,13 @@ lightDao.findByQuery(new QueryExecutor("""
 
 ## 七、已知边界
 
-- **不支持跨库的 join 查询与分页**：多库多表查询后的分页归并成本极高，属于设计问题而非实现问题；这类需求建议用 ClickHouse/StarRocks 等 MPP 数据库（sqltoy 均支持），详见 [FAQ](../faq/faq.md)；
-- **分库后的事务**：跨库写需要 JTA 或分布式事务框架配合，代码示例见 [多数据源与事务](../config/dynamic_datasource.md)；
+- **不支持跨库的 join 查询与分页**：多库多表查询后的分页归并成本极高，属于设计问题而非实现问题；这类需求建议用 ClickHouse/StarRocks 等 MPP 数据库（sqltoy 均支持），详见 [FAQ](faq/faq.md)；
+- **分库后的事务**：跨库写需要 JTA 或分布式事务框架配合，代码示例见 [多数据源与事务](config/dynamic_datasource.md)；
 - **分片表上的 `@DataVersion`/缓存翻译**：分表替换发生在 SQL 层，实体级增强照常生效；但**分库**后单条 SQL 只在其中一个库执行，聚合类统计需要自行汇总；
-- **策略 bean 必须实现 `initialize()` 并配 `initMethod="initialize"`**：`DefaultShardingStrategy` 的权重探活、`HashShardingStrategy` 的模数都在该方法里初始化；native 镜像下 `@Bean` 请声明**具体返回类型**（接口声明会导致 initMethod 无法解析），参见 [GraalVM Native Image 指引](../tools/graalvm_native.md)。
+- **策略 bean 必须实现 `initialize()` 并配 `initMethod="initialize"`**：`DefaultShardingStrategy` 的权重探活、`HashShardingStrategy` 的模数都在该方法里初始化；native 镜像下 `@Bean` 请声明**具体返回类型**（接口声明会导致 initMethod 无法解析），参见 [GraalVM Native Image 指引](tools/graalvm_native.md)。
 
 ## 八、相关
 
-- 多数据源配置与事务：[多数据源与事务](../config/dynamic_datasource.md)
-- 注解属性：[注解速查](../appendix/annotations.md)
+- 多数据源配置与事务：[多数据源与事务](config/dynamic_datasource.md)
+- 注解属性：[注解速查](appendix/annotations.md)
 - 演示项目：[sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase)（`DataSourceConfig` 含 hash 分库与日期分表的完整配置）

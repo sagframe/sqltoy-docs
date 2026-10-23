@@ -15,7 +15,7 @@ Execution side: two styles, chosen by how often the configuration changes:
 | `XMLBinding` dynamic execution | Queries whose configuration changes frequently | Every request passes id + lastUpdateTime; the framework decides whether the parse cache is hit by comparing timestamps, re-parsing only when something changed |
 | `parseSqlSegment` + `putSqlToyConfig` registration | Relatively stable queries | Parse and register once at startup / on change; afterwards `lightDao.find(id, params)` behaves exactly like a static sqlId |
 
-Dynamic columns: use `@joinFields(:fields, default)` to let configuration decide the `select` / `group by` / `order by` columns (field-name whitelist + dialect-aware reserved-word quoting), see [Tags & Expressions](../appendix/tags.md).
+Dynamic columns: use `@joinFields(:fields, default)` to let configuration decide the `select` / `group by` / `order by` columns (field-name whitelist + dialect-aware reserved-word quoting), see [Tags & Expressions](en/appendix/tags.md).
 
 ## 2. Sample Configuration Storage (Database)
 
@@ -40,6 +40,8 @@ public class ReportService {
     private String loadSqlXml(String reportId) {
         // e.g. select sql_xml from report_sql_config where report_id = ?
         // or read from a config center / report model
+        return lightDao.getValue("select sql_xml from report_sql_config where report_id = :reportId",
+                MapKit.keys("reportId").values(reportId), String.class);
     }
 
     public List<Map> query(String reportId, LocalDateTime updateTime,
@@ -119,6 +121,6 @@ List rows = lightDao.findByQuery(
 
 ## Related
 
-- [Dynamic SQL Guide](../query/dynamic_sql.md) (`#[]` dynamic segments, `@include`, `@joinFields` family)
-- [Tags & Expressions](../appendix/tags.md) (`@joinFields`, `@value`, `@loop` / `@secure-loop`, etc.)
-- [Platform Integration (Reports / Low-Code)](../tools/integration.md)
+- [Dynamic SQL Guide](en/query/dynamic_sql.md) (`#[]` dynamic segments, `@include`, `@joinFields` family)
+- [Tags & Expressions](en/appendix/tags.md) (`@joinFields`, `@value`, `@loop` / `@secure-loop`, etc.)
+- [Platform Integration (Reports / Low-Code)](en/tools/integration.md)

@@ -1,6 +1,6 @@
 # 数据版本控制（@DataVersion）
 
-> 自 sqltoy 5.12.11 / 4.19.62 版本开始支持。
+> 自 sqltoy 4.19.62 版本开始支持。
 
 ## 一、目的
 
@@ -45,4 +45,4 @@ order.setStatus(2);
 lightDao.update(order);   // 版本一致则更新并 +1，不一致抛异常
 ```
 
-> 数据版本控制与[弹性更新](../crud/sqltoy_crud.md)、[数据权限](sqltoy_permission.md)等企业级特性可叠加使用。
+> 数据版本控制与[弹性更新](crud/sqltoy_crud.md)、[数据权限](enterprise/sqltoy_permission.md)等企业级特性可叠加使用。

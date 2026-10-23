@@ -4,7 +4,7 @@
 
 实现并不难，复杂的是多库多表查询后的分页归并。sqltoy 不做这个实现**不是做不了，而是没有必要**——出现这种需求本质是设计问题。目前一般做法是通过 MPP 数据库来解决，如 ClickHouse、StarRocks，这些 sqltoy 都支持。
 
-详见[分库分表](../enterprise/sqltoy_sharding.md)。
+详见[分库分表](enterprise/sqltoy_sharding.md)。
 
 ## 二、sqltoy-orm 性能如何？
 
@@ -39,7 +39,7 @@ select `maxvalue`,name from table
 
 ## 四、多数据源怎么弄？
 
-完整的 dynamic-datasource 配置、`@DS` 切换与 `@DSTransactional` 跨库事务范例，见[多数据源与事务](../config/dynamic_datasource.md)。
+完整的 dynamic-datasource 配置、`@DS` 切换与 `@DSTransactional` 跨库事务范例，见[多数据源与事务](config/dynamic_datasource.md)。
 
 sqltoy 可以配置默认数据源：
 
@@ -49,9 +49,9 @@ spring.sqltoy.defaultDataSource=primaryDB
 
 多种实现方式：
 
-1. **dynamic-datasource**（支持事务）：详见[多数据源与事务](../config/dynamic_datasource.md)
+1. **dynamic-datasource**（支持事务）：详见[多数据源与事务](config/dynamic_datasource.md)
 2. **定义多个 `LightDao`**，给不同的 lightDao 注入不同的 dataSource，在 service 中按 bean 名称引入。
-3. **查询级切换**：`findByQuery`/`findPageByQuery` 等的 `QueryExecutor` 中可直接 `.dataSource(xxx)`；链式 API 也支持 `.dataSource(...)`（见 [Link 链式操作](../query/link_api.md)）。
+3. **查询级切换**：`findByQuery`/`findPageByQuery` 等的 `QueryExecutor` 中可直接 `.dataSource(xxx)`；链式 API 也支持 `.dataSource(...)`（见 [Link 链式操作](query/link_api.md)）。
 4. 涉及**多数据库事务**时，可结合 JTA 实现（如 Atomikos/Narayana）。sqltoy 原生的命名多数据源演示见 [sqltoy-showcase](https://gitee.com/sagacity/sqltoy-showcase) 的 `MultiDataSourceTest`。
 
 ## 五、可以跟其他 ORM 一起组合使用吗？
@@ -66,11 +66,11 @@ spring.sqltoy.defaultDataSource=primaryDB
 #[and (t.TECH_GROUP,t.PROD_GROUP) in (:techGroups,:prodGroups)]
 ```
 
-当 in 条件参数数组超过 1000（如 Oracle 限制）时，框架（5.1.32 / 4.19.25 起）会**自动切分**，无需手工处理。也可用 `@secure-loop` 拼接复杂条件，见[补充说明：标签与表达式参考](../appendix/tags.md)。
+当 in 条件参数数组超过 1000（如 Oracle 限制）时，框架（5.1.32 / 4.19.25 起）会**自动切分**，无需手工处理。也可用 `@secure-loop` 拼接复杂条件，见[补充说明：标签与表达式参考](appendix/tags.md)。
 
 ## 七、sqltoy 是否能在非 Spring 和 Solon 环境下使用？
 
-支持。sqltoy 核心模块 `sagacity-sqltoy` 可纯 Java 使用，自行构建 `SqlToyContext` + 数据源 + `DefaultLightDaoImpl` 即可，事务用 `DBTransUtils`。详见[纯 Java 项目如何使用](../config/pure_java.md)。
+支持。sqltoy 核心模块 `sagacity-sqltoy` 可纯 Java 使用，自行构建 `SqlToyContext` + 数据源 + `DefaultLightDaoImpl` 即可，事务用 `DBTransUtils`。详见[纯 Java 项目如何使用](config/pure_java.md)。
 
 ## 八、启动就报 sqlId 重复 / 后加载的 SQL 覆盖前面的？
 
@@ -87,7 +87,7 @@ spring.sqltoy.breakWhenSqlRepeat=false
 - **注意**：`sqlId` 是全局命名空间，不带模块前缀；建议命名加业务前缀（如 `crm_staff_findlist`）；
 - 若确实需要按数据源区分同名 SQL，用 `<sql dataSource="...">` 或方言变体（`xxx_mysql`），而不是两个同名文件。
 
-详见[动态 SQL 编写规范](../query/dynamic_sql.md)。
+详见[动态 SQL 编写规范](query/dynamic_sql.md)。
 
 ## 九、缓存翻译不生效 / 数据改了页面还是旧值？
 
@@ -100,7 +100,7 @@ spring.sqltoy.breakWhenSqlRepeat=false
 5. **FIFO 动态缓冲的预期行为**：`dynamic-cache` 模式只更新**本地已存在**的 key，没加载过的 key 下次动态获取时自然是新值——这不是 bug；
 6. **多实例**：本地缓存（ehcache/caffeine）各实例独立，增量检测间隔内不同实例数据可能短暂不一致，对强一致要求高的码表请缩短检测间隔或改用 `rest-checker`。
 
-详见[缓存翻译使用](../quickstart/translates.md)与[超大规模主数据缓存](../translate/sqltoy_FIFO_translate.md)。
+详见[缓存翻译使用](quickstart/translates.md)与[超大规模主数据缓存](translate/sqltoy_FIFO_translate.md)。
 
 ## 十、用了 `@fast` 之后 count 和实际数据对不上？
 
@@ -112,7 +112,7 @@ spring.sqltoy.breakWhenSqlRepeat=false
 2. 用 `<count-sql>` 显式给出 count（`QueryExecutor.countSql(...)` 同理），这是最可控的做法；
 3. 确认不是 `union` 场景——`union` 的 count 有专门的 union-all-count 优化（拆分支求和），与 `@fast` 叠加时以 `count-sql` 为准。
 
-详见[分页优化](../query/pagination.md)。
+详见[分页优化](query/pagination.md)。
 
 ## 十一、分页查不出数据 / 报"超过最大单页数据量"？
 
@@ -130,7 +130,7 @@ spring.sqltoy.pageFetchSizeLimit=500000
 spring.sqltoy.overPageToFirst=true
 ```
 
-> 大结果集导出不建议用分页，用 `fetchStream`（流式回调）或 `findTop` 分批。详见[分页优化](../query/pagination.md)。
+> 大结果集导出不建议用分页，用 `fetchStream`（流式回调）或 `findTop` 分批。详见[分页优化](query/pagination.md)。
 
 ## 十二、lambda 的 `getOne()` 为什么抛异常了？
 
@@ -142,7 +142,7 @@ spring.sqltoy.overPageToFirst=true
 - 确实可能多条但只需要一条 → 改用 `find()` 取第一条，或加 `orderBy` + `findTop(1)`；
 - 同理，**不带任何 where 的 `update()/delete()` 默认抛异常**，需要全表操作时显式 `.matchAll()`。
 
-详见[Lambda 条件查询与更新](../query/lambda_query.md)。
+详见[Lambda 条件查询与更新](query/lambda_query.md)。
 
 ## 十三、native 镜像里 lambda 条件不可用 / 启动报反射缺失？
 
@@ -152,9 +152,9 @@ lambda 依赖 `SerializedLambda` 与序列化镜像来提取属性名，closed-w
 - 不注册 = native 下 lambda 体系全部不可用（JVM 模式不受影响）；
 - 另外 **`updateSaveFetch` 在 native 下需要 `native-entity-proxies`** 预生成代理，否则该分支不可用。
 
-完整清单（实体扫描、DTO 反射、扩展类、函数类、JSON/vector/geometry 驱动类）见 [GraalVM Native Image 指引](../tools/graalvm_native.md)。
+完整清单（实体扫描、DTO 反射、扩展类、函数类、JSON/vector/geometry 驱动类）见 [GraalVM Native Image 指引](tools/graalvm_native.md)。
 
 ## 十四、从 sqltoy-plus / MyBatis 迁过来要改什么？
 
-- **sqltoy-plus**：6.0.8 已把 lambda 能力并入核心，移除插件依赖与 `@EnableSqlToyPlus`，按[升级指南第十节第 2 条](../introduction/upgrade_6.0.md)的对照表改包名/类名，并回归 `getOne()` 多匹配、无条件 update/delete 两类行为变化；
-- **MyBatis / MyBatis-Plus**：`<if>` → `#[]`、`QueryWrapper` → `EntityQuery` 或 lambda、`ResultMap` → 结果类型/VO 映射、分页插件 → `findPage`。完整对照与落地顺序见[从 MyBatis 迁移](../introduction/migration.md)。
+- **sqltoy-plus**：6.0.8 已把 lambda 能力并入核心，移除插件依赖与 `@EnableSqlToyPlus`，按[升级指南第十节第 2 条](introduction/upgrade_6.0.md)的对照表改包名/类名，并回归 `getOne()` 多匹配、无条件 update/delete 两类行为变化；
+- **MyBatis / MyBatis-Plus**：`<if>` → `#[]`、`QueryWrapper` → `EntityQuery` 或 lambda、`ResultMap` → 结果类型/VO 映射、分页插件 → `findPage`。完整对照与落地顺序见[从 MyBatis 迁移](introduction/migration.md)。

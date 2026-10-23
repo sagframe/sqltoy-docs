@@ -4,7 +4,7 @@
 
 ## Demo Projects
 
-- [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld): the official SqlToy quick-integration demo (zero-install on H2 — clone and run `mvn test`), companion to the [helloworld Quick Start](quickstart/helloworld.md) tutorial.
+- [sqltoy-helloworld](https://gitee.com/sagacity/sqltoy-helloworld): the official SqlToy quick-integration demo (zero-install on H2 — clone and run `mvn test`), companion to the [helloworld Quick Start](en/quickstart/helloworld.md) tutorial.
 
 - [sqltoy-strict](https://gitee.com/sagacity/sqltoy-strict): demonstrates strict DTO/POJO layering with SqlToy.
 
@@ -17,7 +17,7 @@
 ## Extensions & Plugins
 
 - [sqltoy-plus](https://gitee.com/gzghde/sqltoy-plus): an enhancement framework for SqlToy supporting object-oriented SQL operations and lambda expressions, making condition building more dynamic and flexible and simplifying multi-table joins.
-  > **Since 6.0.8 the lambda condition API ships inside SqlToy core** (`org.sagacity.sqltoy.lambda`, see [Lambda Conditions](../query/lambda_query.md)); existing sqltoy-plus projects can follow the "migrating from sqltoy-plus" table on that page. The entry is kept for older projects.
+  > **Since 6.0.8 the lambda condition API ships inside SqlToy core** (`org.sagacity.sqltoy.lambda`, see [Lambda Conditions](en/query/lambda_query.md)); existing sqltoy-plus projects can follow the "migrating from sqltoy-plus" table on that page. The entry is kept for older projects.
 - [sqltoy-idea-plugin](https://github.com/imyuyu/sqltoy-idea-plugin): an IntelliJ IDEA plugin providing SQL template highlighting, navigation and DAO method jump-to for the SqlToy framework.
 - [sagacity-quickvo](https://github.com/sagframe/sagacity-quickvo): the official SqlToy code generator, implemented as a Maven plugin; generates Entity, VO (or DTO) and other Java objects straight from database tables.
 

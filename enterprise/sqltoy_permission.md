@@ -140,7 +140,7 @@ public default String getUserTenantId() { ... }
 
 ### 2.4 与多租户的关系
 
-本节的机制同时是多租户隔离的实现方式之一：`@Tenant` + `TenantFilterInterceptor` 统一过滤与赋值。多租户的完整用法（含写入时自动补租户字段）见[多租户支持](sqltoy_multitenant.md)。
+本节的机制同时是多租户隔离的实现方式之一：`@Tenant` + `TenantFilterInterceptor` 统一过滤与赋值。多租户的完整用法（含写入时自动补租户字段）见[多租户支持](enterprise/sqltoy_multitenant.md)。
 
 ## 三、两种方式怎么选
 
@@ -149,13 +149,13 @@ public default String getUserTenantId() { ... }
 | 页面上有"机构/账套"筛选条件，用户可能选可能不选 | `dataAuthFilters()`（统一传参 + 越权校验） |
 | 数据隔离必须无条件生效（SaaS 租户、数据权限强隔离） | `TenantFilterInterceptor`（自动注入） |
 | 既要隔离、又要在前端越权时**报错提示** | `dataAuthFilters()` + `isForcelimit=true` |
-| 过滤维度不是实体字段（跨表、复杂表达式） | 自定义 `SqlInterceptor`，见 [SQL 拦截加工](sql_interceptor.md) |
+| 过滤维度不是实体字段（跨表、复杂表达式） | 自定义 `SqlInterceptor`，见 [SQL 拦截加工](enterprise/sql_interceptor.md) |
 
 > 两者可同时使用：拦截器负责"兜底隔离"，`dataAuthFilters` 负责"前端可见条件的填充与越权提示"。
 
 ## 四、相关
 
-- 多租户完整用法：[多租户支持](sqltoy_multitenant.md)
-- 自定义 SQL 加工：[SQL 拦截加工](sql_interceptor.md)
-- 统一字段处理器接口（含 `createUnifyFields`/`updateUnifyFields`）：[增加公共字段处理](../quickstart/helloworld_improve.md)
-- 配置项总览：[sqltoy 配置参数](../config/sqltoy_config.md)
+- 多租户完整用法：[多租户支持](enterprise/sqltoy_multitenant.md)
+- 自定义 SQL 加工：[SQL 拦截加工](enterprise/sql_interceptor.md)
+- 统一字段处理器接口（含 `createUnifyFields`/`updateUnifyFields`）：[增加公共字段处理](quickstart/helloworld_improve.md)
+- 配置项总览：[sqltoy 配置参数](config/sqltoy_config.md)

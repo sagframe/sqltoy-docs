@@ -5,8 +5,8 @@
 3) 提供显式快捷api和链式api 2种模式,链式API提供更多的参数,如指定数据源、设定并行、设定batchSize等参数,如  
    lightDao.update().dataSource(xxx).forceUpdateProps("status").batchSize(500).many(entities);  
 4) 没有逻辑删除的概念,在sqltoy中就是状态更新  
-5) 相比较于JPA，sqltoy主要优化了update(提供了弹性修改)，新增了updateSaveFetch和updateFetch（一次数据库交互完成锁查询、修改或插入并返回结果，[详见](../crud/sqltoy_crud.md#9-updatesavefetch操作锁查询存在则修改不存在则插入返回结果一次交互)）  
-6) sqltoy支持:OneToOne 和 OneToMany 两种形式的级联(有部分改进,如:加载支持过滤等)，但只支持一级级联；查询结果依据注解自动分层封装(hiberarchy)见[常规查询 API](../query/sqltoy_query.md)  
+5) 相比较于JPA，sqltoy主要优化了update(提供了弹性修改)，新增了updateSaveFetch和updateFetch（一次数据库交互完成锁查询、修改或插入并返回结果，[详见](crud/sqltoy_crud.md#9-updatesavefetch操作锁查询存在则修改不存在则插入返回结果一次交互)）  
+6) sqltoy支持:OneToOne 和 OneToMany 两种形式的级联(有部分改进,如:加载支持过滤等)，但只支持一级级联；查询结果依据注解自动分层封装(hiberarchy)见[常规查询 API](query/sqltoy_query.md)  
 7) sqltoy在级联加载和级联删除等操作上底层做了优化,采用了id in (:ids)形式的查询和删除,用算法组织最终数据，减少数据库IO提升效率  
 8) 详细请参见:org.sagacity.sqltoy.dao.LightDao接口,其有详细备注
 
@@ -76,7 +76,7 @@ public void testSaveCascade() {
 	item1.setPrice(BigDecimal.valueOf(1000));
 	item1.setAmt(BigDecimal.valueOf(5000));
 	item1.setQuantity(BigDecimal.valueOf(5));
-	head.getComplexpkItemVOs().add(item1);
+	head.getComplexpkItems().add(item1);
 
 	// 子表记录2
 	ComplexpkItem item2 = new ComplexpkItem();
@@ -85,7 +85,7 @@ public void testSaveCascade() {
 	item2.setPrice(BigDecimal.valueOf(1000));
 	item2.setAmt(BigDecimal.valueOf(5000));
 	item2.setQuantity(BigDecimal.valueOf(5));
-	head.getComplexpkItemVOs().add(item2);
+	head.getComplexpkItems().add(item2);
 
 	lightDao.save(head);
 }
@@ -306,7 +306,7 @@ lightDao.updateByQuery(OrderInfo.class,
 </sql>
 ```
 
-> 提示：若配置了[统一字段处理器](../quickstart/helloworld_improve.md)（`unifyFieldsHandler`），对象化 `update` 会自动补漏 `updateBy`/`updateTime`；用 `updateByQuery` 时建议如上显式 `set` 审计字段。
+> 提示：若配置了[统一字段处理器](quickstart/helloworld_improve.md)（`unifyFieldsHandler`），对象化 `update` 会自动补漏 `updateBy`/`updateTime`；用 `updateByQuery` 时建议如上显式 `set` 审计字段。
 
 # 6、删除操作
 * sqltoy没有逻辑删除的概念  
@@ -362,7 +362,7 @@ public Long deleteByQuery(Class entityClass, EntityQuery entityQuery);
 //复合主键
 lightDao.delete(new StaffInfo("S0001","HUAWEI_SH"));
 //单主键，删除多条
-lightDao.deleteByIds(OrderInfo.class,"10001"，"10002");
+lightDao.deleteByIds(OrderInfo.class,"10001","10002");
 //删除符合条件的数据
 lightDao.deleteByQuery(DictDetail.class,EntityQuery.create().dataSource(xxxx).where("status=?").values(0));
 ```
@@ -602,7 +602,7 @@ public void testUpdateSaveFetch() {
   1) 实体主键尽量不要使用 identity、sequence（记录不存在走 insert 时，主键由实体自带最直接）  
   2) 业务唯一键场景（如"商品+日期"的台账，以商品编码+日期唯一定位记录而非主键）通过 `uniqueProps` 指定属性名，不设置则按主键检索  
   3) 并发竞争激烈的场景建议用 `lockWaitTimeout` 重载显式设定锁等待时长（单位秒），锁等待超时会抛异常回滚  
-  4) GraalVM native 镜像下 `EntityUpdateCallback` 形态依赖 byte-buddy 生成代理子类，需配置 `native-entity-proxies` 在构建期预生成（未列出的实体不可用，insert 分支不受影响），详见 [GraalVM Native 指引](../tools/graalvm_native.md)
+  4) GraalVM native 镜像下 `EntityUpdateCallback` 形态依赖 byte-buddy 生成代理子类，需配置 `native-entity-proxies` 在构建期预生成（未列出的实体不可用，insert 分支不受影响），详见 [GraalVM Native 指引](tools/graalvm_native.md)
 
 # 10、updateFetch操作（sql化锁查询→校验修改→返回结果，一次交互）
 

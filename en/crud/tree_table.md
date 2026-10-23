@@ -66,5 +66,5 @@ List<OrganInfoVO> subOrgans = lightDao.find("sqltoy_treeTable_search",
 ## 4. Notes
 
 - When a unified field handler (`unifyFieldsHandler`) is configured, the route cascade and leaf-flag update statements **automatically append** the common update fields from `updateUnifyFields()` (e.g. last modified by, last modified time); columns are matched by entity property names, and fields not present in the entity are ignored automatically.
-- For the **query-side sorting and layer-by-layer summary** of tree tables (the `<tree-sort>` tag), see [Complex Query & Analytics](../query/sqltoy_complex_query.md); combining the two yields a complete tree solution of "route building + sorting and summary".
-- For declaring object cascade relationships (`@OneToMany`/`@OneToOne`), see [Object CRUD](sqltoy_crud.md).
+- For the **query-side sorting and layer-by-layer summary** of tree tables (the `<tree-sort>` tag), see [Complex Query & Analytics](en/query/sqltoy_complex_query.md); combining the two yields a complete tree solution of "route building + sorting and summary".
+- For declaring object cascade relationships (`@OneToMany`/`@OneToOne`), see [Object CRUD](en/crud/sqltoy_crud.md).

@@ -20,9 +20,9 @@ java -cp ./libs/* org.sagacity.quickvo.QuickVOStart quickvo.xml
 
 ## 二、quickvo.xml 配置要点
 
-> `quickvo.xml` 的 schema 指向与 IDE 补全配置见 [XML Schema 配置指引](../config/xml_schemas.md)。
+> `quickvo.xml` 的 schema 指向与 IDE 补全配置见 [XML Schema 配置指引](config/xml_schemas.md)。
 
-`quickvo.xml` 主要由 `property`（参数）、`datasource`（数据库）、`tasks/task`（生成任务）等部分组成。下面为独立运行时的结构示意（Maven 插件方式的完整配置见 [quickvo-maven-plugin](quickvo_plugin.md)）：
+`quickvo.xml` 主要由 `property`（参数）、`datasource`（数据库）、`tasks/task`（生成任务）等部分组成。下面为独立运行时的结构示意（Maven 插件方式的完整配置见 [quickvo-maven-plugin](prepare/quickvo_plugin.md)）：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -71,7 +71,7 @@ java -cp ./libs/* org.sagacity.quickvo.QuickVOStart quickvo.xml
 - `@Entity(tableName="sqltoy_dict_detail", pk_constraint="PRIMARY")`：对应具体表（`org.sagacity.sqltoy.config.annotation.Entity`）；
 - `@SqlToyEntity`：标注 VO 检索时的精确定位——找到 `@SqlToyEntity` 后再找其父类，从而定位到真正与表对应的类，并检索 `@Id`、`@Column` 形成对象与表的完整映射；
 - `@Id`、`@Column`：主键与字段映射；
-- `@PartitionKey`：分区字段标记（MPP 库建表与 DML 的分区键提示）；分区表还会在实体上生成 `@Partition`/`@PartitionDef`（分区策略与分区明细），ClickHouse/Doris/StarRocks 表生成 `@MppTable`（表引擎元数据）——这三者配合 sqltoy 6.0.4 的 POJO 生成 DDL 功能（见[POJO生成表结构DDL](../primarykey/sqltoy_ddl.md)），旧版 quickvo 可手工标注。
+- `@PartitionKey`：分区字段标记（MPP 库建表与 DML 的分区键提示）；分区表还会在实体上生成 `@Partition`/`@PartitionDef`（分区策略与分区明细），ClickHouse/Doris/StarRocks 表生成 `@MppTable`（表引擎元数据）——这三者配合 sqltoy 6.0.4 的 POJO 生成 DDL 功能（见[POJO生成表结构DDL](primarykey/sqltoy_ddl.md)），旧版 quickvo 可手工标注。
 
 quickvo 会把数据库表/字段注释一并写入 VO，便于阅读维护。
 
@@ -86,11 +86,11 @@ quickvo 会把数据库表/字段注释一并写入 VO，便于阅读维护。
 
 ## 五、严格 VO(DTO) 与 POJO(entity) 分层
 
-中大型项目建议将对外交互的 VO/DTO 与持久层 POJO 严格分层，通过 quickvo 配置生成到不同包，并在业务中做 VO↔POJO 转换（参见[工具类：DTO 与 POJO 互转](../tools/utils.md)）。
+中大型项目建议将对外交互的 VO/DTO 与持久层 POJO 严格分层，通过 quickvo 配置生成到不同包，并在业务中做 VO↔POJO 转换（参见[工具类：DTO 与 POJO 互转](tools/utils.md)）。
 
 - 分层示例项目：https://github.com/sagframe/sqltoy-strict
 
 ## 六、相关
 
-- 把 quickvo 集成进 Maven 构建，见 [quickvo-maven-plugin](quickvo_plugin.md)。
-- 主键策略详情见[主键策略介绍](../primarykey/sqltoy_primarykey.md)。
+- 把 quickvo 集成进 Maven 构建，见 [quickvo-maven-plugin](prepare/quickvo_plugin.md)。
+- 主键策略详情见[主键策略介绍](primarykey/sqltoy_primarykey.md)。

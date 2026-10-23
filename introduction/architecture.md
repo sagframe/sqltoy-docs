@@ -10,7 +10,7 @@ sqltoy 的核心思路：
 - **对象与表映射**：POJO/VO 通过注解（`@SqlToyEntity`/`@Entity`/`@Id`/`@Column`）与数据库表建立映射，由 `EntityManager` 统一管理。
 - **方言隔离**：所有数据库差异收敛到 `dialect` 包，通过 `DialectFactory` 自动识别数据库类型并路由到对应实现，业务 SQL 保持跨库一致。
 - **内存算法增强**：分页优化、行列转换、汇总、同比环比、树形排序、缓存翻译等，大量在应用内存中以算法完成，既减轻数据库压力又实现跨库一致。
-- **三种查询组织方式**：SQL 模式（sqlId + `#[...]`，适合复杂动态与配置化）、`EntityQuery`/`EntityUpdate`（单表字符串条件）、[Lambda 条件](../query/lambda_query.md)（属性方法引用，单表与 join 共用一套构建器）——三者共用同一条执行链路，可按场景混用。
+- **三种查询组织方式**：SQL 模式（sqlId + `#[...]`，适合复杂动态与配置化）、`EntityQuery`/`EntityUpdate`（单表字符串条件）、[Lambda 条件](query/lambda_query.md)（属性方法引用，单表与 join 共用一套构建器）——三者共用同一条执行链路，可按场景混用。
 
 ## 二、核心包结构
 

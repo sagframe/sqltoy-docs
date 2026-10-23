@@ -150,7 +150,7 @@ The `elastic()` chain supports: `sql`, `names`, `values`, `entity`, `endPoint`, 
 - Multiple clusters/nodes are configured via multiple `endpoints[n]` entries; at query time, specify one with the `end-point` attribute or `.endPoint(id)`.
 - For pure CRUD, use the official ES client directly; sqltoy's value lies in the combination of **dynamic conditions + Cache Translate + result-set algorithms**.
 
-## 4. Integration notes (verified)
+## 5. Integration notes (verified)
 
 1. **The endpoint `id` is mandatory**: omitting `endpoints[0].id` fails `SqlToyContext` initialization with an NPE on `getId()` — set an explicit id for every endpoint (or configure `default-id`).
 2. **Dependency**: sqltoy's ES client (Rest5Client) is built on Apache HttpClient 5 — add `org.apache.httpcomponents.client5:httpclient5` explicitly (sqltoy does not carry it transitively).
@@ -159,7 +159,7 @@ The `elastic()` chain supports: `sql`, `names`, `values`, `entity`, `endPoint`, 
 
 > Fully runnable example: `NoSqlTest` in `sqltoy-showcase` (a real ES container via Testcontainers; the `<eql>` json-mode dynamic query is verified end to end).
 
-## 5. Secure connections (authentication and TLS)
+## 6. Secure connections (authentication and TLS)
 
 Production ES clusters usually run with security enabled (auth + TLS). sqltoy endpoints support the full connection-security set:
 

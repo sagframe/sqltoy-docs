@@ -2,7 +2,7 @@
 
 sqltoy 的动态 SQL 设计目标：**让 SQL 保持整洁、可直接在数据库客户端运行**，同时把 mybatis 中夹杂在 SQL 里的 `<if>` 等动态逻辑剥离出来。
 
-- SQL 可以写在 `*.sql.xml` 中（推荐，便于维护、支持热加载），也可以直接在 Java 代码中传入；条件查询还可用 [Lambda 条件体系](lambda_query.md)（6.0.8 起内置，原第三方 sqltoy-plus 已并入核心）。
+- SQL 可以写在 `*.sql.xml` 中（推荐，便于维护、支持热加载），也可以直接在 Java 代码中传入；条件查询还可用 [Lambda 条件体系](query/lambda_query.md)（6.0.8 起内置，原第三方 sqltoy-plus 已并入核心）。
 - 简单场景直接用 `lightDao` 的显式接口；复杂场景用 `findByQuery`/`findPageByQuery` 配合 `QueryExecutor` 或 `EntityQuery` 组织参数。所有显式接口底层都基于 `QueryExecutor`，理解它即可灵活运用。
 
 ---
@@ -40,7 +40,7 @@ sqltoy 用 `#[ ... ]` 标记一段**动态条件片段**，核心规则：
 ## 二、XML 形态
 
 > [!TIP]
-> `*.sql.xml` 的 XSD schema 指向与 IDE 补全配置见 [XML Schema 配置指引](../config/xml_schemas.md)。
+> `*.sql.xml` 的 XSD schema 指向与 IDE 补全配置见 [XML Schema 配置指引](config/xml_schemas.md)。
 
 ```xml
 <!-- 默认即 blank-to-null="true"，等价于 <sql id="show_case" blank-to-null="true"> -->
@@ -69,7 +69,7 @@ sqltoy 用 `#[ ... ]` 标记一段**动态条件片段**，核心规则：
 </sql>
 ```
 
-`<sql>` 标签常用属性：`id`（必填）、`type`（`search`/`insert`/`update`/`delete`，`select` 为历史兼容写法）、`blank-to-null`（默认 `true`）、`debug`（是否输出执行日志）、`query-timeout`（查询超时秒数）、`dataSource`（指定数据源名称）、`dialect`（6.0.3 新增，声明本条 sql 按指定方言形态解析固化，详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）、`union-all-count`（union 分页场景按分支拆解计算 count，减少不必要执行）。NoSQL 场景使用 `eql`（Elasticsearch）/ `mql`（MongoDB）节点，属性不同，见 [Elasticsearch 支持](../nosql/sqltoy_elasticsearch.md)与 [MongoDB 支持](../nosql/sqltoy_mongo.md)。
+`<sql>` 标签常用属性：`id`（必填）、`type`（`search`/`insert`/`update`/`delete`，`select` 为历史兼容写法）、`blank-to-null`（默认 `true`）、`debug`（是否输出执行日志）、`query-timeout`（查询超时秒数）、`dataSource`（指定数据源名称）、`dialect`（6.0.3 新增，声明本条 sql 按指定方言形态解析固化，详见[方言自适配与函数扩展](dialect/sqltoy_function.md)）、`union-all-count`（union 分页场景按分支拆解计算 count，减少不必要执行）。NoSQL 场景使用 `eql`（Elasticsearch）/ `mql`（MongoDB）节点，属性不同，见 [Elasticsearch 支持](nosql/sqltoy_elasticsearch.md)与 [MongoDB 支持](nosql/sqltoy_mongo.md)。
 
 ---
 
@@ -146,7 +146,7 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 | `<custom-handler>` | `params`、`type` | 自定义数据处理器 |
 | `<valid-sqlInjection>` | `params`、`level`(STRICT_WORD/RELAXED_WORD/SQL_KEYWORD) | SQL 注入参数校验 |
 
-> **缓存反向匹配（cache-arg）** 是 sqltoy 的特色能力，详见[缓存翻译使用](../quickstart/translates.md)与[超大规模主数据缓存](../translate/sqltoy_FIFO_translate.md)。
+> **缓存反向匹配（cache-arg）** 是 sqltoy 的特色能力，详见[缓存翻译使用](quickstart/translates.md)与[超大规模主数据缓存](translate/sqltoy_FIFO_translate.md)。
 
 ### 4.5 参数形态完整示例
 
@@ -372,22 +372,22 @@ List rows2 = lightDao.findByQuery(
 | --- | --- | --- |
 | `<remarks>` | sql 功能说明（不执行） | 本页 |
 | `<filters>` | 条件参数规整（转 null / 类型转换 / 缓存反向匹配等） | 本页第四节 |
-| `<translate>` | 缓存翻译（码值→名称） | [缓存翻译使用](../quickstart/translates.md) |
-| `<secure-mask>` / `<secure-decrypt>` | 结果集脱敏 / 字段解密 | [数据脱敏与加解密](../enterprise/sqltoy_security.md) |
-| `<sharding-datasource>` / `<sharding-table>` | 分库 / 分表策略 | [分库分表](../enterprise/sqltoy_sharding.md) |
-| `<page-optimize>` / `<count-sql>` | 分页 count 缓存优化 / 自定义 count | [分页优化](pagination.md) |
+| `<translate>` | 缓存翻译（码值→名称） | [缓存翻译使用](quickstart/translates.md) |
+| `<secure-mask>` / `<secure-decrypt>` | 结果集脱敏 / 字段解密 | [数据脱敏与加解密](enterprise/sqltoy_security.md) |
+| `<sharding-datasource>` / `<sharding-table>` | 分库 / 分表策略 | [分库分表](enterprise/sqltoy_sharding.md) |
+| `<page-optimize>` / `<count-sql>` | 分页 count 缓存优化 / 自定义 count | [分页优化](query/pagination.md) |
 | `<date-format>` / `<number-format>` | 结果集日期 / 数字格式化 | 本页 |
-| `<summary>` | 分组汇总 / 求平均 | [复杂查询与数据分析](sqltoy_complex_query.md) |
-| `<pivot>` / `<unpivot>` | 行转列 / 列转行 | [复杂查询与数据分析](sqltoy_complex_query.md) |
-| `<cols-chain-relative>` / `<rows-chain-relative>` | 列 / 行同比环比 | [复杂查询与数据分析](sqltoy_complex_query.md) |
-| `<tree-sort>` | 树形排序与逐层汇总 | [复杂查询与数据分析](sqltoy_complex_query.md) |
-| `<link>` | 分组拼接（代替 group_concat） | [复杂查询与数据分析](sqltoy_complex_query.md) |
-| `<reverse>` | 结果集顺序反转 | [复杂查询与数据分析](sqltoy_complex_query.md) |
-| `<value>` | SQL 正文（必填），支持 `#[]`、`@if`、`@fast` 等 | 本页 / [标签参考](../appendix/tags.md) |
+| `<summary>` | 分组汇总 / 求平均 | [复杂查询与数据分析](query/sqltoy_complex_query.md) |
+| `<pivot>` / `<unpivot>` | 行转列 / 列转行 | [复杂查询与数据分析](query/sqltoy_complex_query.md) |
+| `<cols-chain-relative>` / `<rows-chain-relative>` | 列 / 行同比环比 | [复杂查询与数据分析](query/sqltoy_complex_query.md) |
+| `<tree-sort>` | 树形排序与逐层汇总 | [复杂查询与数据分析](query/sqltoy_complex_query.md) |
+| `<link>` | 分组拼接（代替 group_concat） | [复杂查询与数据分析](query/sqltoy_complex_query.md) |
+| `<reverse>` | 结果集顺序反转 | [复杂查询与数据分析](query/sqltoy_complex_query.md) |
+| `<value>` | SQL 正文（必填），支持 `#[]`、`@if`、`@fast` 等 | 本页 / [标签参考](appendix/tags.md) |
 
 ### 常规最小示例
 
-别被上面的"全景"吓到——日常 SQL 通常就这么简单。例如页面有一个性别下拉框，"全部"选项 `value="-1"`，用 `eq` 过滤器把 `-1` 转成 null，该条件即自动不参与查询：
+日常 SQL 通常只需用到上面清单中的少数几个标签。例如页面有一个性别下拉框，"全部"选项 `value="-1"`，用 `eq` 过滤器把 `-1` 转成 null，该条件即自动不参与查询：
 
 ```html
 <select name="sexType">
@@ -415,6 +415,6 @@ List rows2 = lightDao.findByQuery(
 
 ## 六、相关高级语法
 
-- `@if()`/`@elseif()`/`@else`、`@fast`、`@blank()`、`@value()`、`@loop()`/`@secure-loop()`、`@include(sqlId)`、`@include(:scriptParam)`、`@joinFields()`（字段名列表安全拼接，页面配置化报表用）、`@split()`（把字符串参数拆分成数组，配合 `in` 展开）等宏指令，见[补充说明：标签与表达式参考](../appendix/tags.md)。
-- 更多实战写法（动态 `@include`、配置驱动 SQL 集成、慢 SQL 统计等）见[常见 SQL 案例](sql_showcase.md)。
-- 查询 API（findOne/find/findPage/findTop/findRandom/getValue/isUnique 等）见[常规查询 API](sqltoy_query.md)。
+- `@if()`/`@elseif()`/`@else`、`@fast`、`@blank()`、`@value()`、`@loop()`/`@secure-loop()`、`@include(sqlId)`、`@include(:scriptParam)`、`@joinFields()`（字段名列表安全拼接，页面配置化报表用）、`@split()`（把字符串参数拆分成数组，配合 `in` 展开）等宏指令，见[补充说明：标签与表达式参考](appendix/tags.md)。
+- 更多实战写法（动态 `@include`、配置驱动 SQL 集成、慢 SQL 统计等）见[常见 SQL 案例](query/sql_showcase.md)。
+- 查询 API（findOne/find/findPage/findTop/findRandom/getValue/isUnique 等）见[常规查询 API](query/sqltoy_query.md)。
