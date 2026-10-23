@@ -28,7 +28,7 @@ SqlToy shares MyBatis's **dynamic-SQL mindset** (SQL in xml, conditions assemble
 2. **Create the SQL directory**: one `*.sql.xml` per module (e.g. `com/acme/crm/modules/staff.sql.xml`); write **new requirements** in sqltoy form first and leave the old mappers alone;
 3. **Generate POJOs**: use [quickvo](../prepare/quickvo.md) against the existing tables (fully annotated — do not hand-write them);
 4. **Convert queries** (best payoff, lowest risk): start with the query that has the most conditions and is hardest to maintain, following section 3;
-5. **Convert writes**: replace "load, modify, update" with elastic updates; high-concurrency ledgers become `updateFetch`;
+5. **Convert writes**: replace "load, modify, update" with elastic updates; high-concurrency ledgers become `updateSaveFetch` (select-or-insert-and-modify);
 6. **Run the old and new side by side**: compare result sets for a while. `redoDataSources` can replay the new SQL on another database for verification — see [Multi-DB Verification](../dialect/multi_db_verify.md).
 
 ## 3. Typical rewrites
@@ -128,7 +128,7 @@ lightDao.updateByQuery(StaffInfo.class,
         EntityUpdate.create().set("status", 2).where("staff_id=?").values(id));
 ```
 
-### 3.6 Load-then-update → elastic update / updateFetch
+### 3.6 Load-then-update → elastic update / upsert (updateSaveFetch)
 
 ```java
 // The usual MyBatis shape: load, decide, update (two interactions, and it can overwrite a concurrent change)
@@ -138,23 +138,32 @@ mapper.updateById(o);
 ```
 
 ```java
-// sqltoy elastic update: one interaction, null fields skipped (you never wipe a field someone else changed)
-lightDao.update(OrderInfo.builder().orderId(id).status(2).build());
+// sqltoy elastic update: update itself is elastic — one interaction, null fields are skipped
+// (you never wipe a field someone else changed, no hand-written update set fragment)
+OrderInfo orderInfo = new OrderInfo();
+orderInfo.setOrderId(id);
+orderInfo.setStatus(2);
+lightDao.update(orderInfo);
 
-// High-concurrency ledgers: lock-query, validate, modify, return — one interaction
-// Note: UpdateRowHandler's methods are all default, so it is not a functional interface — use an anonymous class
-lightDao.updateFetch(
-        new QueryExecutor("order_lock").names("orderId").values(id).lock(LockMode.UPGRADE),
-        new UpdateRowHandler() {
-            @Override
-            public void updateRow(ResultSet rs, int index, BiConsumer<String, Object> setVal) throws Exception {
-                if (rs.getInt("STATUS") != 1) {
-                    throw new IllegalStateException("status already changed, please refresh and retry");
-                }
-                setVal.accept("status", 2);
+// High-concurrency "select-or-insert-and-modify": one interaction — lock-query, update if exists
+// or insert if not, return the result. uniqueProps names the business unique-key properties
+// (falls back to the primary key when omitted). Inside the callback the entity is a proxy:
+// get reads the current DB value, set writes back to the current row; a thrown exception rolls back.
+OrderInfo entity = new OrderInfo();
+entity.setOrderId(id);
+entity.setStatus(2);
+OrderInfo order = lightDao.updateSaveFetch(
+        entity,
+        (loaded, rowIndex) -> {
+            if (!"1".equals(loaded.getStatus())) {
+                throw new IllegalStateException("status already changed, please refresh and retry");
             }
-        });
+            loaded.setStatus(2);
+        },
+        "orderId");
 ```
+
+> If the record is **guaranteed to exist** and you need freely-defined query conditions and locking, use `updateFetch` (sql + `UpdateRowHandler`, see [Object-Oriented CRUD §10](../crud/sqltoy_crud.md)); for ledger-style "update if exists, insert if not", prefer `updateSaveFetch`.
 
 ### 3.7 Batch insert
 

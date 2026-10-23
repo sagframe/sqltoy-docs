@@ -28,7 +28,7 @@ sqltoy 与 MyBatis 的**动态 SQL 心智完全一致**（SQL 写在 xml、条�
 2. **建 SQL 目录**：按模块建 `*.sql.xml`（如 `com/acme/crm/modules/staff.sql.xml`），先把**新需求**写成 sqltoy 形式，不动旧 Mapper；
 3. **生成 POJO**：用 [quickvo](../prepare/quickvo.md) 按现有表生成实体（注解齐全，别手写）；
 4. **改造查询**（收益最大、风险最低）：从"条件最多、最难维护"的查询开始，按第三节对照改写；
-5. **改造写入**：把"先 load 再改再 update"换成弹性更新；高并发台账类改为 `updateFetch`；
+5. **改造写入**：把"先 load 再改再 update"换成弹性更新；高并发台账类改为 `updateSaveFetch`（查增改一体）；
 6. **灰度与校验**：新旧实现并行跑一段时间，对比结果集（sqltoy 的 `redoDataSources` 可帮你在另一套库上重放验证，见[多库适配验证](../dialect/multi_db_verify.md)）。
 
 ## 三、典型改写
@@ -128,7 +128,7 @@ lightDao.updateByQuery(StaffInfo.class,
         EntityUpdate.create().set("status", 2).where("staff_id=?").values(id));
 ```
 
-### 3.6 先查后改 → 弹性更新 / updateFetch
+### 3.6 先查后改 → 弹性更新 / 查增改一体（updateSaveFetch）
 
 ```java
 // MyBatis 常见写法：load → 判断 → update（两次交互，且可能覆盖并发修改）
@@ -138,23 +138,31 @@ mapper.updateById(o);
 ```
 
 ```java
-// sqltoy 弹性更新：一次交互，null 字段不参与（不会误清空别人改的字段）
-lightDao.update(OrderInfo.builder().orderId(id).status(2).build());
+// sqltoy 弹性更新：update 本身就是弹性的——一次交互，null 字段不参与
+// （不会误清空别人改过的字段，也不用手拼 update set 片段）
+OrderInfo orderInfo = new OrderInfo();
+orderInfo.setOrderId(id);
+orderInfo.setStatus(2);
+lightDao.update(orderInfo);
 
-// 高并发台账：锁查询→校验→修改→返回，一次交互
-// 注意 UpdateRowHandler 的方法均为 default，不是函数式接口，需用匿名类覆写
-lightDao.updateFetch(
-        new QueryExecutor("order_lock").names("orderId").values(id).lock(LockMode.UPGRADE),
-        new UpdateRowHandler() {
-            @Override
-            public void updateRow(ResultSet rs, int index, BiConsumer<String, Object> setVal) throws Exception {
-                if (rs.getInt("STATUS") != 1) {
-                    throw new IllegalStateException("状态已变更，请刷新后重试");
-                }
-                setVal.accept("status", 2);
+// 高并发"查、增、改"：一次交互完成 锁查询 → 存在则修改、不存在则插入 → 返回结果
+// uniqueProps 指定业务唯一键属性（不传则按主键检索）；回调中 entity 为代理对象，
+// get 读数据库当前值、set 写回当前行，抛异常则整体回滚
+OrderInfo entity = new OrderInfo();
+entity.setOrderId(id);
+entity.setStatus(2);
+OrderInfo order = lightDao.updateSaveFetch(
+        entity,
+        (loaded, rowIndex) -> {
+            if (!"1".equals(loaded.getStatus())) {
+                throw new IllegalStateException("状态已变更，请刷新后重试");
             }
-        });
+            loaded.setStatus(2);
+        },
+        "orderId");
 ```
+
+> 若记录**必然存在**、且需自由编写查询条件与锁策略，则用 `updateFetch`（sql + `UpdateRowHandler`，见[对象化 CRUD 第 10 节](../crud/sqltoy_crud.md)）；台账类"存在则改、不存在则插"优先 `updateSaveFetch`。
 
 ### 3.7 批量插入
 
