@@ -69,7 +69,7 @@ sqltoy 用 `#[ ... ]` 标记一段**动态条件片段**，核心规则：
 </sql>
 ```
 
-`<sql>` 标签常用属性：`id`（必填）、`type`（`search`/`insert`/`update`/`delete`，`select` 为历史兼容写法）、`blank-to-null`（默认 `true`）、`debug`（是否输出执行日志）、`query-timeout`（查询超时秒数）、`dataSource`（指定数据源名称）、`dialect`（6.0.3 新增，声明本条 sql 按指定方言形态解析固化，详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）。
+`<sql>` 标签常用属性：`id`（必填）、`type`（`search`/`insert`/`update`/`delete`，`select` 为历史兼容写法）、`blank-to-null`（默认 `true`）、`debug`（是否输出执行日志）、`query-timeout`（查询超时秒数）、`dataSource`（指定数据源名称）、`dialect`（6.0.3 新增，声明本条 sql 按指定方言形态解析固化，详见[方言自适配与函数扩展](../dialect/sqltoy_function.md)）、`union-all-count`（union 分页场景按分支拆解计算 count，减少不必要执行）。NoSQL 场景使用 `eql`（Elasticsearch）/ `mql`（MongoDB）节点，属性不同，见 [Elasticsearch 支持](../nosql/sqltoy_elasticsearch.md)与 [MongoDB 支持](../nosql/sqltoy_mongo.md)。
 
 ---
 
