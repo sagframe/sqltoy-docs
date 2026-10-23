@@ -114,7 +114,7 @@ spring:
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
 	<!-- JDK8 请使用 5.6.96.jre8（jre8 最终版本，同样支持 quickvo-maven-plugin 插件） -->
-	<version>6.0.8</version>
+	<version>6.0.9</version>
 </dependency>
 <!-- 使用缓存翻译(见《缓存翻译使用》)需要缓存实现,sqltoy 默认支持 ehcache(runtime 作用域,打包进 boot jar) -->
 <dependency>
@@ -130,7 +130,7 @@ spring:
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-solon-plugin</artifactId>
 	<!-- JDK8 请使用 5.6.96.jre8（jre8 最终版本，同样支持 quickvo-maven-plugin 插件） -->
-	<version>6.0.8</version>
+	<version>6.0.9</version>
 </dependency>
 ```
 

@@ -10,7 +10,7 @@
 | Connection pool | Druid, HikariCP or any other connection pool (sqltoy is not bound to a connection pool) |
 
 > [!NOTE]
-> For version numbers, refer to the latest release on [Maven Central](https://mvnrepository.com/artifact/com.sagframe/sagacity-sqltoy); this article uses `6.0.8` as an example.
+> For version numbers, refer to the latest release on [Maven Central](https://mvnrepository.com/artifact/com.sagframe/sagacity-sqltoy); this article uses `6.0.9` as an example.
 
 ## 2. Add Dependencies
 
@@ -22,7 +22,7 @@ Choose the corresponding artifact according to the framework you use (the groupI
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring-starter</artifactId>
-    <version>6.0.8</version>
+    <version>6.0.9</version>
 </dependency>
 ```
 
@@ -32,7 +32,7 @@ Choose the corresponding artifact according to the framework you use (the groupI
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring</artifactId>
-    <version>6.0.8</version>
+    <version>6.0.9</version>
 </dependency>
 ```
 
@@ -42,7 +42,7 @@ Choose the corresponding artifact according to the framework you use (the groupI
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-    <version>6.0.8</version>
+    <version>6.0.9</version>
 </dependency>
 ```
 

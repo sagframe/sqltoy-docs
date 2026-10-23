@@ -9,7 +9,7 @@ sqltoy supports the [Solon](https://solon.noear.org/) framework through the stan
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
     <!-- keep the same version number as core -->
-    <version>6.0.8</version>
+    <version>6.0.9</version>
 </dependency>
 ```
 
