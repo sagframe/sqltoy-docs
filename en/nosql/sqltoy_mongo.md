@@ -170,7 +170,7 @@ List aggResult = lightDao.mongo()
         .find();
 ```
 
-The `mongo()` chain supports: `sql`, `names`, `values`, `entity`, `resultType`, `humpMapLabel`; terminal methods: `find()`, `getOne()`, `findTop(Float)`, `findPage(Page)`.
+The `mongo()` chain supports: `sql`, `names`, `values`, `entity`, `resultType`, `humpMapLabel`; terminal methods: `find()`, `getOne()`, `findTop(Float)` (a value greater than 1 takes a fixed row count, **less than or equal to 1 takes a proportion of the total records**), `findPage(Page)`.
 
 ## 5. Notes
 

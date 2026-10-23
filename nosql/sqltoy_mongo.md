@@ -167,7 +167,7 @@ List aggResult = lightDao.mongo()
         .find();
 ```
 
-`mongo()` 链式可设置：`sql`、`names`、`values`、`entity`、`resultType`、`humpMapLabel`；终止方法：`find()`、`getOne()`、`findTop(Float)`、`findPage(Page)`。
+`mongo()` 链式可设置：`sql`、`names`、`values`、`entity`、`resultType`、`humpMapLabel`；终止方法：`find()`、`getOne()`、`findTop(Float)`（大于 1 取固定条数，**小于等于 1 按总记录数比例提取**）、`findPage(Page)`。
 
 ## 五、注意事项
 
