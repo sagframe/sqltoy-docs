@@ -66,7 +66,7 @@ Here is what a sqltoy query looks like — the SQL stays native (copy it to a DB
 
 ```java
 List<OrderInfoVO> orders = lightDao.find("""
-        select * from sqltoy_order_info t
+        select * from SQLTOY_ORDER_INFO t
         where 1=1
         #[and t.status in (:status)]
         #[and t.create_time >= :beginTime]

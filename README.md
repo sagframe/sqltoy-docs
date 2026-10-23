@@ -66,7 +66,7 @@ sqltoy 的查询长这样——SQL 保持原生，`#[]` 内条件为 null 自动
 
 ```java
 List<OrderInfoVO> orders = lightDao.find("""
-        select * from sqltoy_order_info t
+        select * from SQLTOY_ORDER_INFO t
         where 1=1
         #[and t.status in (:status)]
         #[and t.create_time >= :beginTime]
