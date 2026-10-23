@@ -526,7 +526,7 @@ lightDao.load().parallelConfig(ParallelConfig.create().groupSize(5000).maxThread
 ```java
 lightDao.load().cascade(OrderItem.class,OrderDeliveryPlan.class).many(entities);
 
-lightDao.loadCascade(new OrderInfo("S0001"), null, OrderItem.class,OrderDeliverPlan.class);
+lightDao.loadCascade(new OrderInfo("S0001"), null, OrderItem.class,OrderDeliveryPlan.class);
 
 ```
 

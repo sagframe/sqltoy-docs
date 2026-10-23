@@ -159,7 +159,7 @@ Both share the same attributes; `@OneToMany` adds `orderBy`:
 
 | Attribute | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `field` | String | `""` | Tenant column (database column name); when empty the convention/interceptor decides |
+| `field` | String | `""` | Tenant field name (entity property name; the framework maps it to the column automatically); when empty the convention/interceptor decides |
 
 ### @DataVersion
 

@@ -14,7 +14,7 @@ sqltoy 通过独立的 `sagacity-sqltoy-solon-plugin` 模块支持 [Solon](https
 ```
 
 - 基于 **Solon 4.1.1** 构建，传递依赖 `solon-aot`、`solon-data`；
-- 数据源由 Solon 容器管理（HikariCP、liteflow 等连接池自行注册为 bean），sqltoy 不重复托管。
+- 数据源由 Solon 容器管理（HikariCP、Druid 等连接池自行注册为 bean），sqltoy 不重复托管。
 
 ## 二、配置（solon.sqltoy 前缀）
 

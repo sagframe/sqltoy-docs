@@ -19,7 +19,7 @@
 - [sqltoy-plus](https://gitee.com/gzghde/sqltoy-plus)：sqltoy增强框架,支持对象化sql操作，支持lamada表达式，使得条件拼装更加动态和灵活，简化多表关联操作。
   > **6.0.8 起 lambda 条件体系已内置到 sqltoy 核心**（`org.sagacity.sqltoy.lambda`，见 [Lambda 条件查询与更新](query/lambda_query.md)），sqltoy-plus 存量项目可按该页"自 sqltoy-plus 迁移对照"平滑切换；本条目保留供旧项目参考。
 - [sqltoy-idea-plugin](https://github.com/imyuyu/sqltoy-idea-plugin)：一款 IntelliJ IDEA 插件，为 Sqltoy 框架提供 SQL 模板高亮、导航与 DAO 方法跳转等智能支持，提升开发效率。
-- [sagacity-quickvo](https://github.com/sagframe/sagacity-quickvo)：Sqltoy 官方推出的代码生成工具，基于 Maven 插件实现，可从数据库表自动生成 Entity、VO（或 DTO）等 Java 对象。
+- [sagacity-quickvo](https://github.com/sagframe/sagacity-quickvo)：Sqltoy 官方推出的代码生成工具（独立运行，quickvo 脚本启动），可从数据库表自动生成 Entity、VO（或 DTO）等 Java 对象；Maven 插件形态见 [quickvo-maven-plugin](prepare/quickvo_plugin.md)。
 
 ## 后台管理
 

@@ -6,8 +6,15 @@ org.sagacity.sqltoy.plugins.TypeHandler
 ## 1、配置
 
 ```yaml
-sqltoy:
-  typeHandler: com.example.sqltoy_solon_demo.handler.MyTypeHandler
+# Spring Boot（前缀 spring.sqltoy）
+spring:
+  sqltoy:
+    typeHandler: com.example.sqltoy_solon_demo.handler.MyTypeHandler
+
+# Solon（前缀 solon.sqltoy）
+solon:
+  sqltoy:
+    typeHandler: com.example.sqltoy_solon_demo.handler.MyTypeHandler
 ```
 
 ## 2、实现类

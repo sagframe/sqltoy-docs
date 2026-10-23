@@ -6,8 +6,15 @@ org.sagacity.sqltoy.plugins.TypeHandler
 ## 1. Configuration
 
 ```yaml
-sqltoy:
-  typeHandler: com.example.sqltoy_solon_demo.handler.MyTypeHandler
+# Spring Boot (spring.sqltoy prefix)
+spring:
+  sqltoy:
+    typeHandler: com.example.sqltoy_solon_demo.handler.MyTypeHandler
+
+# Solon (solon.sqltoy prefix)
+solon:
+  sqltoy:
+    typeHandler: com.example.sqltoy_solon_demo.handler.MyTypeHandler
 ```
 
 ## 2. Implementation Class

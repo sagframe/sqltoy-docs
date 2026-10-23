@@ -38,7 +38,7 @@ Two construction modes: **entity-based** (the table name is taken from the `@Ent
 lightDao.wrapTreeTableRoute(new TreeTableModel(organInfo)
         .idField("organCode").pidField("organPid")
         .nodeRouteField("nodeRoute").nodeLevelField("nodeLevel")
-        .isLeafField("leafField"));
+        .isLeafField("isLeaf"));
 
 // Mode 2: table-name-based full-argument construction
 // (tableName, root parent value pidValue, idField, pidField, nodeRouteField, nodeLevelField, leafField, isChar, idLength)
@@ -58,9 +58,9 @@ Once built, the route field can be used to efficiently query an entire subtree:
 ```
 
 ```java
-// query all children under a node (nodeRoute in the form ",100008,")
+// query all children under a node (nodeRoute in the form ",100008,%" — the trailing % matches the whole subtree)
 List<OrganInfoVO> subOrgans = lightDao.find("sqltoy_treeTable_search",
-        MapKit.map("nodeRoute", ",100008,"), OrganInfoVO.class);
+        MapKit.map("nodeRoute", ",100008,%"), OrganInfoVO.class);
 ```
 
 ## 4. Notes

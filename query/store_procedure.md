@@ -49,9 +49,9 @@ StoreResult result = lightDao.store()
 // 1) 无结果调用
 lightDao.executeStore("{call storeName(?,?)}", new Object[]{value1, value2});
 
-// 2) 存储过程查询（命名参数）
-List result = lightDao.executeStore("{call storeName(:param1,:param2)}",
-        MapKit.keys("param1", "param2").values(value1, value2), VO.class).getRows();
+// 2) 存储过程查询（无 out 参数时 outParamsType 传 null）
+List result = lightDao.executeStore("{call storeName(?,?)}",
+        new Object[]{value1, value2}, null, VO.class).getRows();
 
 // 3) 多结果集
 StoreResult more = lightDao.executeMoreResultStore("{call storeName(?,?,?)}",

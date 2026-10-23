@@ -93,7 +93,7 @@ Page<StaffInfo> page = lightDao.lambdaQuery(StaffInfo.class)
         .findPage(new Page(20, 1));
 ```
 
-`PageOptimize` 还提供 `aliveMax`（缓存条目上限）、`skipZeroCount`（首页 count 为 0 时跳过数据查询）、`parallelMaxWaitSeconds`（并行等待上限）。单表与 join 两通道均生效（单表经 `EntityQuery` 透传、join 经 `QueryExecutor` 透传）。
+`PageOptimize` 还提供 `aliveMax`（缓存条目上限）、`skipZeroCount`（命中缓存的 count 为 0 时跳过该缓存、重新查询总记录数）、`parallelMaxWaitSeconds`（并行等待上限）。单表与 join 两通道均生效（单表经 `EntityQuery` 透传、join 经 `QueryExecutor` 透传）。
 
 ---
 
@@ -361,7 +361,7 @@ List<StaffRankVO> ranks = lightDao.lambdaQuery(StaffRankVO.class)
                 JoinCol.raw("ROW_NUMBER() OVER(ORDER BY SALARY DESC)").as("rankNo"))
         .from(StaffInfo.class)
         .find();
-// → SELECT s1.STAFF_NAME AS staffName, ROW_NUMBER() OVER(ORDER BY SALARY DESC) AS rankNo FROM sys_staff_info s1
+// → SELECT s1.STAFF_NAME AS staffName, ROW_NUMBER() OVER(ORDER BY SALARY DESC) AS rankNo FROM sqltoy_staff_info s1
 ```
 
 > `JoinCol.raw` 与 `last(sql)` 同为**原始 SQL 逃逸口**：框架原样拼接、不做注入筛查，**禁止拼入终端用户输入**；跨库使用时注意片段本身的方言可移植性（如窗口函数各库语法差异）。

@@ -17,14 +17,15 @@ spring.sqltoy.sqlInterceptors[1]=com.yourpkg.YourSqlInterceptor
 
 ```java
 public interface SqlInterceptor {
-    // 在 SQL 执行前对 SqlToyResult（最终 sql + 参数）进行加工，返回加工后的结果
+    // 在 SQL 执行前对最终 sql 与参数（SqlToyResult）进行加工，返回加工后的结果
     default SqlToyResult decorate(SqlToyContext sqlToyContext, SqlToyConfig sqlToyConfig,
-                                  OperateType operateType, String sql, Object[] params, ...) {
-        return null;
+                                  OperateType operateType, SqlToyResult sqlToyResult,
+                                  Class entityClass, Integer dbType) {
+        return sqlToyResult;
     }
-    // 返回实体对象的租户字段名（用于租户过滤）
+    // 返回实体对象的租户字段名（用于租户过滤，如 saveOrUpdate / merge into on 条件场景）
     default String[] tenantFieldNames(EntityMeta entityMeta, OperateType operateType) {
-        return null;
+        // ...
     }
 }
 ```

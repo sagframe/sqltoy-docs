@@ -38,7 +38,7 @@ public boolean wrapTreeTableRoute(final TreeTableModel treeTableModel);
 lightDao.wrapTreeTableRoute(new TreeTableModel(organInfo)
         .idField("organCode").pidField("organPid")
         .nodeRouteField("nodeRoute").nodeLevelField("nodeLevel")
-        .isLeafField("leafField"));
+        .isLeafField("isLeaf"));
 
 // 方式二：基于表名全参构造
 // (tableName, 根父级值pidValue, idField, pidField, nodeRouteField, nodeLevelField, leafField, isChar, idLength)
@@ -58,9 +58,9 @@ lightDao.wrapTreeTableRoute(new TreeTableModel("sqltoy_organ_info", "0",
 ```
 
 ```java
-// 查询某节点下全部子级（nodeRoute 形如 ",100008,"）
+// 查询某节点下全部子级（nodeRoute 形如 ",100008,%"，尾部 % 匹配整棵子树）
 List<OrganInfoVO> subOrgans = lightDao.find("sqltoy_treeTable_search",
-        MapKit.map("nodeRoute", ",100008,"), OrganInfoVO.class);
+        MapKit.map("nodeRoute", ",100008,%"), OrganInfoVO.class);
 ```
 
 ## 四、说明

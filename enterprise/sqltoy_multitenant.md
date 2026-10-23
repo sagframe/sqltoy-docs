@@ -63,8 +63,8 @@ public class StaffInfoVO implements Serializable {
 public class TenantFilterInterceptor implements SqlInterceptor {
 
     @Override
-    public SqlToyResult decorate(SqlToyContext sqlToyContext, SqlToyConfig sqlToyConfig, 
-                                 SqlToyResult sqlToyResult, Class entityClass, Integer dbType) {
+    public SqlToyResult decorate(SqlToyContext sqlToyContext, SqlToyConfig sqlToyConfig,
+                                 OperateType operateType, SqlToyResult sqlToyResult, Class entityClass, Integer dbType) {
         // 存在统一字段处理、且是对象实体操作
         if (sqlToyContext.getUnifyFieldsHandler() == null || entityClass == null) {
             return sqlToyResult;

@@ -17,7 +17,7 @@ spring.sqltoy.overTimeSqlHandler=org.sagacity.sqltoy.plugins.overtime.DefaultOve
 通过 `SqlToyContext` 获取最慢的若干条 SQL：
 
 ```java
-// 获取最慢的前 10 条 SQL（第二个参数表示是否重置/清空统计）
+// 获取最慢的前 10 条 SQL（第二个参数 hasSqlId：是否只取 xml 中定义的含 id 的 sql）
 List slowest = lightDao.getSqlToyContext().getSlowestSql(10, true);
 ```
 

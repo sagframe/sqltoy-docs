@@ -90,7 +90,7 @@ sqltoy 的 count **不是**简单粗暴地 `select count(1) from (你的sql) as 
 | `parallel-maxwait-seconds` | — | 并行查询最大等待秒数，避免执行过久 |
 | `alive-max` | `100` | 最多缓存多少组不同查询条件对应的 count 记录 |
 | `alive-seconds` | `90` | 每组查询条件及 count 在内存中的存活秒数，超时则重新查询 |
-| `skip-zero-count` | `false` | 当 count 为 0 时是否自动重新获取 |
+| `skip-zero-count` | `false` | 命中缓存的 count 为 0 时是否跳过该缓存、重新查询总记录数 |
 
 Java 中对应 `QueryExecutor.pageOptimize(PageOptimize)`：
 

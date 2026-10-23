@@ -19,12 +19,13 @@ public void doDB() {
 	try {
 		//构建sqlToyContext
 		SqlToyContext sqlToyContext = new SqlToyContext();
-		sqlToyContext.setSqlResourcesDir("classpath:sqltoy/demo.sql.xml");
+		// sqlResourcesDir 指目录;具体到单个 xml 文件用 setSqlResources(List)
+		sqlToyContext.setSqlResources(Arrays.asList("classpath:sqltoy/demo.sql.xml"));
 		sqlToyContext.initialize();
 		Map<String, String> map = new HashMap<>();
 		map.put(DruidDataSourceFactory.PROP_URL, "jdbc:mysql://192.168.56.101:3306/java20");
 		// 设置驱动Driver
-		map.put(DruidDataSourceFactory.PROP_DRIVERCLASSNAME, "com.mysql.jdbc.Driver");
+		map.put(DruidDataSourceFactory.PROP_DRIVERCLASSNAME, "com.mysql.cj.jdbc.Driver");
 		// 设置用户名
 		map.put(DruidDataSourceFactory.PROP_USERNAME, "root");
 		// 设置密码

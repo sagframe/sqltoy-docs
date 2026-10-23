@@ -159,7 +159,7 @@ sqltoy 的全部注解都位于 `org.sagacity.sqltoy.config.annotation`（共 23
 
 | 属性 | 类型 | 默认 | 说明 |
 | --- | --- | --- | --- |
-| `field` | String | `""` | 租户字段名（列名）；为空时按约定/拦截器处理 |
+| `field` | String | `""` | 租户字段名（实体属性名，框架自动映射列名）；为空时按约定/拦截器处理 |
 
 ### @DataVersion
 

@@ -17,7 +17,7 @@ Notes:
 public <T> List<QueryResult<T>> parallelQuery(List<ParallelQuery> parallelQueryList, Map<String, Object> paramsMap);
 ```
 
-`ParallelQuery` is built fluently: `create()`, `sql()`, `page()`, `topSize()`, `randomSize()`, `names()`, `values()`, `paramsMap()`, `dataSource()`, `showSql()`, `contextData()`.
+`ParallelQuery` is built fluently: `create()`, `sql()`, `page()`, `topSize()`, `randomSize()`, `names()`, `values()`, `paramsMap()`, `resultType()`, `dataSource()`, `showSql()`, `contextData()`.
 
 ## 3. Usage Example
 

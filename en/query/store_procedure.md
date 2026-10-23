@@ -49,9 +49,9 @@ StoreResult result = lightDao.store()
 // 1) call without results
 lightDao.executeStore("{call storeName(?,?)}", new Object[]{value1, value2});
 
-// 2) stored procedure query (named parameters)
-List result = lightDao.executeStore("{call storeName(:param1,:param2)}",
-        MapKit.keys("param1", "param2").values(value1, value2), VO.class).getRows();
+// 2) stored procedure query (pass null as outParamsType when there are no out parameters)
+List result = lightDao.executeStore("{call storeName(?,?)}",
+        new Object[]{value1, value2}, null, VO.class).getRows();
 
 // 3) multiple result sets
 StoreResult more = lightDao.executeMoreResultStore("{call storeName(?,?,?)}",

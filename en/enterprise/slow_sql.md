@@ -17,7 +17,7 @@ Together with the configuration parameter `printSqlTimeoutMillis` (8000 millisec
 Get the slowest SQL statements through `SqlToyContext`:
 
 ```java
-// Get the 10 slowest SQL statements (the second argument indicates whether to reset/clear the statistics)
+// Get the 10 slowest SQL statements (the second argument, hasSqlId: whether to include only sql defined with an id in the xml)
 List slowest = lightDao.getSqlToyContext().getSlowestSql(10, true);
 ```
 

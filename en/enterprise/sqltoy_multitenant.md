@@ -63,8 +63,8 @@ The framework checks whether the entity class contains a tenant field, then obta
 public class TenantFilterInterceptor implements SqlInterceptor {
 
     @Override
-    public SqlToyResult decorate(SqlToyContext sqlToyContext, SqlToyConfig sqlToyConfig, 
-                                 SqlToyResult sqlToyResult, Class entityClass, Integer dbType) {
+    public SqlToyResult decorate(SqlToyContext sqlToyContext, SqlToyConfig sqlToyConfig,
+                                 OperateType operateType, SqlToyResult sqlToyResult, Class entityClass, Integer dbType) {
         // A unified fields handler exists and the operation targets an entity object
         if (sqlToyContext.getUnifyFieldsHandler() == null || entityClass == null) {
             return sqlToyResult;

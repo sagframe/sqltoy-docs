@@ -1,14 +1,14 @@
 # Traditional Spring Setup
 
-* Add the sqltoy dependency; it is still recommended to include sagacity-sqltoy-spring-starter
+* Add the sqltoy dependency (for traditional Spring use sagacity-sqltoy-spring; only Spring Boot projects need the starter)
 
 ```xml
-<!-- springboot  -->
+<!-- traditional spring (non-boot) -->
 <dependency>
 	<groupId>com.sagframe</groupId>
-	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
+	<artifactId>sagacity-sqltoy-spring</artifactId>
 	<!-- For JDK8, use 5.6.96.jre8 (final version, also works with the quickvo-maven-plugin) -->
-     <version>6.0.9</version>
+	     <version>6.0.9</version>
 </dependency>
 ```
 

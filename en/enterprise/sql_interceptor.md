@@ -17,14 +17,15 @@ A custom interceptor implements the `org.sagacity.sqltoy.plugins.SqlInterceptor`
 
 ```java
 public interface SqlInterceptor {
-    // Intercepts the SqlToyResult (final sql + parameters) before the SQL executes and returns the processed result
+    // Intercepts the final sql and parameters (SqlToyResult) before execution and returns the processed result
     default SqlToyResult decorate(SqlToyContext sqlToyContext, SqlToyConfig sqlToyConfig,
-                                  OperateType operateType, String sql, Object[] params, ...) {
-        return null;
+                                  OperateType operateType, SqlToyResult sqlToyResult,
+                                  Class entityClass, Integer dbType) {
+        return sqlToyResult;
     }
-    // Returns the tenant field names of the entity (used for tenant filtering)
+    // Returns the tenant field names of the entity (used for tenant filtering, e.g. saveOrUpdate / merge-into on conditions)
     default String[] tenantFieldNames(EntityMeta entityMeta, OperateType operateType) {
-        return null;
+        // ...
     }
 }
 ```

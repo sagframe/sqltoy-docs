@@ -1,12 +1,12 @@
 # 传统spring项目配置
 
-* 引入sqltoy依赖,推荐依然引入sagacity-sqltoy-spring-starter
+* 引入sqltoy依赖（传统 Spring 用 sagacity-sqltoy-spring；Spring Boot 项目才用 starter）
 
 ```xml
-<!-- springboot  -->
+<!-- 传统 spring（非 boot） -->
 <dependency>
 	<groupId>com.sagframe</groupId>
-	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
+	<artifactId>sagacity-sqltoy-spring</artifactId>
 	<!-- JDK8 请使用 5.6.96.jre8（jre8 最终版本，同样支持 quickvo-maven-plugin 插件） -->
 	<version>6.0.9</version>
 </dependency>

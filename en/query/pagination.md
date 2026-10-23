@@ -90,7 +90,7 @@ For scenarios where **the query conditions are identical and paging happens freq
 | `parallel-maxwait-seconds` | — | Maximum wait seconds for the parallel query, to avoid running too long |
 | `alive-max` | `100` | Maximum number of count records cached for different query conditions |
 | `alive-seconds` | `90` | Survival seconds in memory for each group of query conditions and its count; when expired it is queried again |
-| `skip-zero-count` | `false` | Whether to automatically re-fetch when the count is 0 |
+| `skip-zero-count` | `false` | When a cached count of 0 is hit, whether to skip that cache entry and re-fetch the total count |
 
 The Java counterpart is `QueryExecutor.pageOptimize(PageOptimize)`:
 

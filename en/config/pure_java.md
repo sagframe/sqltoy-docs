@@ -19,12 +19,13 @@ public void doDB() {
 	try {
 		// Build the sqlToyContext
 		SqlToyContext sqlToyContext = new SqlToyContext();
-		sqlToyContext.setSqlResourcesDir("classpath:sqltoy/demo.sql.xml");
+		// sqlResourcesDir points at a directory; for a specific xml file use setSqlResources(List)
+		sqlToyContext.setSqlResources(Arrays.asList("classpath:sqltoy/demo.sql.xml"));
 		sqlToyContext.initialize();
 		Map<String, String> map = new HashMap<>();
 		map.put(DruidDataSourceFactory.PROP_URL, "jdbc:mysql://192.168.56.101:3306/java20");
 		// Set the driver
-		map.put(DruidDataSourceFactory.PROP_DRIVERCLASSNAME, "com.mysql.jdbc.Driver");
+		map.put(DruidDataSourceFactory.PROP_DRIVERCLASSNAME, "com.mysql.cj.jdbc.Driver");
 		// Set the username
 		map.put(DruidDataSourceFactory.PROP_USERNAME, "root");
 		// Set the password

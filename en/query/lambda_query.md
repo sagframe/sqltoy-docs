@@ -93,7 +93,7 @@ Page<StaffInfo> page = lightDao.lambdaQuery(StaffInfo.class)
         .findPage(new Page(20, 1));
 ```
 
-`PageOptimize` also offers `aliveMax` (cache entry limit), `skipZeroCount` (skip the data query when the first page counts 0) and `parallelMaxWaitSeconds` (parallel wait limit). Both channels are covered (single table through `EntityQuery`, join through `QueryExecutor`).
+`PageOptimize` also offers `aliveMax` (cache entry limit), `skipZeroCount` (when a cached count of 0 is hit, skip that cache entry and re-fetch the total count) and `parallelMaxWaitSeconds` (parallel wait limit). Both channels are covered (single table through `EntityQuery`, join through `QueryExecutor`).
 
 ---
 
@@ -361,7 +361,7 @@ List<StaffRankVO> ranks = lightDao.lambdaQuery(StaffRankVO.class)
                 JoinCol.raw("ROW_NUMBER() OVER(ORDER BY SALARY DESC)").as("rankNo"))
         .from(StaffInfo.class)
         .find();
-// → SELECT s1.STAFF_NAME AS staffName, ROW_NUMBER() OVER(ORDER BY SALARY DESC) AS rankNo FROM sys_staff_info s1
+// → SELECT s1.STAFF_NAME AS staffName, ROW_NUMBER() OVER(ORDER BY SALARY DESC) AS rankNo FROM sqltoy_staff_info s1
 ```
 
 > `JoinCol.raw` and `last(sql)` are both **raw SQL escape hatches**: the framework splices them verbatim without injection screening, so **never splice end-user input into them**; when working across databases, mind the portability of the fragment itself (window function syntax differs between databases).

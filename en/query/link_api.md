@@ -191,7 +191,7 @@ boolean ok = lightDao.treeTable()
         .treeModel(new TreeTableModel(OrganInfo.class)
                 .idField("organId").pidField("organPid")
                 .nodeRouteField("nodeRoute").nodeLevelField("nodeLevel")
-                .isLeafField("leafField"))
+                .isLeafField("isLeaf"))
         .submit();
 ```
 
