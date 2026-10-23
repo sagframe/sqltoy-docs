@@ -575,7 +575,7 @@ public <T extends Serializable> T updateSaveFetch(final T entity, final EntityUp
 <dependency>
     <groupId>net.bytebuddy</groupId>
     <artifactId>byte-buddy</artifactId>
-    <version>1.18.11</version>
+    <version>1.18.15</version>
 </dependency>
 ```
 
