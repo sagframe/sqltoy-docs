@@ -142,7 +142,7 @@ List<CompanyInfoVO> jsonResult = (List<CompanyInfoVO>) lightDao.elastic()
         .find();
 ```
 
-The `elastic()` chain supports: `sql`, `names`, `values`, `entity`, `endPoint`, `resultType`, `humpMapLabel`; terminal methods: `find()`, `getOne()`, `findTop(int)`, `findPage(Page)`.
+The `elastic()` chain supports: `sql`, `names`, `values`, `entity`, `endPoint`, `resultType`, `humpMapLabel`; terminal methods: `find()`, `getOne()`, `findTop(int)` (fixed row count only, no proportional extraction), `findPage(Page)`.
 
 ## 4. Notes
 

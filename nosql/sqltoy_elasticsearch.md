@@ -140,7 +140,7 @@ List<CompanyInfoVO> jsonResult = (List<CompanyInfoVO>) lightDao.elastic()
         .find();
 ```
 
-`elastic()` 链式可设置：`sql`、`names`、`values`、`entity`、`endPoint`、`resultType`、`humpMapLabel`；终止方法：`find()`、`getOne()`、`findTop(int)`、`findPage(Page)`。
+`elastic()` 链式可设置：`sql`、`names`、`values`、`entity`、`endPoint`、`resultType`、`humpMapLabel`；终止方法：`find()`、`getOne()`、`findTop(int)`（仅固定条数，不支持按比例提取）、`findPage(Page)`。
 
 ## 四、注意事项
 
