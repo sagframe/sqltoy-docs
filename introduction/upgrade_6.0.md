@@ -246,5 +246,5 @@ join 更新/删除并入 `lambdaUpdate()/lambdaDelete()`（与查询同款"不�
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；
 5. **使用 sqltoy-plus 的项目**：按第十节第 2 条清单迁移到 `org.sagacity.sqltoy.lambda`，移除 sqltoy-plus 依赖与 `@EnableSqlToyPlus`，并回归 `getOne()` 多处匹配、无条件 update/delete 两类行为变化；
-6. **构建 native 镜像的项目**：确认 GraalVM 25+、配置 `packagesToScan`、按需登记 `native-reflection-classes/packages`，用到 `updateSaveFetch` 的实体加入 `native-entity-proxies`；
+6. **构建 native 镜像的项目**：确认 GraalVM 25+、配置 `packagesToScan`、按需登记 `native-reflection-classes/packages`，用到 `updateSaveFetch` 的实体加入 `native-entity-proxies`；GitHub Actions 中 `actions/setup-java` 的 `distribution` 写 `graalvm`（`graalvm-community` 已被 setup-java v4 移除，详见[GraalVM Native Image 指引](tools/graalvm_native.md)）；
 7. 启动验证：观察 debug 模式下 SQL 输出与业务回归（缓存翻译、分页、并行查询、lambda 条件优先）；断言 SQL 文本的单元测试需同步 `:p1…` 参数名。

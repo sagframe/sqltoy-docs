@@ -478,7 +478,7 @@ List<CteDeptVO> rows = lightDao.lambdaQuery(CteDeptVO.class)
 
 - **多 CTE / CTE 引用 CTE**：链式 `.with("a", qa).with("b", qb)`，`qb` 内可 `fromCte("a")` → `WITH a AS (..), b AS (..)`。
 - **递归 CTE**：`.withRecursive(name, q, "id", "pid", "name")` → `WITH RECURSIVE name(id, pid, name) AS (..)`；**列清单建议必给**——H2 等库的递归 CTE 强制要求列清单，PG/MySQL/SQLServer 亦标准支持；Oracle/SQLServer 递归不带 `RECURSIVE` 关键字，框架按执行库类型自动适配。递归分支须用 **innerJoin** 关联 CTE 自身（LEFT JOIN 无子节点也产行会致递归不终止），且关联方向为「子.pid = 当前节点.id」向下遍历。
-- **PG 物化 hint**：`.with(name, q, Boolean.TRUE/FALSE)` → PostgreSQL 渲染 `AS MATERIALIZED` / `AS NOT MATERIALIZED`；**其他库自动忽略**（按 dbType 处理，不支持的不生效）。
+- **PG 物化 hint**：`.with(name, q, Boolean.TRUE/FALSE)` → PostgreSQL 系（postgresql/postgresql14 及同内核 openGauss/金仓/Vastbase/GAUSSDB/瀚高，白名单见 `SqlWithAnalysis.supportsCteMaterialized`）渲染 `AS MATERIALIZED` / `AS NOT MATERIALIZED`；**其余库自动忽略**（按 dbType 处理，不支持的不渲染、不报错）。SQL 模板中的 `AS [NOT] MATERIALIZED` 同口径：目标库不支持时解析期自动剔除（6.0.9 起）。
 - **WITH 位置约束**：生成的 `WITH` 恒位于语句位置 0——sqltoy 靠文本检测 WITH（`SqlWithAnalysis`/`hasWith`）以在 count/分页时把 WITH 剥离到包裹之外，前导分号会破坏该检测；SQLServer 单条语句以 WITH 开头本就不需要前置分号（分号要求仅针对 WITH 前尚有未结束语句的批处理）。
 - 外层列解析走**结果 VO 的 EntityMeta**（CTE 非真实表、无 EntityMeta），故外层须类型化到字段与 CTE 输出列对齐的 VO；不支持 CTE 的老库由开发者自行改写（框架不做降级）。
 
