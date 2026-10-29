@@ -41,6 +41,7 @@
 * 跨库与方言
     * [方言自适配与函数扩展](dialect/sqltoy_function.md)
     * [多种数据库适配验证](dialect/multi_db_verify.md)
+    * [TDengine 时序数据库支持](dialect/sqltoy_tdengine.md)
 * 主键与 DDL
     * [主键策略介绍](primarykey/sqltoy_primarykey.md)
     * [POJO 生成表结构 DDL](primarykey/sqltoy_ddl.md)

@@ -12,7 +12,11 @@ DM (Dameng), Kingbase, Oscar, HighGo, MogDB, Vastbase, StarDB, GaussDB, OpenGaus
 
 ## Distributed OLAP Databases
 
-ClickHouse, Doris, StarRocks, Greenplum, Impala (Kudu), TDengine
+ClickHouse, Doris, StarRocks, Greenplum, Impala (Kudu)
+
+## Time-Series Databases
+
+TDengine (IoT time-series; supports **query + object insert** — see [TDengine Support](en/dialect/sqltoy_tdengine.md))
 
 ## NoSQL
 

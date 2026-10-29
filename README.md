@@ -78,6 +78,7 @@ List<OrderInfoVO> orders = lightDao.find("""
 ## 支持的数据库
 
 * 常规的mysql、oracle、db2、postgresql、 sqlserver、dm、kingbase、hana、sqlite、h2、 oceanBase、polardb、gaussdb、tidb、oscar(神通)、瀚高、mogdb、vastbase、stardb
-* 支持分布式olap数据库: clickhouse、doris、StarRocks、greenplum、impala(kudu)、TDengine
+* 支持分布式olap数据库: clickhouse、doris、StarRocks、greenplum、impala(kudu)
+* 支持时序数据库: TDengine(查询 + 对象插入)
 * 支持elasticsearch、mongodb
 * 所有基于sql和jdbc 各类数据库查询

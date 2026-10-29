@@ -78,6 +78,7 @@ List<OrderInfoVO> orders = lightDao.find("""
 ## Supported Databases
 
 * Mainstream relational databases: MySQL, Oracle, DB2, PostgreSQL, SQL Server, DM, Kingbase, **SAP HANA**, SQLite, H2, OceanBase, PolarDB, GaussDB, TiDB, Oscar, HighGo, MogDB, Vastbase, StarDB
-* Distributed OLAP databases: ClickHouse, Doris, StarRocks, Greenplum, Impala (Kudu), TDengine
+* Distributed OLAP databases: ClickHouse, Doris, StarRocks, Greenplum, Impala (Kudu)
+* Time-series database: TDengine (query + object insert)
 * Elasticsearch and MongoDB
 * Any SQL/JDBC-capable database for queries

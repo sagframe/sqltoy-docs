@@ -41,6 +41,7 @@
 * Cross-DB & Dialect
     * [Dialect Adaptation & Functions](en/dialect/sqltoy_function.md)
     * [Multi-DB Verification](en/dialect/multi_db_verify.md)
+    * [TDengine Time-Series Support](en/dialect/sqltoy_tdengine.md)
 * Primary Key & DDL
     * [Primary Key Strategies](en/primarykey/sqltoy_primarykey.md)
     * [POJO to DDL](en/primarykey/sqltoy_ddl.md)

@@ -12,7 +12,11 @@ MySQL、Oracle、PostgreSQL、SQL Server、DB2、SAP HANA、H2、SQLite、TiDB�
 
 ## 分布式 OLAP 数据库
 
-ClickHouse、Doris、StarRocks、Greenplum、Impala（Kudu）、TDengine
+ClickHouse、Doris、StarRocks、Greenplum、Impala（Kudu）
+
+## 时序数据库
+
+TDengine（IoT 时序库，支持**查询 + 对象插入**，详见 [TDengine 时序数据库支持](dialect/sqltoy_tdengine.md)）
 
 ## NoSQL
 
