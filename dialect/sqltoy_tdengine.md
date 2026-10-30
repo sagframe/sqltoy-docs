@@ -108,10 +108,13 @@ dao.batchUpdate("device_insert", rows);
 
 ## 三、使用约束
 
-1. **主键策略必须为 ASSIGN（时间戳）**：TDengine 无自增列、无序列，`getGeneratedKeys` 不支持（实测报 `this operation is NOT supported`）。实体时间戳主键由应用赋值，切勿配置 `identity` / `sequence` 策略。
+1. **时间戳主键由应用赋值（ASSIGN 策略）**：TDengine 官方 INSERT 文档明确——「每条插入行**必须包含时间戳，且时间戳不能为 `NULL`**」「时间戳主键**必须出现，不能省略**」。TDengine 无自增列、无序列，`getGeneratedKeys` 不支持（实测报 `this operation is NOT supported`），故主键须用 **ASSIGN** 策略由应用赋值，切勿配置 `identity` / `sequence`。
+   - **关于 `NOW`**：官方明确「`NOW` 解析为**客户端时间**（client time），而非服务端时间」。因此应用侧 `new Timestamp(System.currentTimeMillis())` 与在 SQL 里写 `NOW` **本质等价**（都取客户端时钟），并不存在“服务端自动生成时间戳”这回事（TDengine 连 `current_timestamp` 都不支持）。但应用赋值**更优**：应用知道所赋的值，`save()` 能正常返回主键；而 `NOW` 生成的时间戳**不回传**，实体拿不到自己的主键。
+   - **语义建议**：IoT 场景时间戳应取**事件时间**（采样那一刻），由设备/应用掌握；`NOW` 只是“写语句的客户端时刻”，在设备时钟漂移或补传历史数据时会失真。
 2. **子表名防注入**：模式 B 的 `:tb` 由驱动内联进 SQL 文本，**务必在 service 层对子表名做白名单/合法性校验**，避免 SQL 注入。
 3. **不要直接映射超级表写入**：`insert into 超级表 ... values(...)` 会被引擎拒绝（`tbname column should not be null`），写入必须落到子表（模式 B 的 `using ... tags` 会自动建子表）。
 4. **批量写入用模式 B**：`saveAll` 仅写单一已存在子表；跨多设备的批量摄入用模式 B 的 `batchUpdate`（每行不同 `:tb`），或分表策略路由。
+5. **「更新」= 相同时间戳重新 INSERT**：TDengine 无 `UPDATE` 语句。官方规则——「一个主键只保留一行，时间戳单独标识该行」「相同时间戳的行会互相覆盖」。因此修改一条记录的唯一方式是**用相同时间戳重新插入**；3.x 为**列级合并**（只覆盖本次 INSERT 出现的列，未出现的列保留原值，实测验证）。这也意味着 `update` / `saveOrUpdate` 等 ORM 写操作在 TDengine 上不适用（见下节），需要“改值”时按此机制重插即可。
 
 ## 四、不支持的操作及替代方案
 
