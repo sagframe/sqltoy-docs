@@ -158,3 +158,21 @@ The complete checklist (entity scanning, DTO reflection, extension classes, func
 
 - **sqltoy-plus**: 6.0.8 folds the lambda capability into core. Drop the plugin dependency and `@EnableSqlToyPlus`, then follow the mapping table in [upgrade guide section 10.2](en/introduction/upgrade_6.0.md) for package/class renames, and regression-test the two behaviour changes (`getOne()` with multiple matches, unconditional update/delete);
 - **MyBatis / MyBatis-Plus**: `<if>` → `#[]`, `QueryWrapper` → `EntityQuery` or lambda, `ResultMap` → result type/VO mapping, pagination plugin → `findPage`. The full mapping and rollout order are in [Migrating from MyBatis](en/introduction/migration.md).
+
+## 15. How do I see the final SQL after function rewriting?
+
+Enable `spring.sqltoy.debug=true` and the SQL log prints the full parse pipeline: which sqlId was loaded, which functions were substituted for the current dialect, which dialect variant was chosen (`sqlId_kingbase` vs `sqlId`), and the final SQL text with parameters. If a custom IFunction does not take effect, first check the debug log to see whether your regex matched, then walk the troubleshooting checklist at the end of [section 1.3 of the dialect/function guide](../dialect/sqltoy_function.md).
+
+## 16. Why are my List<Map> result keys uppercase / not camelCase?
+
+- First confirm you are actually returning `List<Map>`: these settings do not apply when returning a VO/Entity — field mapping relies on `@Column(name=...)`.
+- If it is a `List<Map>`, check `spring.sqltoy.columnLabelUpperOrLower`: when set to `upper` or `lower`, case normalization runs first, then camelCase conversion. Execution order and per-query override are documented under `humpMapResultTypeLabel` in [the configuration guide](../config/sqltoy_config.md).
+- To disable camelCase for a single query: `lightDao.query().humpMapLabel(false).find(...)`.
+
+## 17. Why is every request failing after I configured redoDataSources?
+
+`redoDataSources` replays synchronously, and any redo data source that cannot connect or whose SQL fails on that database throws `DataAccessException` and aborts the current request. This is by design — cross-database problems should surface during development. If you just want to develop a feature without being slowed by cross-database verification, comment out `spring.sqltoy.redoDataSources`. Full behavior is documented in [Multi-database adaptation verification](../dialect/multi_db_verify.md).
+
+## 18. Does my custom function take effect when the SQL is solidified with `<sql dialect="kingbase">`?
+
+Yes. When a `<sql dialect="kingbase">` element is loaded, it runs function substitution once for the declared kingbase dialect and solidifies the parsed tags. Custom IFunction implementations go through the same parse pipeline as built-ins. At execution time the lazy conversion layer is skipped entirely and the solidified SQL is used.

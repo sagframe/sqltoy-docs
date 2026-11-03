@@ -158,3 +158,21 @@ lambda 依赖 `SerializedLambda` 与序列化镜像来提取属性名，closed-w
 
 - **sqltoy-plus**：6.0.8 已把 lambda 能力并入核心，移除插件依赖与 `@EnableSqlToyPlus`，按[升级指南第十节第 2 条](introduction/upgrade_6.0.md)的对照表改包名/类名，并回归 `getOne()` 多匹配、无条件 update/delete 两类行为变化；
 - **MyBatis / MyBatis-Plus**：`<if>` → `#[]`、`QueryWrapper` → `EntityQuery` 或 lambda、`ResultMap` → 结果类型/VO 映射、分页插件 → `findPage`。完整对照与落地顺序见[从 MyBatis 迁移](introduction/migration.md)。
+
+## 十五、怎么看函数改写后的最终 SQL 长什么样？
+
+开启 `spring.sqltoy.debug=true` 后，SQL 日志会输出完整的解析过程：包括加载的 sqlId、按当前方言做了哪些函数替换、选择了哪个方言变体（`sqlId_kingbase` 还是 `sqlId`）、最终执行的 SQL 文本和参数。自定义 IFunction 写了不生效时，先看 debug 日志里有没有命中你的 regex，再按 [方言自适配与函数扩展](../dialect/sqltoy_function.md) 第 1.3 节末尾的排查清单逐项检查。
+
+## 十六、我写的 List<Map> 结果 key 是大写的 / 不是驼峰，怎么回事？
+
+- 先确认你查的是不是 `List<Map>`：返回 VO/Entity 时这两个配置不生效，字段映射靠 `@Column(name=...)`。
+- 如果是 `List<Map>`，检查 `spring.sqltoy.columnLabelUpperOrLower`：设为 `upper` 或 `lower` 时会先做大小写归一，再做驼峰转换。执行顺序和链式覆盖见[配置说明](../config/sqltoy_config.md)中 `humpMapResultTypeLabel` 条目。
+- 单条查询想临时关闭驼峰：`lightDao.query().humpMapLabel(false).find(...)`。
+
+## 十七、配了 redoDataSources 之后为什么所有请求都报错了？
+
+`redoDataSources` 的重放是**同步执行**的，任何一个 redo 数据源连不上或 SQL 在该库上跑不通，都会抛 `DataAccessException` 中断当前请求。这是设计行为——开发阶段就要把跨库问题暴露出来。如果你只想做功能开发不想被跨库验证拖慢，注释掉 `spring.sqltoy.redoDataSources` 配置即可。完整行为说明见[跨数据库适配验证](../dialect/multi_db_verify.md)。
+
+## 十八、自定义函数在 `<sql dialect="kingbase">` 固化时生效吗？
+
+生效。`<sql dialect="kingbase">` 在加载时按声明的 kingbase 方言做一次函数替换并固化解析标签，自定义 IFunction 和内置函数走同一套解析管线。执行时连惰性转换都省略，直接用固化后的 SQL。

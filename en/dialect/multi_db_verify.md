@@ -26,6 +26,14 @@ Once configured, whenever any query feature is executed, sqltoy replays (redo) t
 
 > Tip: `redoDataSources` is for **adaptation verification** only; replayed queries do not affect the primary query result. It can be turned off in production.
 
+**Important behavior (easy to get wrong without reading the source):**
+
+- **Synchronous and blocking**: the replay runs **synchronously, one data source at a time, on the request thread**. After the primary query succeeds, the framework re-does "rewrite SQL for the target dialect → execute the query" on each redo data source in turn. With N redo data sources, every query costs N extra DB round-trips.
+- **A replay failure aborts the request**: if any redo data source throws (cannot connect, SQL syntax error, type mismatch, etc.), the framework logs an error and then **rethrows `DataAccessException`, failing the current request**. This is intentional — cross-database problems should surface loudly during development. If you want replay failures to be tolerated, do not configure `redoDataSources`.
+- **A missing redo data source fails startup**: if `redoDataSources[i]` names a DataSource bean that does not exist in the Spring context, startup fails immediately with `IllegalArgumentException`; it is not silently ignored.
+- **The replay redoes function rewriting and dialect-variant selection**: the replay does not take the primary query's SQL as-is. It re-runs `getSqlToyConfig` for the redo data source's dialect (function substitution, `sqlId_dialect` variant matching, `<sql dialect=...>` solidification — the whole pipeline). So the replay verifies "if we switched to this database, what would the SQL look like and would it run", not "run the same SQL on this database".
+- **Slow-SQL logging does not count replay queries**: if a replay query is slow, it lands in the error log (because it failed) but does not trigger the slow-SQL handler or alerts.
+
 ## 3. Supporting Tools and Verification Projects
 
 | Tool | Purpose |

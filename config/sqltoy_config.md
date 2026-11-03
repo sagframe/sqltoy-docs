@@ -130,6 +130,16 @@ spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
 spring.sqltoy.humpMapResultTypeLabel=true
 # 获取 ResultSetMetaData 列标题的处理策略：default(不处理)/upper(转大写)/lower(转小写)
 spring.sqltoy.columnLabelUpperOrLower=default
+#
+# 上述两个配置的执行顺序与适用范围（容易混淆，务必看清楚）：
+# 1. 执行顺序：先做 columnLabelUpperOrLower（大小写归一），再做 humpMapResultTypeLabel（下划线转驼峰）。
+#    例如列名是 "USER_NAME"，先 upper 归一为 "USER_NAME"，再驼峰转为 "userName"。
+# 2. 适用范围：这两个配置**只影响 List<Map> 返回的 key**。
+#    返回 VO / Entity / Map<String,Object> 单个对象时，字段映射靠 @Column(name="...") 注解和属性名自动匹配，不受这两个配置影响。
+#    如果你发现 findVO(UserVO.class) 出来的字段是 null，不要去调这两个配置——检查 @Column 注解和 SQL 列别名是否一致。
+# 3. 链式覆盖：QueryExecutor.humpMapLabel(false) 只关闭驼峰转换这一步，不影响 columnLabelUpperOrLower 的大小写归一。
+#    lightDao.query().humpMapLabel(false).find(...) 得到的 Map key 是原始列名（可能大写），但不会做下划线转驼峰。
+#    mongo() 和 elastic() 链式查询同样支持 humpMapLabel()。
 # sql 日志输出时 LocalDateTime 的格式，可设 auto 或 yyyy-MM-dd HH:mm:ss.SSSSSS 等
 spring.sqltoy.localDateTimeFormat=yyyy-MM-dd HH:mm:ss.SSSSSS
 # sql 日志输出时 LocalTime 的格式，可设 auto 或 HH:mm:ss.SSSSSS 等

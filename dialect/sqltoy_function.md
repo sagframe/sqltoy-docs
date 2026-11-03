@@ -158,6 +158,43 @@ public class Trim extends IFunction {
 
 > 上述新增/扩充函数均经多数据库真库探针验证；无法安全转换的形态（如目标库不支持的聚合排序）保持"响亮保留"，原样交由目标库报错，避免静默错值。
 
+**内置函数完整源名映射表**（SQL 里可以直接写以下任何一个名字，框架自动识别并适配；大小写不敏感）：
+
+| SQL 中可写的函数名 | 对应实现类 | 说明 |
+|---|---|---|
+| `substr`, `mid` | SubStr | 子串截取，补 mysql 同义词 `mid` |
+| `trim` | Trim | 去首尾空格 |
+| `instr`, `locate`, `posstr` | Instr | 子串定位，补 mysql/db2 同义词 |
+| `concat` | Concat | 字符串拼接 |
+| `concatws` | ConcatWs | 带分隔符拼接 |
+| `nvl` | Nvl | 空值替换（oracle 系原生透传，其余转 coalesce） |
+| `dateformat` | DateFormat | 日期格式化 |
+| `now`, `current_timestamp` | Now | 当前时间戳 |
+| `currentdate`, `curdate` | CurrentDate | 当前日期（零点） |
+| `length`, `character_length`, `octet_length` | Length | 长度，补 ANSI/pg 字节写法 |
+| `tochar`, `to_char` | ToChar | 转字符串 |
+| `if`, `iif` | If | 三元判断，补 sqlserver 原生 `iif` |
+| `groupconcat`, `group_concat`, `listagg`, `string_agg` | GroupConcat | 聚合拼接，支持 `within group (order by ...)` |
+| `tonumber`, `to_number` | ToNumber | 转数字 |
+| `todate`, `to_date`, `str_to_date` | ToDate | 转日期，补 mysql 写法 |
+| `datediff` | DateDiff | 日期差 |
+| `decode` | Decode | oracle decode 转 case when |
+| `uuid`, `guid`, `newid`, `sys_guid`, `random_uuid`, `gen_random_uuid`, `uuid_generate_v4` | Uuid | 唯一 ID，按目标库归一 |
+| `year`, `month`, `day`, `hour`, `minute`, `second` | YearMonthDay | 日期时间分量提取 |
+| `lastday`, `last_day`, `eomonth` | LastDay | 当月最后一天 |
+| `addmonths`, `add_months` | AddMonths | 月份加减（月末钳制） |
+| `dateadd`, `date_add`, `date_sub`, `adddate`, `subdate` | DateAdd | 日期区间加减族 |
+| `left`, `right` | LeftRight | 左右截取 |
+| `lpad`, `rpad` | Pad | 定长填充 |
+| `extract`, `datepart`, `date_part` | Extract | 分量提取（ANSI/pg 写法） |
+| `trunc`, `datetrunc`, `date_trunc` | DateTrunc | 日期截断族（oracle/pg 双源形态） |
+| `mod` | Mod | 取模（sqlserver 转 `%` 运算符） |
+| `findinset`, `find_in_set` | FindInSet | 集合成员判断，带布尔口径适配 |
+| `nvl2` | Nvl2 | oracle nvl2 转 case when（6.0.4） |
+| `sys_timestamp` | SysTimestamp | oracle 当前时间戳带精度（6.0.4） |
+
+> 共 28 个实现类、40+ 个可识别的源函数名。在 SQL 里写哪个名字都行——框架按上述映射表归一到对应实现类，再按目标方言改写。你不需要为了适配去改 SQL 里的函数名，写你最熟的那个数据库的写法即可。
+
 ### 1.3 自行扩展函数适配（开发者侧，无需框架改动）
 
 内置的 28 个函数覆盖的是**跨库写法存在差异**的常见函数。项目里遇到框架没适配的函数——数据库私有函数、行业专用函数、某个库新引入的函数——**由项目开发者自行扩展即可，不需要等框架层面支持**：实现 `IFunction` 并通过 `functionConverts` 挂载，与内置函数走的是完全同一套机制。
@@ -169,7 +206,8 @@ public class Trim extends IFunction {
 | `dialects()` | 声明本函数适配哪些方言 | `ALL`（即空串）表示全部方言；否则用逗号或分号分隔**精确枚举**方言名 |
 | `regex()` | 匹配 SQL 中的函数调用 | `Pattern`，用于定位待改写的函数 |
 | `wrap(dialect, functionName, hasArgs, args...)` | 产出目标方言的 SQL | 返回改写后的片段；返回 `IGNORE`（即 null）表示**原样透传** |
-| `wrapArgs(functionName, args...)` | 受保护的便捷方法 | 按“函数名不变、仅重新拼接参数”这一最常见形态生成结果 |
+| `wrap(dialect, functionName, hasArgs, projection, args...)` | 带投影上下文的重载（可选覆盖） | `projection=true` 表示函数位于 SELECT 投影位置（需返回可投影的值）；`false` 表示在 WHERE 条件/布尔上下文（需返回 boolean）。默认实现直接委托给三参 `wrap`，不区分上下文。只有需要根据位置改变改写结果的函数才覆盖它（如内置 `FindInSet`） |
+| `wrapArgs(functionName, args...)` | 受保护的便捷方法 | 按"函数名不变、仅重新拼接参数"这一最常见形态生成结果 |
 
 **最小示例：只有 SQL Server 需要改写，其余库原生透传**（内置 `Mod` 的实现）
 
@@ -209,7 +247,8 @@ public class Mod extends IFunction {
 3. 匹配是在**字面量掩码后的 SQL** 上进行的，因此字符串常量里出现的同名文本不会被误改写。
 4. `wrap` 的 `args` 是已切分好的参数表达式原文，可能带空白，拼接前建议 `trim()`。
 5. **只能改写函数名形态**。运算符写法（如 SQL Server 的 `a % b`、Oracle 的 `a || b`）不是函数调用，正则框架捕获不到，因此不在适配范围内——跨库 SQL 请统一写函数形态（`mod(a,b)`、`concat(a,b)`），可移植性最好。
-6. 绝大多数情况下 `wrap` 应当对“本来就原生支持该函数的库”返回 `IGNORE`，只改写真正有差异的方言。无差别改写会破坏原生行为。
+6. 绝大多数情况下 `wrap` 应当对"本来就原生支持该函数的库"返回 `IGNORE`，只改写真正有差异的方言。无差别改写会破坏原生行为。
+7. **嵌套函数会被递归改写**。框架用括号配平算法提取参数，因此 `nvl(substr(name,1,3), '未知')`、`concat(trim(a), '-', b)` 这类嵌套调用会逐层提取内层参数并分别改写。你不需要在自己的 `wrap` 里手动处理嵌套——返回的 `args[i]` 已经是内层改写后的完整表达式。
 
 **覆盖内置实现**
 
@@ -229,6 +268,25 @@ spring.sqltoy.functionConverts=default,com.yourpackage.Nvl
 - `suffixPattern()`：尾部子句的匹配 pattern，须以 `\s*` 开头承担间隔空白、以 `\(*` 结尾；返回 null（默认）表示本函数不消费尾部子句
 - `suffixNeedsParen()`：true（默认）按平衡括号消费整个子句；false 按 pattern 命中长度消费，用于 `>0`/`=0` 这类裸操作符子句
 - `wrapWithSuffix(dialect, functionName, suffix, args...)`：命中后的处理入口，`suffix` 是子句原文（含前导空白）；返回 `IGNORE` 表示连同子句原样保留
+
+**find_in_set 的布尔口径适配示例**：mysql 原生 `find_in_set(str, list)` 返回位置整数，但在 PG/达梦/金仓等库没有同名函数，改写为 `instr(','||list||',', ','||str||',')` 后返回整数位置。问题在于：写 `where find_in_set(:id, ids)`（裸真值，mysql 合法）在 PG 里变成 `where instr(...)`，而 PG 的 WHERE 子句必须是 boolean 表达式，`instr(...)` 是整数会报错。
+
+框架对此的处理是：同时覆盖 `suffixPattern()`（匹配 `\s*(>|<|=|<>|!=)\s*\d+`）和 `suffixNeedsParen()`（返回 false，按 pattern 长度消费裸操作符），并在 `wrapWithSuffix` 里把 `find_in_set(:id, ids) > 0` 整体改写为 `(instr(...) > 0)`。这样两种惯用法都能正确适配：
+
+```sql
+-- 写法一：显式比较（框架自动识别并连带改写 >0）
+where find_in_set(:id, ids) > 0
+
+-- 写法二：裸真值（mysql 风格，框架自动补成 boolean 形式）
+where find_in_set(:id, ids)
+```
+
+**自定义函数如何调试改写结果**：开启 `spring.sqltoy.debug=true` 后，SQL 日志会输出函数改写后的最终 SQL（包括方言变体选择和函数替换全过程）。如果自定义函数不生效，按以下顺序排查：
+1. `functionConverts` 配置里写的是**全限定类名**（不是简写）
+2. 类有**公共无参构造器**（能被反射实例化）
+3. `dialects()` 返回值里的方言名拼写正确（与目标库 `DBType` 常量一致，如 `oracle`、`postgresql`、`sqlserver`，不是 `Oracle`、`PostgreSQL`）
+4. `regex()` 的 pattern 以 `\W` 开头、以 `\(` 结尾，大小写不敏感
+5. 该函数名没有被另一个同名自定义实现先加载覆盖（`functionConverts` 按顺序加载，后面的覆盖前面的）
 
 **什么时候不该扩展函数，而该用方言 sqlId**
 

@@ -135,6 +135,16 @@ spring.sqltoy.typeHandler=com.sqltoy.plugins.MoneyTypeHandler
 spring.sqltoy.humpMapResultTypeLabel=true
 # Strategy for obtaining ResultSetMetaData column labels: default (no processing)/upper (uppercase)/lower (lowercase)
 spring.sqltoy.columnLabelUpperOrLower=default
+#
+# Order of execution and scope of the two settings above (easily confused — read carefully):
+# 1. Execution order: columnLabelUpperOrLower (case normalization) runs first, then humpMapResultTypeLabel (snake_case to camelCase).
+#    For example, a column named "USER_NAME" is first normalized to "USER_NAME" (upper), then converted to "userName".
+# 2. Scope: these two settings affect ONLY the keys of a List<Map> result.
+#    When returning a VO / Entity / single Map<String,Object>, field mapping relies on @Column(name="...") and property-name matching; these settings do not apply.
+#    If you find that findVO(UserVO.class) returns null fields, do not tune these two settings — check the @Column annotations and SQL column aliases.
+# 3. Per-query override: QueryExecutor.humpMapLabel(false) only turns off the camelCase step; it does not affect columnLabelUpperOrLower's case normalization.
+#    lightDao.query().humpMapLabel(false).find(...) yields Map keys that are the raw column labels (possibly uppercase) without snake_case→camelCase conversion.
+#    mongo() and elastic() chain queries also support humpMapLabel().
 # Format of LocalDateTime in sql log output; can be set to auto or yyyy-MM-dd HH:mm:ss.SSSSSS etc.
 spring.sqltoy.localDateTimeFormat=yyyy-MM-dd HH:mm:ss.SSSSSS
 # Format of LocalTime in sql log output; can be set to auto or HH:mm:ss.SSSSSS etc.

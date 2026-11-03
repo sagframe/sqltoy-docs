@@ -158,6 +158,43 @@ public class Trim extends IFunction {
 
 > All the above additions/expansions are verified by real-database probing across multiple databases; forms that cannot be converted safely (e.g. aggregate ordering unsupported by the target) are kept "loud" — passed through as-is for the target database to error on, avoiding silent wrong values.
 
+**Complete built-in source-name mapping table** (write any of these names in your SQL; the framework recognizes it and adapts it — case-insensitive):
+
+| Function names you can write in SQL | Implementation class | Notes |
+|---|---|---|
+| `substr`, `mid` | SubStr | substring; mysql synonym `mid` added |
+| `trim` | Trim | trim surrounding whitespace |
+| `instr`, `locate`, `posstr`, `strpos` | Instr | substring position; mysql/db2/pg synonyms added |
+| `concat` | Concat | string concatenation |
+| `concatws` | ConcatWs | concatenation with separator |
+| `nvl` | Nvl | null replacement (Oracle family passes through; others become coalesce) |
+| `dateformat` | DateFormat | date formatting |
+| `now`, `current_timestamp` | Now | current timestamp |
+| `currentdate`, `curdate` | CurrentDate | current date (midnight) |
+| `length`, `character_length`, `octet_length` | Length | length; ANSI/pg byte-length forms added |
+| `tochar`, `to_char` | ToChar | cast to string |
+| `if`, `iif` | If | ternary; sqlserver native `iif` added |
+| `groupconcat`, `group_concat`, `listagg`, `string_agg` | GroupConcat | aggregate string concat; supports `within group (order by ...)` |
+| `tonumber`, `to_number` | ToNumber | cast to number |
+| `todate`, `to_date`, `str_to_date` | ToDate | cast to date; mysql form added |
+| `datediff` | DateDiff | date difference |
+| `decode` | Decode | Oracle decode → case when |
+| `uuid`, `guid`, `newid`, `sys_guid`, `random_uuid`, `gen_random_uuid`, `uuid_generate_v4` | Uuid | unique ID; normalized per target database |
+| `year`, `month`, `day`, `hour`, `minute`, `second` | YearMonthDay | date/time component extraction |
+| `lastday`, `last_day`, `eomonth` | LastDay | last day of the month |
+| `addmonths`, `add_months` | AddMonths | month arithmetic (end-of-month clamped) |
+| `dateadd`, `date_add`, `date_sub`, `adddate`, `subdate` | DateAdd | date interval arithmetic family |
+| `left`, `right` | LeftRight | left/right extraction |
+| `lpad`, `rpad` | Pad | fixed-width padding |
+| `extract`, `datepart`, `date_part` | Extract | component extraction (ANSI/pg form) |
+| `trunc`, `datetrunc`, `date_trunc` | DateTrunc | date truncation family (Oracle/pg dual-source) |
+| `mod` | Mod | modulo (sqlserver → `%` operator) |
+| `findinset`, `find_in_set` | FindInSet | set membership; with boolean-context adaptation |
+| `nvl2` | Nvl2 | Oracle nvl2 → case when (6.0.4) |
+| `sys_timestamp` | SysTimestamp | Oracle current timestamp with precision (6.0.4) |
+
+> 28 implementation classes covering 40+ recognizable source function names. Write whichever name feels natural in your SQL — the framework normalizes it to the implementation class and rewrites it for the target dialect. You do not need to rewrite your SQL to a specific database's function names.
+
 ### 1.3 Extending function adaptation yourself (application side, no framework change needed)
 
 The 28 built-in functions cover the common ones **whose syntax differs across databases**. When your project meets a function the framework does not adapt — a database-private function, a domain-specific one, or something a database added recently — **extend it yourself; there is no need to wait for framework support**. Implement `IFunction` and mount it via `functionConverts`; it then runs through exactly the same mechanism as the built-ins.
@@ -169,6 +206,7 @@ The 28 built-in functions cover the common ones **whose syntax differs across da
 | `dialects()` | declares which dialects this function adapts | `ALL` (the empty string) means every dialect; otherwise a comma- or semicolon-separated **exact enumeration** of dialect names |
 | `regex()` | matches the function call in the SQL | a `Pattern` used to locate the function to rewrite |
 | `wrap(dialect, functionName, hasArgs, args...)` | produces the SQL for the target dialect | return the rewritten fragment; return `IGNORE` (null) to **pass through unchanged** |
+| `wrap(dialect, functionName, hasArgs, projection, args...)` | overload with projection context (optional override) | `projection=true` means the function is in the SELECT projection list (must return a projectable value); `false` means it is in a WHERE / boolean context (must return boolean). The default implementation delegates to the 3-arg `wrap` without distinguishing context. Only override this when the rewrite must differ by position (the built-in `FindInSet` does). |
 | `wrapArgs(functionName, args...)` | protected convenience helper | builds the result for the most common shape: same function name, arguments re-joined |
 
 **Minimal example: only SQL Server needs rewriting, every other database passes through** (the built-in `Mod`)
@@ -211,6 +249,7 @@ public class Mod extends IFunction {
 4. `args` in `wrap` are the already-split argument expressions as written, possibly with surrounding whitespace — `trim()` them before concatenating.
 5. **Only the function-call form can be rewritten.** Operator forms (SQL Server's `a % b`, Oracle's `a || b`) are not function calls, so the regex framework cannot capture them and they are out of scope — write the function form in cross-database SQL (`mod(a,b)`, `concat(a,b)`) for the best portability.
 6. In most cases `wrap` should return `IGNORE` for databases that already support the function natively, and rewrite only the dialects that genuinely differ. Rewriting indiscriminately breaks native behavior.
+7. **Nested functions are rewritten recursively.** The framework extracts arguments with a balanced-parenthesis algorithm, so nested calls like `nvl(substr(name,1,3), 'unknown')` or `concat(trim(a), '-', b)` are recursively rewritten inside out. You do not need to handle nesting inside your own `wrap` — the `args[i]` you receive are already the fully rewritten inner expressions.
 
 **Overriding a built-in implementation**
 
@@ -230,6 +269,25 @@ For a few functions the dialect difference is not inside the parentheses but in 
 - `suffixPattern()`: the pattern for the trailing clause; it must start with `\s*` to absorb the separating whitespace and end with `\(*`. Returning null (the default) means this function does not consume a trailing clause.
 - `suffixNeedsParen()`: true (default) consumes the whole clause by balanced parentheses; false consumes exactly what the pattern matched, for bare operator clauses such as `>0` / `=0`.
 - `wrapWithSuffix(dialect, functionName, suffix, args...)`: the entry point when the suffix pattern hits; `suffix` is the clause as written (including leading whitespace). Returning `IGNORE` keeps the clause verbatim.
+
+**Example — find_in_set boolean adaptation**: MySQL's native `find_in_set(str, list)` returns an integer position. On PostgreSQL / DM / Kingbase there is no equivalent, so the framework rewrites it to `instr(','||list||',', ','||str||',')`, which returns an integer. The problem: writing `where find_in_set(:id, ids)` (bare truth, legal in MySQL) becomes `where instr(...)` on PG, but PG's WHERE clause requires a boolean expression — an integer is an error.
+
+The framework handles this by overriding both `suffixPattern()` (matching `\s*(>|<|=|<>|!=)\s*\d+`) and `suffixNeedsParen()` (returning false to consume the bare operator by pattern length), and in `wrapWithSuffix` rewriting the whole `find_in_set(:id, ids) > 0` into `(instr(...) > 0)`. Both idioms are therefore adapted correctly:
+
+```sql
+-- idiom 1: explicit comparison (framework recognizes and rewrites > 0 along with it)
+where find_in_set(:id, ids) > 0
+
+-- idiom 2: bare truth (MySQL style; framework promotes it to a boolean form)
+where find_in_set(:id, ids)
+```
+
+**Debugging a custom function rewrite**: enable `spring.sqltoy.debug=true` and the SQL log will print the final rewritten SQL (including dialect-variant selection and function substitution end-to-end). If your custom function does not take effect, check in this order:
+1. `functionConverts` uses the **fully qualified class name** (not a short name)
+2. the class has a **public no-arg constructor** (so it can be reflectively instantiated)
+3. the dialect strings returned by `dialects()` are spelled exactly right (matching the `DBType` constants: `oracle`, `postgresql`, `sqlserver` — not `Oracle`, `PostgreSQL`)
+4. `regex()` starts with `\W`, ends with `\(`, and is case-insensitive
+5. no other custom implementation loaded earlier with the same function name is shadowing yours (`functionConverts` loads in order; later entries override earlier ones)
 
 **When not to extend a function, and use a dialect sqlId instead**
 
