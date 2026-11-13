@@ -1,13 +1,13 @@
 # 6.0 升级指南
 
-从 5.6.x 升级到 6.0.9（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
+从 5.6.x 升级到 6.0.10（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
 
 ## 一、环境要求
 
 | 项 | 要求 |
 | --- | --- |
 | JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.96.jre8`（最终 jre8 版本，支持 quickvo-maven-plugin 插件） |
-| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.9 |
+| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.10 |
 | 配置参数 | `spring.sqltoy.*` 在 6.0.2 的 58 个参数基础上新增 2 个：`realDialectFirst`（6.0.3 新增）、`ddlLowerOrUpper`（6.0.3 起暴露为 starter 属性），其余参数无增减（后续版本新增参数见下文各版本章节，均为可选项），存量配置无需调整 |
 
 ## 二、API 变更（需要改代码）
@@ -239,9 +239,51 @@ join 更新/删除并入 `lambdaUpdate()/lambdaDelete()`（与查询同款"不�
 
 - SqlScriptLoader 初始化/销毁线程安全加固（标志 volatile 化、方法 synchronized）。
 
-## 十二、升级步骤建议
+## 十二、6.0.10 更新说明
 
-1. 依赖版本号统一升级为 6.0.9（starter / spring / solon-plugin 与 core 同版本）；
+6.0.10 以**函数跨库适配体系大扩充**与**多库真库实证缺陷修复**为主，并新增 TDengine 方言。**本版有 3 处行为口径变化**（见下文第 7 点），升级前请对照评估；其余均为修复与增强，无需改代码。
+
+**1. 函数跨库适配体系大扩充**（全部经 docker 多库真库对拍实证，新增测试超 300 例；内置函数类 28 → 33 个，完整源名映射表见[方言自适配与函数扩展](dialect/sqltoy_function.md)）
+
+- 新增五族转换器：`substring_index`（含 pg 写法 `split_part`，负索引与超界语义全保真）、`unix_timestamp` / `from_unixtime` 互逆族（各目标库统一按 MySQL 会话时区口径对齐，Oracle 应用会话命名时区的 DST 规则）、`truncate`（数值截断，oracle `trunc` 反向互转、sqlserver `round(x,d,1)`）、`current_date()` 带括号形态、`week` / `weekday` / `dayofweek` 族（按 MySQL 锚点精确实现，不依赖 sqlserver `@@datefirst` 与 oracle NLS 会话参数，跨库结果一致）；
+- 反向方言交叉多源化：源函数拼写不再只认 mysql 形态——`datepart`（sqlserver 习惯）、单参 `to_timestamp`（pg 的 epoch 习惯）、`split_part`、数值 `trunc` 均可被识别转换。
+
+**2. 新增 TDengine 3.3.x 方言**
+
+定位「查询 + 对象插入」：分页 / count / 随机取数走通用路径；时序典型的「自动建子表 + 标签」写入经 sql xml 命名参数透传（`insert into :tb using 超表 tags(...) values(...)`）；读操作忽略行锁并告警。详见[TDengine 时序数据库支持](dialect/sqltoy_tdengine.md)。
+
+**3. sqlite 方言增强**
+
+`FOR UPDATE` 类锁请求统一降级为普通读（sqlite 单写者模型下锁谓词恒为假，不再抛异常挡住常规测试用法）；日期函数对 TEXT/INTEGER 双形态列运行时判别（修复对 TEXT 列数值化导致 week 族 / `unix_timestamp` 静默错值）。
+
+**4. DB2 无 FROM 常量查询自动补虚表**
+
+`select 99` 类自定义 countSql 自动补 `SYSIBM.SYSDUMMY1`（只认顶层 FROM、字面量内的 from 不误判、已带 `with ur` 不重复追加）。
+
+**5. 分页 count 与多租户修复**（真库实证）
+
+- count 改写器识别 `minus` / `except` / `intersect`（此前不识别致分页记录数静默失真）；
+- 分页 count 缓存的 schema/catalog 改为每次从当前连接读取——同一连接池 `setSchema`/`setCatalog` 切换多租户时不再钉死首次会话致 count 串用；
+- 并行分页 count 的 SQL 准备（参数求值 + 租户/权限拦截器）移回调用线程完成——普通 ThreadLocal 租户上下文不再丢失（修复前 count 值失真且污染跨租户缓存）；
+- 无 where 的实体分页 SQL，租户条件插在 limit / offset rows / fetch first 之前（原拼到 limit 之后报语法错）。
+
+**6. DDL 生成器修复**
+
+DB2 主键列显式 `NOT NULL`（否则建表 SQLCODE=-542）；Doris / StarRocks 的 TIMESTAMP 映射与键模型收口（Doris UNIQUE KEY / StarRocks PRIMARY KEY + hash 分布，键列按键序前置为 schema 有序前缀）；StarRocks PRIMARY 模型键列强制 `NOT NULL`（真库实测报 "primary key column cannot be nullable"）。
+
+**7. ⚠️ 行为口径变化（升级必读）**
+
+1. **`to_timestamp` 单参口径**：Oracle / DM / OB（Oracle 模式）的 `to_timestamp(列/占位符)` 按原生文本解析透传（与 6.0.9 一致），数值字面量（含引号数值）保留 epoch 转换；**epoch 列/占位符场景请改用 `from_unixtime`**（如 `from_unixtime(:epoch)`），否则 Oracle 报 ORA-00932、DM 报 -6118；DB2 保留 epoch 转换（真库实测单参原生解析不可用）；MySQL / PG 系行为不变；
+2. **整型文本转换口径收窄**：`BeanUtil` 整型文本转换不再经 Double 中转——越界值（如 `"99999999999"` 转 int 原静默饱和为 2147483647）、NaN（原静默为 0）、`"10d"` 类后缀（原静默解析）现显式抛 NumberFormatException；雪花 ID 等 > 2^53 大整数保精度。**存量数据含越界 / NaN 值时，查询将由"静默错值"变"报错"，升级前请清洗或调整字段类型**；
+3. **RSA 字段解密失败抛异常**（6.0.6 引入）：库中未加密历史明文 / 换钥数据会使查询链路硬失败（原静默返回 `""` 与空值不可区分），升级前须完成新密钥重加密迁移或清洗历史数据；加密失败同样抛异常阻断写入（原返回 `""` 落库致原文永久丢失）。
+
+**8. 其他**
+
+Spring Boot fat-jar 重复 sql 加载修复（嵌套 jar 与外层根双命中，`breakWhenSqlRepeat` 默认开启时误阻断启动）；loadAll 级联装配 O(n×m) → O(n+m)；按 Class 对象的两级缓存改用 `ClassValue` 承载（应用类卸载即条目回收）；`CollectionUtil.putBounded` 回收加 CAS 单飞门闩（并发突发不再近乎清空缓存）；分页与随机取数对 union / intersect / except / minus 集合运算语句的派生表包裹修复（CH/Impala 上 limit 只修饰尾部 SELECT 的问题一并修复）；依赖全部升级至当前最新正式版、数据库驱动收口 test 作用域（不再传递给使用方）；废弃方法体系化收口（行为等价、零 API 移除，框架内部不再调用任何废弃方法）。
+
+## 十三、升级步骤建议
+
+1. 依赖版本号统一升级为 6.0.10（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；

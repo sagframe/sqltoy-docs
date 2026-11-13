@@ -1,13 +1,13 @@
 # Upgrade to 6.0.x
 
-Changes and notes for upgrading from 5.6.x to 6.0.9 (the 6.0 line). All changes have been verified against the 6.0 source code.
+Changes and notes for upgrading from 5.6.x to 6.0.10 (the 6.0 line). All changes have been verified against the 6.0 source code.
 
 ## 1. Environment Requirements
 
 | Item | Requirement |
 | --- | --- |
 | JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
-| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.9 |
+| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.10 |
 | Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged (parameters added in later versions are covered in their respective sections below and are all optional), and existing configuration files need no adjustment |
 
 ## 2. API Changes (Code Changes Required)
@@ -239,9 +239,51 @@ The pageOptimize total-count cache key is upgraded from sqlId to `sqlId@dialect`
 
 - SqlScriptLoader initialization/destruction thread-safety hardening (flags made volatile, methods synchronized).
 
-## 12. Recommended Upgrade Steps
+## 12. What's New in 6.0.10
 
-1. Upgrade the dependency version numbers uniformly to 6.0.9 (starter / spring / solon-plugin use the same version as core);
+6.0.10 is dominated by a **major expansion of the cross-database function adaptation system** and a **batch of fixes verified on real databases**, plus a new TDengine dialect. **This release contains 3 behavioural convention changes** (see point 7 below) — review them before upgrading; everything else is fixes and enhancements that require no code changes.
+
+**1. Cross-database function adaptation, greatly expanded** (all verified against real databases via docker multi-database cross-checking, 300+ new tests; built-in function classes 28 → 33, see the complete source-name mapping table in [Dialect Adaptation & Functions](en/dialect/sqltoy_function.md))
+
+- Five new converter families: `substring_index` (including the pg spelling `split_part`, with full-fidelity negative-index and out-of-range semantics); the `unix_timestamp` / `from_unixtime` inverse family (all target databases aligned on the MySQL session-timezone convention, with Oracle applying the session named timezone's DST rules); `truncate` (numeric truncation, round-trips with oracle `trunc`, sqlserver `round(x,d,1)`); the parenthesised `current_date()` form; and the `week` / `weekday` / `dayofweek` family (anchored on the MySQL convention — independent of sqlserver `@@datefirst` and oracle NLS session parameters, consistent across databases);
+- Reverse dialect crossing now accepts multiple source spellings, not just MySQL forms: `datepart` (the sqlserver habit), single-argument `to_timestamp` (the pg epoch habit), `split_part`, and numeric `trunc` are all recognised and converted.
+
+**2. New TDengine 3.3.x dialect**
+
+Positioned as "queries + object inserts": pagination / count / random fetch go through the generic path; the time-series-typical "auto-create child table + tags" write passes through sql xml named parameters (`insert into :tb using super_table tags(...) values(...)`); read operations ignore lock modes with a warning. See [TDengine Time-Series Support](en/dialect/sqltoy_tdengine.md).
+
+**3. sqlite dialect enhancements**
+
+`FOR UPDATE`-style lock requests are uniformly downgraded to plain reads (under sqlite's single-writer model the lock predicate is always false — no more exceptions blocking ordinary test usage); date functions distinguish TEXT/INTEGER column shapes at runtime (fixes silently wrong week-family / `unix_timestamp` values on TEXT columns).
+
+**4. DB2 constant queries without FROM get a dummy table**
+
+`select 99`-style custom countSql is automatically appended with `SYSIBM.SYSDUMMY1` (only the top-level FROM counts, `from` inside literals is never misjudged, and an existing `with ur` is not duplicated).
+
+**5. Pagination count and multi-tenancy fixes** (verified on real databases)
+
+- The count rewriter recognises `minus` / `except` / `intersect` (previously it did not, silently corrupting pagination totals);
+- The schema/catalog of the pagination count cache is now read from the current connection each time — a connection pool switching tenants via `setSchema`/`setCatalog` no longer pins the first session and cross-contaminates counts;
+- The SQL preparation of parallel pagination count (parameter evaluation + tenant/permission interceptors) moves back to the calling thread — plain ThreadLocal tenant contexts are no longer lost (previously counts were wrong and polluted the cross-tenant cache);
+- For entity pagination SQL without a where clause, the tenant condition is inserted before limit / offset rows / fetch first (previously it was appended after limit, causing syntax errors).
+
+**6. DDL generator fixes**
+
+DB2 primary-key columns are emitted with explicit `NOT NULL` (otherwise table creation fails with SQLCODE=-542); Doris / StarRocks TIMESTAMP mapping and key-model handling (Doris UNIQUE KEY / StarRocks PRIMARY KEY + hash distribution, key columns reordered into an ordered schema prefix); StarRocks PRIMARY-model key columns are forced `NOT NULL` (the real database rejects nullable primary-key columns).
+
+**7. ⚠️ Behavioural convention changes (read before upgrading)**
+
+1. **Single-argument `to_timestamp`**: on Oracle / DM / OB (Oracle mode), `to_timestamp(column/placeholder)` is passed through for native text parsing (same as 6.0.9), while numeric literals (including quoted numerics) keep the epoch conversion; **for epoch columns/placeholders switch to `from_unixtime`** (e.g. `from_unixtime(:epoch)`), otherwise Oracle raises ORA-00932 and DM -6118; DB2 keeps the epoch conversion (native single-argument parsing verified unusable on a real database); MySQL / PG family unchanged;
+2. **Integer-text conversion narrowed**: `BeanUtil` integer-text conversion no longer round-trips through Double — out-of-range values (e.g. `"99999999999"` into int, previously silently saturated to 2147483647), NaN (previously silent 0) and `"10d"`-style suffixes (previously silently parsed) now throw NumberFormatException explicitly; snowflake IDs and other integers > 2^53 keep full precision. **Existing data containing out-of-range / NaN values turns "silently wrong values" into errors — clean it up before upgrading**;
+3. **RSA field decryption failures now throw** (introduced in 6.0.6): historical plaintext / re-keyed data in the database hard-fails the query path (previously it silently returned `""`, indistinguishable from empty); complete re-encryption with the new key or clean the historical data before upgrading; encryption failures likewise throw and block writes (previously `""` was stored, permanently losing the original).
+
+**8. Others**
+
+Spring Boot fat-jar duplicate sql loading fixed (nested jar and outer root both matched, falsely blocking startup with `breakWhenSqlRepeat` on); loadAll cascade assembly O(n×m) → O(n+m); the Class-keyed two-level caches are now carried by `ClassValue` (entries reclaimed when application classes unload); `CollectionUtil.putBounded` eviction gained a CAS single-flight latch (concurrent bursts no longer nearly empty the cache); pagination / random fetch on set-operation statements (union / intersect / except / minus) now wrap in derived tables correctly (including the CH/Impala issue where `limit` only modified the trailing SELECT); all dependencies upgraded to the latest releases with database drivers consolidated into test scope (no longer transitive); deprecated methods systematically wound down (behaviour-equivalent, zero API removals, no framework-internal callers of deprecated methods remain).
+
+## 13. Recommended Upgrade Steps
+
+1. Upgrade the dependency version numbers uniformly to 6.0.10 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);
 3. If you have custom `DataSourceCallbackHandler` implementations, adjust the `doConnection` signature to take a `DBProfile` parameter;
 4. If you reference the framework internal utility classes listed in the table above, adjust the imports to their new package locations;

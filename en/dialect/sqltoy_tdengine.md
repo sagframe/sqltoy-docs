@@ -2,7 +2,7 @@
 
 **Note**: TDengine is an **IoT time-series database** (append-only write model). SqlToy's support for it is scoped to **"query + object insert"**, which differs from the full CRUD offered for relational databases. The rationale: in multi-datasource scenarios (e.g., MySQL for business data + TDengine for device telemetry), use the unified SqlToy API to query and write time-series data, while reusing SqlToy's dynamic conditions, cache translation, and result-set algorithms.
 
-> The support boundaries below are verified against **TDengine 3.3.6.x + taos-jdbcdriver 3.3.0** (REST connection mode).
+> The support boundaries below are verified against **TDengine 3.3.6.x + taos-jdbcdriver 3.3.0** (REST connection mode) and reflect the dialect implementation of **sqltoy 6.0.10+** (read operations ignore lock modes with a warning; unsupported operations report TDengine-specific reasons).
 >
 > As an append-only time-series engine, TDengine has **no `UPDATE ... SET` statement, no row-level locks, no stored procedures, and no auto-increment/sequences**. These are engine-level constraints, not framework defects. Section "IV. Unsupported Operations" gives the alternative for each.
 
@@ -126,7 +126,7 @@ The following operations are unavailable due to TDengine's engine semantics (the
 | `update` / `updateAll` | No `UPDATE ... SET` statement (append-only model) | **Re-INSERT with the same timestamp** to overwrite; in 3.x this is a column-level merge (only columns present in the INSERT are overwritten, others keep their values) |
 | `saveOrUpdate` / `saveOrUpdateAll` | No UPSERT semantics | Same as above — re-insert with the same timestamp overwrites |
 | `saveAllIgnoreExist` | No `INSERT IGNORE` / `ON CONFLICT` | A duplicate timestamp is itself an overwrite, so "ignore" is unnecessary |
-| Row locks (`LockMode` / `for update`) | No row-level locks (`SELECT ... FOR UPDATE` is a syntax error) | **Do not pass a `LockMode`** when querying (6.0.9 would append `for update` and cause a syntax error); time-series reads need no locking |
+| Row locks (`LockMode` / `for update`) | No row-level locks (`SELECT ... FOR UPDATE` is a syntax error) | Since 6.0.10 a `LockMode` passed to queries is **ignored with a warning** (6.0.9 and earlier appended `for update` and caused a syntax error); time-series reads need no locking — best left unset |
 | `updateFetch` | No UPDATE and no row locks | Not applicable |
 | `executeStore` (stored procedure) | No stored procedures | Use TDengine stream computing or application-layer logic |
 | `delete` / `deleteAll` (ORM by PK) | ORM delete-by-PK is not enabled | Use the database-level **`KEEP`** retention policy for expiry; or hand-write `DELETE` in sql xml (mainly by time range) |

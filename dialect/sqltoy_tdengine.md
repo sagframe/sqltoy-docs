@@ -2,7 +2,7 @@
 
 **说明**：TDengine 是面向 IoT 的**时序数据库**（append-only 追加写模型），sqltoy 对其支持定位为 **「查询 + 对象插入」**，与关系型数据库的全功能 CRUD 不同。出发点是：在多数据源场景下（如 MySQL 管业务、TDengine 管设备遥测），用统一的 sqltoy API 完成时序数据的查询与写入，并复用 sqltoy 的动态条件、缓存翻译、结果集算法等能力。
 
-> 本文支持边界基于 **TDengine 3.3.6.x + taos-jdbcdriver 3.3.0** 实测验证（REST 连接模式）。
+> 本文支持边界基于 **TDengine 3.3.6.x + taos-jdbcdriver 3.3.0** 实测验证（REST 连接模式），对应 **sqltoy 6.0.10+** 的方言实现（读操作忽略行锁并告警、不支持的操作给出 TDengine 具体原因说明）。
 >
 > 时序库为追加写模型：**没有 `UPDATE ... SET` 语句、没有行级锁、没有存储过程、没有自增/序列**，这些是引擎语义所限，并非框架缺陷。下文「四、不支持的操作」给出每项的替代方案。
 
@@ -125,7 +125,7 @@ dao.batchUpdate("device_insert", rows);
 | `update` / `updateAll` | 无 `UPDATE ... SET` 语句（追加写模型） | 用**相同时间戳重新 INSERT** 覆盖；3.x 为列级合并（只覆盖 INSERT 中出现的列，其余保留原值） |
 | `saveOrUpdate` / `saveOrUpdateAll` | 无 UPSERT 语义 | 同上，相同时间戳重插即覆盖 |
 | `saveAllIgnoreExist` | 无 `INSERT IGNORE` / `ON CONFLICT` | 重复时间戳本身即覆盖写，无需 ignore |
-| 行级锁（`LockMode` / `for update`） | 无行级锁（`SELECT ... FOR UPDATE` 报语法错误） | 查询时**请勿传 `LockMode`**（6.0.9 会拼出 `for update` 导致语法错误）；时序读取本就无需加锁 |
+| 行级锁（`LockMode` / `for update`） | 无行级锁（`SELECT ... FOR UPDATE` 报语法错误） | 6.0.10 起查询传 `LockMode` 会被**忽略并告警**（6.0.9 及之前会拼出 `for update` 导致语法错误）；时序读取本就无需加锁，建议不传 |
 | `updateFetch` | 无 UPDATE 且无行锁 | 不适用 |
 | `executeStore`（存储过程） | 无存储过程 | 用 TDengine 流计算或应用层逻辑 |
 | `delete` / `deleteAll`（ORM 按主键） | ORM 按主键删除未启用 | 数据过期用**库级 `KEEP` 策略**自动清理；或经 sql xml 手写 `DELETE`（主要按时间范围） |

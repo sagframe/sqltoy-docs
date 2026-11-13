@@ -21,7 +21,7 @@ spring.sqltoy.functionConverts=Nvl,Instr
 # spring.sqltoy.functionConverts=com.yourpackage.Nvl,com.yourpackage.Instr
 ```
 
-* functionConverts=default in sqltoy includes the following functions (28 in total since 6.0.5)
+* functionConverts=default in sqltoy includes the following functions (33 in total since 6.0.10; the last 5 were added in 6.0.10)
 
 ```java
 org.sagacity.sqltoy.plugins.function.impl.SubStr
@@ -52,6 +52,11 @@ org.sagacity.sqltoy.plugins.function.impl.Pad
 org.sagacity.sqltoy.plugins.function.impl.Extract
 org.sagacity.sqltoy.plugins.function.impl.DateTrunc
 org.sagacity.sqltoy.plugins.function.impl.Mod
+org.sagacity.sqltoy.plugins.function.impl.SubstringIndex
+org.sagacity.sqltoy.plugins.function.impl.UnixTimestamp
+org.sagacity.sqltoy.plugins.function.impl.FromUnixTime
+org.sagacity.sqltoy.plugins.function.impl.Truncate
+org.sagacity.sqltoy.plugins.function.impl.Week
 ```
 
 * Function implementation interface
@@ -192,12 +197,31 @@ public class Trim extends IFunction {
 | `findinset`, `find_in_set` | FindInSet | set membership; with boolean-context adaptation |
 | `nvl2` | Nvl2 | Oracle nvl2 → case when (6.0.4) |
 | `sys_timestamp` | SysTimestamp | Oracle current timestamp with precision (6.0.4) |
+| `substring_index`, `split_part` | SubstringIndex | nth segment by delimiter; full-fidelity negative-index and out-of-range semantics (6.0.10) |
+| `unix_timestamp` | UnixTimestamp | date → epoch seconds, session-timezone convention aligned across databases (6.0.10) |
+| `from_unixtime`, `to_timestamp` | FromUnixTime | epoch seconds → datetime; single-argument `to_timestamp` epoch spelling — for its Oracle/DM/OB text-parsing convention see the upgrade guide (6.0.10) |
+| `truncate`, `trunc` | Truncate | numeric truncation; date forms go to DateTrunc, disambiguated by argument shape (6.0.10) |
+| `week`, `weekday`, `dayofweek` | Week | week/weekday family, MySQL-anchored, independent of NLS and @@datefirst (6.0.10) |
 
-> 28 implementation classes covering 40+ recognizable source function names. Write whichever name feels natural in your SQL — the framework normalizes it to the implementation class and rewrites it for the target dialect. You do not need to rewrite your SQL to a specific database's function names.
+> 33 implementation classes covering 45+ recognizable source function names. Write whichever name feels natural in your SQL — the framework normalizes it to the implementation class and rewrites it for the target dialect. You do not need to rewrite your SQL to a specific database's function names.
 
-### 1.3 Extending function adaptation yourself (application side, no framework change needed)
+### 1.3 Function Adaptation Greatly Expanded (6.0.10)
 
-The 28 built-in functions cover the common ones **whose syntax differs across databases**. When your project meets a function the framework does not adapt — a database-private function, a domain-specific one, or something a database added recently — **extend it yourself; there is no need to wait for framework support**. Implement `IFunction` and mount it via `functionConverts`; it then runs through exactly the same mechanism as the built-ins.
+**New function classes (5, all registered into `default`; built-in classes 28 → 33):**
+
+* `substring_index(str, delim, n)`: native on the mysql family; rewritten for the oracle family via `instr` (with occurrence and negative positioning), db2 via `locate_in_string`, and the pg family via `string_to_array` slicing, with boundary combinations guarded by explicit case; the pg spelling `split_part(str, delim, n)` is also recognized — negative indexes (counting from the end, PG14+) and positive/negative out-of-range returning `''` are preserved faithfully on the mysql family, the oracle family and ClickHouse;
+* the `unix_timestamp(date)` / `from_unixtime(epoch[, fmt])` inverse family: all target databases are aligned on the MySQL **session-timezone** convention (sqlserver/db2 subtract/add the session offset; Oracle applies the session named timezone's DST rules via `from_tz`/`sys_extract_utc`; DM passes through natively; HANA compensates with `seconds_between`/`add_seconds`); the single-argument `to_timestamp(x)` epoch spelling (the pg habit) is recognized too — **note that on Oracle/DM/OB a single-argument `to_timestamp(column/placeholder)` is parsed as native text; write `from_unixtime` directly for epoch values** (see the 6.0 Upgrade Guide, section for 6.0.10);
+* `truncate(x, d)`: numeric truncation — round-trips with oracle-family `trunc`, sqlserver `round(x, d, 1)`, hana `ROUND_DOWN`; date-form `trunc`/`date_trunc` still belongs to DateTrunc, disambiguated by argument shape;
+* the parenthesised `current_date()` form: db2 converts to the keyword form `CURRENT DATE`;
+* the `week(date)` / `weekday(date)` / `dayofweek(date)` family: week implements the MySQL mode0 anchor precisely; weekday/dayofweek anchor on the 2000 epoch with modulo and negative normalization — results are consistent across databases, independent of sqlserver `@@datefirst` and oracle NLS session parameters.
+
+**Multiple source spellings**: source functions are no longer recognized only in their mysql forms — `datepart` (the sqlserver habit), `split_part` and numeric `trunc` are all recognized and converted.
+
+> This expansion is verified end-to-end against real databases via docker multi-database cross-checking, with 300+ new tests.
+
+### 1.4 Extending function adaptation yourself (application side, no framework change needed)
+
+The 33 built-in functions cover the common ones **whose syntax differs across databases**. When your project meets a function the framework does not adapt — a database-private function, a domain-specific one, or something a database added recently — **extend it yourself; there is no need to wait for framework support**. Implement `IFunction` and mount it via `functionConverts`; it then runs through exactly the same mechanism as the built-ins.
 
 **The contract (`org.sagacity.sqltoy.plugins.function.IFunction`)**
 

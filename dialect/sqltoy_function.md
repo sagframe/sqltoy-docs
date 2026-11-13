@@ -21,7 +21,7 @@ spring.sqltoy.functionConverts=Nvl,Instr
 # spring.sqltoy.functionConverts=com.yourpackage.Nvl,com.yourpackage.Instr
 ```
 
-* sqltoy中functionConverts=default包含以下函数（6.0.5 起共 28 个）
+* sqltoy中functionConverts=default包含以下函数（6.0.10 起共 33 个，末尾 5 个为 6.0.10 新增）
 
 ```java
 org.sagacity.sqltoy.plugins.function.impl.SubStr
@@ -52,6 +52,11 @@ org.sagacity.sqltoy.plugins.function.impl.Pad
 org.sagacity.sqltoy.plugins.function.impl.Extract
 org.sagacity.sqltoy.plugins.function.impl.DateTrunc
 org.sagacity.sqltoy.plugins.function.impl.Mod
+org.sagacity.sqltoy.plugins.function.impl.SubstringIndex
+org.sagacity.sqltoy.plugins.function.impl.UnixTimestamp
+org.sagacity.sqltoy.plugins.function.impl.FromUnixTime
+org.sagacity.sqltoy.plugins.function.impl.Truncate
+org.sagacity.sqltoy.plugins.function.impl.Week
 ```
 
 * 函数实现接口
@@ -192,12 +197,31 @@ public class Trim extends IFunction {
 | `findinset`, `find_in_set` | FindInSet | 集合成员判断，带布尔口径适配 |
 | `nvl2` | Nvl2 | oracle nvl2 转 case when（6.0.4） |
 | `sys_timestamp` | SysTimestamp | oracle 当前时间戳带精度（6.0.4） |
+| `substring_index`, `split_part` | SubstringIndex | 按分隔符取第 n 段；负索引与超界语义全保真（6.0.10） |
+| `unix_timestamp` | UnixTimestamp | 日期转 epoch 秒，按会话时区口径跨库对齐（6.0.10） |
+| `from_unixtime`, `to_timestamp` | FromUnixTime | epoch 秒转日期时间；单参 `to_timestamp` 的 epoch 写法，Oracle/DM/OB 单参文本解析口径见升级指南（6.0.10） |
+| `truncate`, `trunc` | Truncate | 数值截断；日期形态归 DateTrunc，按参数形态分流（6.0.10） |
+| `week`, `weekday`, `dayofweek` | Week | 星期/周数族，MySQL 锚点实现、不依赖 NLS 与 @@datefirst（6.0.10） |
 
-> 共 28 个实现类、40+ 个可识别的源函数名。在 SQL 里写哪个名字都行——框架按上述映射表归一到对应实现类，再按目标方言改写。你不需要为了适配去改 SQL 里的函数名，写你最熟的那个数据库的写法即可。
+> 共 33 个实现类、45+ 个可识别的源函数名。在 SQL 里写哪个名字都行——框架按上述映射表归一到对应实现类，再按目标方言改写。你不需要为了适配去改 SQL 里的函数名，写你最熟的那个数据库的写法即可。
 
-### 1.3 自行扩展函数适配（开发者侧，无需框架改动）
+### 1.3 函数适配体系大扩充（6.0.10）
 
-内置的 28 个函数覆盖的是**跨库写法存在差异**的常见函数。项目里遇到框架没适配的函数——数据库私有函数、行业专用函数、某个库新引入的函数——**由项目开发者自行扩展即可，不需要等框架层面支持**：实现 `IFunction` 并通过 `functionConverts` 挂载，与内置函数走的是完全同一套机制。
+**新增函数类（5 个，均默认注册进 `default`，内置类 28 → 33 个）：**
+
+* `substring_index(str, delim, n)`：mysql 系原生；oracle 系转 `instr`（含 occurrence 与负向定位）、db2 转 `locate_in_string`、pg 系转 `string_to_array` 切片，边界组合以显式 case 兜底；同时识别 pg 写法 `split_part(str, delim, n)`——负索引（PG14+ 从末尾数）与正/负超界返回 `''` 的语义在 mysql 系/oracle 系/ClickHouse 上全保真；
+* `unix_timestamp(date)` / `from_unixtime(epoch[, fmt])` 互逆族：各目标库统一对齐 MySQL 的**会话时区**口径（sqlserver/db2 减加会话偏移、Oracle 经 `from_tz`/`sys_extract_utc` 应用会话命名时区的 DST 规则、DM 原生透传、HANA 以 `seconds_between`/`add_seconds` 组合补偿）；单参 `to_timestamp(x)` 的 epoch 写法（pg 习惯）同样被识别——**注意 Oracle/DM/OB 上单参 `to_timestamp(列/占位符)` 走原生文本解析，epoch 场景请直接写 `from_unixtime`**（口径详见《6.0 升级指南》6.0.10 节）；
+* `truncate(x, d)`：数值截断——oracle 系与 `trunc` 反向互转、sqlserver 转 `round(x, d, 1)`、hana 转 `ROUND_DOWN`；日期形态的 `trunc`/`date_trunc` 仍由 DateTrunc 承担，按参数形态分流；
+* `current_date()` 带括号形态：db2 转关键字体的 `CURRENT DATE`；
+* `week(date)` / `weekday(date)` / `dayofweek(date)` 族：week 按 MySQL mode0 锚点法精确实现，weekday/dayofweek 按 2000 纪元锚取模并归一负数——跨库结果一致，不依赖 sqlserver `@@datefirst` 与 oracle NLS 会话参数。
+
+**源拼写多源化**：源函数不再只认 mysql 形态——`datepart`（sqlserver 习惯）、`split_part`、数值 `trunc` 均可被识别转换。
+
+> 本批扩充全部经 docker 多库真库对拍实证，新增测试超 300 例。
+
+### 1.4 自行扩展函数适配（开发者侧，无需框架改动）
+
+内置的 33 个函数覆盖的是**跨库写法存在差异**的常见函数。项目里遇到框架没适配的函数——数据库私有函数、行业专用函数、某个库新引入的函数——**由项目开发者自行扩展即可，不需要等框架层面支持**：实现 `IFunction` 并通过 `functionConverts` 挂载，与内置函数走的是完全同一套机制。
 
 **契约（`org.sagacity.sqltoy.plugins.function.IFunction`）**
 

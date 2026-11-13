@@ -4,6 +4,8 @@
 
 | 版本 | 要点 | 详见 |
 | --- | --- | --- |
+| **6.0.10** | **函数跨库适配体系大扩充**（新增 `substring_index` / `unix_timestamp` / `from_unixtime` / `truncate` / `week` 族五类转换器，内置 33 个函数类，300+ 真库实证测试）；**新增 TDengine 方言**（查询 + 对象插入）；sqlite 锁语义降级与日期双形态；分页 count 与多租户修复；**3 处行为口径变化**（`to_timestamp` 单参、整型文本转换、RSA 解密失败抛异常） | [十二、6.0.10](introduction/upgrade_6.0.md) · [TDengine](dialect/sqltoy_tdengine.md) · [方言与函数](dialect/sqltoy_function.md) |
+| **6.0.9** | CTE 物化 hint 跨库自适应（pg 系保留、其余库剔除）；函数适配真库实证修正（裸 `HH` 统一 24 小时制等）；分页 count 缓存按方言隔离；lambda `likeExact` 族 | [十一、6.0.9](introduction/upgrade_6.0.md) |
 | **6.0.8** | **lambda 条件体系并入核心**（`org.sagacity.sqltoy.lambda`，单表/join 一套构建器，原 sqltoy-plus 能力内建）；**GraalVM AOT 重写**（动态注册资源/扩展类/JSON/驱动类反射，新增 `native-reflection-classes`/`native-reflection-packages`/`native-entity-proxies`，修复 5.6 以来实体 hints 恒为空）；`#[...]` 剔除后清理悬挂 and/or | [十、6.0.8](introduction/upgrade_6.0.md) · [Lambda 条件](query/lambda_query.md) · [GraalVM](tools/graalvm_native.md) |
 | **6.0.7** | JSON 库可插拔（`JsonProvider`：fastjson2/jackson3/jackson2）；新增 `@joinFields()` 字段名列表拼接宏；`#[]` 剔除后清理括号内悬挂 and/or | [九、6.0.7](introduction/upgrade_6.0.md) · [标签与表达式](appendix/tags.md) |
 | **6.0.6** | 新增虚表宏 `@virtualTable()`（兼容 `@dual()`/`@dummyTable()`），解决"常量行 union 查询"的跨库写法；quickvo-maven-plugin 2.0.3 | [八、6.0.6](introduction/upgrade_6.0.md) · [方言与函数](dialect/sqltoy_function.md) |
