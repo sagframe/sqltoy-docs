@@ -6,7 +6,7 @@ Changes and notes for upgrading from 5.6.x to 6.0.10 (the 6.0 line). All changes
 
 | Item | Requirement |
 | --- | --- |
-| JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.96.jre8` (the final jre8 version, also works with the quickvo-maven-plugin) |
+| JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.97.jre8` (core fully synced with 6.0.10, including the API/package changes in sections 2/3 of this guide; also works with the quickvo-maven-plugin) |
 | Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.10 |
 | Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged (parameters added in later versions are covered in their respective sections below and are all optional), and existing configuration files need no adjustment |
 

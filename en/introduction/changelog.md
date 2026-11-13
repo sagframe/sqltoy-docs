@@ -1,6 +1,6 @@
 # Release Notes (6.0 line)
 
-The 6.0 line requires JDK 17+ (JDK 8 projects should stay on `5.6.96.jre8`). This page is an **index**: the full change list, caveats and upgrade actions for each release live in the matching chapter of the [6.0 Upgrade Guide](en/introduction/upgrade_6.0.md).
+The 6.0 line requires JDK 17+ (JDK 8 projects should stay on `5.6.97.jre8`). This page is an **index**: the full change list, caveats and upgrade actions for each release live in the matching chapter of the [6.0 Upgrade Guide](en/introduction/upgrade_6.0.md).
 
 | Release | Highlights | Details |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ The 6.0 line requires JDK 17+ (JDK 8 projects should stay on `5.6.96.jre8`). Thi
 | **6.0.4** | Cache-translate REST authentication (basic/jwt with token-url login, local self-signing or a static token); function adaptation improvements (`nvl2`, negative-start `substr`, `curdate`, etc.); fixes for silently wrong values in negative-start SubStr and independent HH time tokens | [6. 6.0.4](en/introduction/upgrade_6.0.md) |
 | **6.0.3** | `<sql dialect="xxx">` element attribute; `spring.sqltoy.realDialectFirst`; POJO-to-DDL enhancements (`@Partition`/`@PartitionDef`/`@MppTable`, dedicated Doris/StarRocks/ClickHouse/DB2/HANA/SQLite generators, `@Foreign` referential actions); sharding parallel-execution fixes | [5. 6.0.3](en/introduction/upgrade_6.0.md) · [POJO to DDL](en/primarykey/sqltoy_ddl.md) |
 | **6.0.0** | JDK 17+; API renames `parallQuery`→`parallelQuery` (`ParallelQuery`) and `doConnection(conn, DBProfile)`; package reshuffle (`PageOptimizeUtils`/`ParallelUtils`/`TranslateUtils`, etc.); new SAP HANA dialect | [2. API changes](en/introduction/upgrade_6.0.md) · [3. Package changes](en/introduction/upgrade_6.0.md) |
-| 5.6.96.jre8 | The final JDK 8 release (still supports quickvo-maven-plugin) | [Environment requirements](en/introduction/upgrade_6.0.md) |
+| 5.6.97.jre8 | The current JDK 8 release: core fully synced with 6.0.10 (includes the 6.0 API/package changes; still supports quickvo-maven-plugin) | [Environment requirements](en/introduction/upgrade_6.0.md) |
 
 ## Finding what changed in a release
 
@@ -26,7 +26,7 @@ The 6.0 line requires JDK 17+ (JDK 8 projects should stay on `5.6.96.jre8`). Thi
 | Scenario | Recommendation |
 | --- | --- |
 | New project | Use the latest 6.0.x |
-| Existing 5.6.x on JDK 8 | Stay on `5.6.96.jre8`; do not upgrade your JDK just for the sake of it |
+| Existing 5.6.x on JDK 8 | Stay on `5.6.97.jre8`; do not upgrade your JDK just for the sake of it |
 | Existing 5.6.x on JDK 17 | Walk through the [upgrade guide](en/introduction/upgrade_6.0.md) section by section, paying attention to the 6.0.0 API/package changes |
 | Using sqltoy-plus | Upgrade to 6.0.8 and migrate to the built-in lambda API per [section 10.2](en/introduction/upgrade_6.0.md) |
 | Building native images | 6.0.8+ and GraalVM 25+ |

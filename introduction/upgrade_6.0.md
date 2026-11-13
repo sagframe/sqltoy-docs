@@ -6,7 +6,7 @@
 
 | 项 | 要求 |
 | --- | --- |
-| JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.96.jre8`（最终 jre8 版本，支持 quickvo-maven-plugin 插件） |
+| JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.97.jre8`（core 与 6.0.10 全量同步，含本指南第二/三节的 API 与包变更，支持 quickvo-maven-plugin 插件） |
 | 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.10 |
 | 配置参数 | `spring.sqltoy.*` 在 6.0.2 的 58 个参数基础上新增 2 个：`realDialectFirst`（6.0.3 新增）、`ddlLowerOrUpper`（6.0.3 起暴露为 starter 属性），其余参数无增减（后续版本新增参数见下文各版本章节，均为可选项），存量配置无需调整 |
 

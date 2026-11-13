@@ -1,6 +1,6 @@
 # 版本更新日志（6.0 线）
 
-6.0 线从 JDK 17 起（JDK 8 项目请留在 `5.6.96.jre8`）。本页是**索引**：每个版本的完整变更说明、注意事项与升级动作都在[6.0 升级指南](introduction/upgrade_6.0.md)对应章节。
+6.0 线从 JDK 17 起（JDK 8 项目请留在 `5.6.97.jre8`）。本页是**索引**：每个版本的完整变更说明、注意事项与升级动作都在[6.0 升级指南](introduction/upgrade_6.0.md)对应章节。
 
 | 版本 | 要点 | 详见 |
 | --- | --- | --- |
@@ -13,7 +13,7 @@
 | **6.0.4** | 缓存翻译 rest 模式认证增强（basic/jwt，支持 token-url 登录、本地自签、静态 token）；函数适配完善（`nvl2`、负起点 `substr`、`curdate` 等）；修复 SubStr 负起点与 HH 时间 token 的静默错值 | [六、6.0.4](introduction/upgrade_6.0.md) |
 | **6.0.3** | `<sql dialect="xxx">` 元素属性；`spring.sqltoy.realDialectFirst`；POJO 生成 DDL 增强（`@Partition`/`@PartitionDef`/`@MppTable`、Doris/StarRocks/ClickHouse/DB2/HANA/SQLite 专用生成器、`@Foreign` 参照动作）；分库分表并行执行修复 | [五、6.0.3](introduction/upgrade_6.0.md) · [POJO 生成 DDL](primarykey/sqltoy_ddl.md) |
 | **6.0.0** | JDK 17+；API 更名 `parallQuery`→`parallelQuery`（`ParallelQuery`）、`doConnection(conn, DBProfile)`；包结构调整（`PageOptimizeUtils`/`ParallelUtils`/`TranslateUtils` 等迁移）；新增 SAP HANA 方言 | [二、API 变更](introduction/upgrade_6.0.md) · [三、包结构调整](introduction/upgrade_6.0.md) |
-| 5.6.96.jre8 | JDK 8 的最终版本（仍支持 quickvo-maven-plugin） | [环境要求](introduction/upgrade_6.0.md) |
+| 5.6.97.jre8 | JDK 8 线当前版本：core 与 6.0.10 全量同步（含 6.0 的 API/包变更，仍支持 quickvo-maven-plugin） | [环境要求](introduction/upgrade_6.0.md) |
 
 ## 怎么看某个版本改了什么
 
@@ -26,7 +26,7 @@
 | 场景 | 建议 |
 | --- | --- |
 | 新项目 | 直接用最新 6.0.x |
-| 存量 5.6.x（JDK 8） | 保持 `5.6.96.jre8`，不要为了升级而升级 JDK |
+| 存量 5.6.x（JDK 8） | 保持 `5.6.97.jre8`，不要为了升级而升级 JDK |
 | 存量 5.6.x（JDK 17） | 按[升级指南](introduction/upgrade_6.0.md)各节顺序评估，重点看 6.0.0 的 API/包变更 |
 | 使用 sqltoy-plus | 升到 6.0.8，按[升级指南第十节第 2 条](introduction/upgrade_6.0.md)迁移到内置 lambda |
 | 要构建 native 镜像 | 6.0.8+，且 GraalVM 25+ |

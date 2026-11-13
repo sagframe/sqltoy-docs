@@ -7,7 +7,7 @@
 <dependency>
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring</artifactId>
-	<!-- JDK8 请使用 5.6.96.jre8（jre8 最终版本，同样支持 quickvo-maven-plugin 插件） -->
+	<!-- JDK8 请使用 5.6.97.jre8（core 与 6.0.10 全量同步，同样支持 quickvo-maven-plugin 插件） -->
 	<version>6.0.10</version>
 </dependency>
 ```
