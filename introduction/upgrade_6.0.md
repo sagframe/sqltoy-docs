@@ -281,6 +281,8 @@ DB2 主键列显式 `NOT NULL`（否则建表 SQLCODE=-542）；Doris / StarRock
 
 Spring Boot fat-jar 重复 sql 加载修复（嵌套 jar 与外层根双命中，`breakWhenSqlRepeat` 默认开启时误阻断启动）；loadAll 级联装配 O(n×m) → O(n+m)；按 Class 对象的两级缓存改用 `ClassValue` 承载（应用类卸载即条目回收）；`CollectionUtil.putBounded` 回收加 CAS 单飞门闩（并发突发不再近乎清空缓存）；分页与随机取数对 union / intersect / except / minus 集合运算语句的派生表包裹修复（CH/Impala 上 limit 只修饰尾部 SELECT 的问题一并修复）；依赖全部升级至当前最新正式版、数据库驱动收口 test 作用域（不再传递给使用方）；废弃方法体系化收口（行为等价、零 API 移除，框架内部不再调用任何废弃方法）。
 
+配套的 quickvo-maven-plugin 升级至 **2.0.6**。
+
 ## 十三、升级步骤建议
 
 1. 依赖版本号统一升级为 6.0.10（starter / spring / solon-plugin 与 core 同版本）；

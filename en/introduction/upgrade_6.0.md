@@ -281,6 +281,8 @@ DB2 primary-key columns are emitted with explicit `NOT NULL` (otherwise table cr
 
 Spring Boot fat-jar duplicate sql loading fixed (nested jar and outer root both matched, falsely blocking startup with `breakWhenSqlRepeat` on); loadAll cascade assembly O(n×m) → O(n+m); the Class-keyed two-level caches are now carried by `ClassValue` (entries reclaimed when application classes unload); `CollectionUtil.putBounded` eviction gained a CAS single-flight latch (concurrent bursts no longer nearly empty the cache); pagination / random fetch on set-operation statements (union / intersect / except / minus) now wrap in derived tables correctly (including the CH/Impala issue where `limit` only modified the trailing SELECT); all dependencies upgraded to the latest releases with database drivers consolidated into test scope (no longer transitive); deprecated methods systematically wound down (behaviour-equivalent, zero API removals, no framework-internal callers of deprecated methods remain).
 
+The companion quickvo-maven-plugin is upgraded to **2.0.6**.
+
 ## 13. Recommended Upgrade Steps
 
 1. Upgrade the dependency version numbers uniformly to 6.0.10 (starter / spring / solon-plugin use the same version as core);
