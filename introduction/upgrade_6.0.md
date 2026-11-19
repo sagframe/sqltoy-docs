@@ -321,6 +321,8 @@ Spring Boot fat-jar 重复 sql 加载修复（嵌套 jar 与外层根双命中�
 
 JWT token 缓存过期主动清理 + 容量上限（修复刷新窗口内旧 token 无法覆盖）；DATE/TIME/TIMESTAMP 字符串参数解析失败改为带值上下文的明确异常；Boot fat-jar 嵌套根按原始/URL 编码双形态比对（空格/中文路径不再重复加载阻断启动）；分页/随机取数对集合运算语句的派生表包裹、租户拦截器分页尾缀等系列修复（完整列表见源码仓库 changelog v6.0.11）。
 
+配套的 quickvo-maven-plugin 升级至 **2.0.7**。
+
 ## 十四、升级步骤建议
 
 1. 依赖版本号统一升级为 6.0.11（starter / spring / solon-plugin 与 core 同版本）；

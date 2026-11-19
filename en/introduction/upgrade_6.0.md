@@ -321,6 +321,8 @@ Single/multi-address and eql custom-url behaviour is now identical; keep-alive c
 
 JWT token cache: proactive expiry cleanup + size cap (fixes the refresh-window overwrite issue); DATE/TIME/TIMESTAMP string-parameter parse failures now raise clear exceptions with value context; Boot fat-jar nested roots compared in both raw and URL-encoded forms (paths with spaces/CJK no longer double-load and block startup); derived-table wrapping for set-operation statements in pagination/random fetch, tenant-interceptor page-tail placement and more (full list in the source changelog v6.0.11).
 
+The companion quickvo-maven-plugin is upgraded to **2.0.7**.
+
 ## 14. Recommended Upgrade Steps
 
 1. Upgrade the dependency version numbers uniformly to 6.0.11 (starter / spring / solon-plugin use the same version as core);
