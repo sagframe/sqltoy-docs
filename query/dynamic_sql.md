@@ -119,6 +119,7 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 | `<l-like>` | `params`、`append-str` | 参数非空时右边补 `%`（即 `xxx%`） |
 | `<r-like>` | `params`、`append-str` | 参数非空时左边补 `%`（即 `%xxx`） |
 | `<escapeLike>` | `params` | 对 like 参数中的特殊符号转义 |
+| `<like>` | `params`、`mode`(both/left/right，默认both)、`escape-mode`(raw/legacy，默认raw)、`escape-percent`(默认true)、`append-str` | **6.0.11 新增**：一步完成"转义 + 按方向补 `%`"。`escape-mode=raw` 为数据库无关的字面量语义（值中 `\`、`_` 均按字面字符，按 `escape-percent` 决定 `%` 是否转义）；`legacy` 为历史幂等转义口径。ESCAPE 子句由框架按方言自动追加（StarRocks/ClickHouse 等不支持 ESCAPE 的库自动适配），推荐省略手写 escape 子句 |
 
 ### 4.3 类型转换与格式化
 

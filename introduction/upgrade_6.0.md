@@ -1,13 +1,13 @@
 # 6.0 升级指南
 
-从 5.6.x 升级到 6.0.10（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
+从 5.6.x 升级到 6.0.11（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
 
 ## 一、环境要求
 
 | 项 | 要求 |
 | --- | --- |
 | JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.97.jre8`（core 与 6.0.10 全量同步，含本指南第二/三节的 API 与包变更，支持 quickvo-maven-plugin 插件） |
-| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.10 |
+| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.11 |
 | 配置参数 | `spring.sqltoy.*` 在 6.0.2 的 58 个参数基础上新增 2 个：`realDialectFirst`（6.0.3 新增）、`ddlLowerOrUpper`（6.0.3 起暴露为 starter 属性），其余参数无增减（后续版本新增参数见下文各版本章节，均为可选项），存量配置无需调整 |
 
 ## 二、API 变更（需要改代码）
@@ -283,9 +283,47 @@ Spring Boot fat-jar 重复 sql 加载修复（嵌套 jar 与外层根双命中�
 
 配套的 quickvo-maven-plugin 升级至 **2.0.6**。
 
-## 十三、升级步骤建议
+## 十三、6.0.11 更新说明
 
-1. 依赖版本号统一升级为 6.0.10（starter / spring / solon-plugin 与 core 同版本）；
+6.0.11 聚焦**多上下文/热部署场景的资源治理**、**LIKE 转义与 SQL 解析的实证修复**、**Elasticsearch rest5 客户端统一**，并补齐 Solon 插件参数配置。无破坏性 API 变更，但**有 5 处行为变化**（见下文第 5 点），升级前请对照评估。
+
+**1. 多上下文 / 热部署资源治理**
+
+- 翻译缓存管理器（ehcache/caffeine）、动态缓存管理器（FIFO）、主键生成器去 JVM 级共享，随 `SqlToyContext` 实例隔离——多上下文/热部署不再串用数据、互不销毁影响；动态缓存检测线程按需启动；
+- 按类/类名的静态缓存统一改 `ClassValue`（BeanUtil/EnumUtil 方法匹配、映射计划、无参构造器、MapperUtils 字段别名、`@Translate` 注解配置）——条目随 Class 卸载回收；`enumClassMap` 改用 TCCL 解析；
+- JVM 级静态配置首占口径（`functionConverts`/`keywordSign`）延迟到 initialize 生效，初始化失败自动释放首占权；
+- insert/merge 静态 SQL 缓存 key 补齐上下文/连接维度（多上下文、MySQL 与 OceanBase 共存等多数据源场景不再串用 SQL）。
+
+**2. Elasticsearch rest5 客户端统一**
+
+单/多地址/eql 自定义 url 行为一致；连接池 keep-alive 复用、陈旧连接自动重试一次；base path 由 pathPrefix 承载，url 已带 `/_sql`、`/_search` 尾缀自动剥离；**超时与字符集"endpoint 默认 + 语句覆盖"**（eql 显式配置优先，未配置取 ElasticConfig）——修复此前"XML 属性只对单地址生效、charset 完全无效"的静默分叉。
+
+**3. LIKE 转义与 SQL 解析**
+
+- 新增 `<like>` 过滤元素：`mode`（both/left/right）、`escape-mode`（raw/legacy）、`escape-percent`、`append-str`（详见[动态 SQL 规范](query/dynamic_sql.md)）；统一 LIKE 转义并按方言追加正确的 ESCAPE 子句；
+- like 参数计数忽略字面量内 `?`；反斜杠奇偶判定区分通配符 `%` 与字面量 `%`；lambda like 族补 `%` 前先双写反斜杠——过滤器链/lambda/中央解析链三方口径统一（H2 真库矩阵验证）；
+- SQL 解析反斜杠方言体系：CTE 括号配对、函数参数切分按方言区分 `\'` 转义语义；`hasOrderBy` 不再把排序表达式自带括号误判为无排序。
+
+**4. Solon 插件与虚表宏**
+
+- `solon.sqltoy.jsonProvider` 新增；`taskExecutor` 线程池 8 项参数全部生效（未配置构建专属池、显式 `none` 不建池）；`DbManager` 上下文切换加固；
+- `@virtualTable()` 兼容前置 from 写法（`select 1 from @virtualTable()` 在伪表族只输出一个 from、无 from 族连 from 一并剔除）。
+
+**5. ⚠️ 行为变化（升级必读）**
+
+1. **Short/Byte 整型文本口径**：与 Integer/Long 同口径（`toIntegerText` 归一后精确解析），越界 / NaN / 非法后缀显式抛 NumberFormatException，不再静默回绕或抛裸异常——存量数据含越界值时请先清洗；
+2. **`functionConverts` / `keywordSign` 需在 initialize 前配置**：运行中调用 setter 不再即时改变 JVM 全局（后初始化上下文携带不同配置时告警并忽略）；
+3. **翻译缓存管理器的 `cacheManager` 字段由 static 改为实例字段**：已编译的第三方子类需重新编译（接口与公共方法不变，显式注入 `translateCacheManager` 的语义不变）；
+4. **Solon 默认线程池**：未配置 targetPoolName 时构建专属命名线程池（替代原 commonPool 兜底，不与并行流争抢）；显式 `none` 不建池；
+5. **`@loop` / `@secure-loop` 空白过滤**：循环内引用集合（`:ids[i]`、`:items[i].prop`）的 null/空白元素现在跳过整个迭代（与循环变量同口径）——`#[..] or #[..]` 模式不再残留孤立连接符。
+
+**6. 其他**
+
+JWT token 缓存过期主动清理 + 容量上限（修复刷新窗口内旧 token 无法覆盖）；DATE/TIME/TIMESTAMP 字符串参数解析失败改为带值上下文的明确异常；Boot fat-jar 嵌套根按原始/URL 编码双形态比对（空格/中文路径不再重复加载阻断启动）；分页/随机取数对集合运算语句的派生表包裹、租户拦截器分页尾缀等系列修复（完整列表见源码仓库 changelog v6.0.11）。
+
+## 十四、升级步骤建议
+
+1. 依赖版本号统一升级为 6.0.11（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；

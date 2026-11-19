@@ -1,13 +1,13 @@
 # Upgrade to 6.0.x
 
-Changes and notes for upgrading from 5.6.x to 6.0.10 (the 6.0 line). All changes have been verified against the 6.0 source code.
+Changes and notes for upgrading from 5.6.x to 6.0.11 (the 6.0 line). All changes have been verified against the 6.0 source code.
 
 ## 1. Environment Requirements
 
 | Item | Requirement |
 | --- | --- |
 | JDK | **17+** (targeting Spring Boot 3/4); JDK 8 projects should use `5.6.97.jre8` (core fully synced with 6.0.10, including the API/package changes in sections 2/3 of this guide; also works with the quickvo-maven-plugin) |
-| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.10 |
+| Dependency coordinates | Unchanged: `com.sagframe:sagacity-sqltoy` (plus spring / spring-starter / solon-plugin); only the version number is upgraded to 6.0.11 |
 | Configuration parameters | Two parameters are added on top of the 58 `spring.sqltoy.*` parameters of 6.0.2: `realDialectFirst` (new in 6.0.3) and `ddlLowerOrUpper` (exposed as a starter property since 6.0.3); all other parameters are unchanged (parameters added in later versions are covered in their respective sections below and are all optional), and existing configuration files need no adjustment |
 
 ## 2. API Changes (Code Changes Required)
@@ -283,9 +283,47 @@ Spring Boot fat-jar duplicate sql loading fixed (nested jar and outer root both 
 
 The companion quickvo-maven-plugin is upgraded to **2.0.6**.
 
-## 13. Recommended Upgrade Steps
+## 13. What's New in 6.0.11
 
-1. Upgrade the dependency version numbers uniformly to 6.0.10 (starter / spring / solon-plugin use the same version as core);
+6.0.11 focuses on **resource governance for multi-context / hot-reload scenarios**, **empirically verified LIKE-escaping and SQL-parsing fixes**, and **unified Elasticsearch rest5 client handling**, plus completed Solon plugin configuration. There are no breaking API changes, but **5 behavioural changes** (see point 5) should be reviewed before upgrading.
+
+**1. Multi-context / hot-reload resource governance**
+
+- Translation cache managers (ehcache/caffeine), the dynamic cache manager (FIFO) and ID generators are no longer JVM-shared — each `SqlToyContext` owns its instance: no more cross-context data bleed, no destroy side effects; the dynamic-cache watcher starts on demand;
+- Class/class-name-keyed static caches are unified on `ClassValue` (BeanUtil/EnumUtil method matching, mapping plans, no-arg constructors, MapperUtils field aliases, `@Translate` annotation config) — entries are reclaimed when classes unload; `enumClassMap` resolves via TCCL;
+- JVM-level static config claim-on-first-use (`functionConverts`/`keywordSign`) is deferred to initialize and rolled back on initialization failure;
+- insert/merge static SQL cache keys now include context/connection dimensions (no more SQL bleed across contexts or multi-datasource setups such as MySQL + OceanBase).
+
+**2. Unified Elasticsearch rest5 client**
+
+Single/multi-address and eql custom-url behaviour is now identical; keep-alive connection reuse with a one-time retry for stale connections; base paths carried by pathPrefix with `/_sql` / `/_search` suffixes stripped; **timeouts and charset follow "endpoint default + statement override"** — fixing the silent split where "XML attributes only worked for single addresses and ElasticConfig.charset had no effect".
+
+**3. LIKE escaping and SQL parsing**
+
+- New `<like>` filter element: `mode` (both/left/right), `escape-mode` (raw/legacy), `escape-percent`, `append-str` (see [Dynamic SQL](en/query/dynamic_sql.md)); unified LIKE escaping with the dialect-correct ESCAPE clause appended;
+- LIKE parameter counting ignores `?` inside literals; backslash-parity detection distinguishes wildcard `%` from literal `%`; the lambda LIKE family doubles backslashes before appending `%` — filter chain / lambda / central parser now share one convention (verified by an H2 real-database matrix);
+- Backslash dialect system for SQL parsing: CTE bracket pairing and function-argument splitting distinguish `\'` escaping by dialect; `hasOrderBy` no longer misjudges `order by nvl(a,0)` as having no outer ordering.
+
+**4. Solon plugin and virtual-table macro**
+
+- New `solon.sqltoy.jsonProvider`; all 8 `taskExecutor` pool parameters now take effect (a dedicated pool is built when unconfigured; an explicit `none` builds none); `DbManager` hardened on context switch;
+- `@virtualTable()` supports a preceding `from` (`select 1 from @virtualTable()` renders exactly one `from` on the dummy-table family and removes the `from` on the no-`from` family).
+
+**5. ⚠️ Behavioural changes (read before upgrading)**
+
+1. **Short/Byte text conversion**: now aligned with Integer/Long (`toIntegerText` normalization then exact parsing) — out-of-range / NaN / illegal suffixes throw NumberFormatException instead of silently wrapping or throwing raw exceptions; clean existing out-of-range data first;
+2. **`functionConverts` / `keywordSign` must be configured before initialize**: calling the setters at runtime no longer changes the JVM globals immediately (later contexts carrying different config get a warning and are ignored);
+3. **Translation cache managers' `cacheManager` field changed from static to instance**: previously compiled third-party subclasses must be recompiled (interfaces and public methods unchanged; explicit `translateCacheManager` injection semantics unchanged);
+4. **Solon default thread pool**: when targetPoolName is unconfigured a dedicated named pool is built (replacing the commonPool fallback, avoiding contention with parallel streams); an explicit `none` builds none;
+5. **`@loop` / `@secure-loop` blank filtering**: null/blank elements of referenced collections (`:ids[i]`, `:items[i].prop`) now skip the whole iteration (same convention as the loop variable) — `#[..] or #[..]` patterns no longer leave dangling connectors.
+
+**6. Others**
+
+JWT token cache: proactive expiry cleanup + size cap (fixes the refresh-window overwrite issue); DATE/TIME/TIMESTAMP string-parameter parse failures now raise clear exceptions with value context; Boot fat-jar nested roots compared in both raw and URL-encoded forms (paths with spaces/CJK no longer double-load and block startup); derived-table wrapping for set-operation statements in pagination/random fetch, tenant-interceptor page-tail placement and more (full list in the source changelog v6.0.11).
+
+## 14. Recommended Upgrade Steps
+
+1. Upgrade the dependency version numbers uniformly to 6.0.11 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);
 3. If you have custom `DataSourceCallbackHandler` implementations, adjust the `doConnection` signature to take a `DBProfile` parameter;
 4. If you reference the framework internal utility classes listed in the table above, adjust the imports to their new package locations;

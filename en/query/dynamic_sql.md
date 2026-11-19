@@ -119,6 +119,7 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 | `<l-like>` | `params`, `append-str` | Appends `%` on the right when the parameter is non-blank (i.e. `xxx%`) |
 | `<r-like>` | `params`, `append-str` | Prepends `%` on the left when the parameter is non-blank (i.e. `%xxx`) |
 | `<escapeLike>` | `params` | Escapes special characters in like parameters |
+| `<like>` | `params`, `mode` (both/left/right, default both), `escape-mode` (raw/legacy, default raw), `escape-percent` (default true), `append-str` | **New in 6.0.11**: escaping and directional `%` padding in one step. `escape-mode=raw` gives database-independent literal semantics (`\` and `_` are literal characters; `escape-percent` controls whether `%` is escaped); `legacy` keeps the historical idempotent escaping. The ESCAPE clause is appended automatically per dialect (adapted for StarRocks/ClickHouse which reject it) — prefer omitting a hand-written escape clause |
 
 ### 4.3 Type Conversion and Formatting
 
