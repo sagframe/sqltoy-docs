@@ -17,7 +17,7 @@ Notes:
 public <T> List<QueryResult<T>> parallelQuery(List<ParallelQuery> parallelQueryList, Map<String, Object> paramsMap);
 ```
 
-`ParallelQuery` is built fluently: `create()`, `sql()`, `page()`, `topSize()`, `randomSize()`, `names()`, `values()`, `paramsMap()`, `resultType()`, `dataSource()`, `showSql()`, `contextData()`.
+`ParallelQuery` is built fluently: `create()`, `sql()`, `page()`, `topSize()`, `randomSize()`, `names()`, `values()`, `paramsMap()`, `resultType()`, `dataSource()`, `showSql()`, `contextData()`. `topSize()` / `randomSize()` are doubles with the same semantics as `findTop` / `findRandom`: **greater than or equal to 1 takes a fixed row count** (integer part kept), **less than 1 extracts by ratio**.
 
 ## 3. Usage Example
 

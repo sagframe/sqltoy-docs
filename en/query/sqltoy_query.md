@@ -64,11 +64,15 @@ Page<SysLog> page = lightDao.findPageEntity(new Page<>(10, 1), SysLog.class, Ent
 List<StaffInfo> list = lightDao.findTop("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class, 12);
 ```
 
+* `topSize` (double) semantics: **greater than or equal to 1 fetches a fixed row count** (the integer part is kept, e.g. `12.9` fetches 12 rows); **less than 1 extracts by ratio** (e.g. `0.2` takes the first 20% — an internal count query converts the ratio to rows, and a result under one row returns an empty list). The value must be greater than 0; row order follows the SQL `order by`.
+
 #### findRandom: Find N Random Records
 
 ```java
 List<StaffInfo> list = lightDao.findRandom("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class, 12);
 ```
+
+* `randomCount` (double) semantics: **greater than or equal to 1 fetches a fixed number of random rows** (the integer part is kept); **less than 1 extracts randomly by ratio** (e.g. `0.05` means 5% of the total — an internal count query converts the ratio to rows; with a non-zero total a ratio under one row still fetches one row, and a zero total returns an empty list). The value must be greater than 0.
 
 #### getValue, getCount, isUnique: Shortcut Queries
 

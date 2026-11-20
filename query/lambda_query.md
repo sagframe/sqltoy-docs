@@ -61,8 +61,8 @@ List<StaffInfo> list = query.bind(lightDao).find();
 | `find()` | 全部符合条件的记录 |
 | `getOne()` | 单条记录：**0 条返回 null，多于 1 条抛 `DataAccessException`**（匹配多条说明条件有缺陷，不静默取第一条） |
 | `findPage(Page)` | 分页，`new Page(pageSize, pageNo)` |
-| `findTop(n)` / `findTop(0.2)` | 前 n 条 / 前 20%（大于 1 为条数，小于 1 为比例），顺序由 `orderBy` 决定 |
-| `findRandom(n)` / `findRandom(0.2)` | 随机 n 条 / 随机比例 |
+| `findTop(n)` / `findTop(0.2)` | 前 n 条 / 前 20%（**大于等于 1 为条数**、取整数部分，小于 1 为比例；必须大于 0，≤0 抛异常），顺序由 `orderBy` 决定 |
+| `findRandom(n)` / `findRandom(0.2)` | 随机 n 条 / 随机比例（**大于等于 1 为条数**、取整数部分，小于 1 为比例；必须大于 0，≤0 抛异常） |
 | `count()` / `exists()` | 记录数 / 是否存在 |
 
 ### 指定数据源（多数据源 / 读写分离）

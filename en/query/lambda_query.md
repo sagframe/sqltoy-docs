@@ -61,8 +61,8 @@ Query terminals at a glance:
 | `find()` | All matching rows |
 | `getOne()` | A single row: **0 rows returns null, more than 1 throws `DataAccessException`** (multiple matches mean the condition is defective; the first row is never taken silently) |
 | `findPage(Page)` | Pagination, `new Page(pageSize, pageNo)` |
-| `findTop(n)` / `findTop(0.2)` | First n rows / first 20% (greater than 1 means a row count, less than 1 a ratio), ordered by `orderBy` |
-| `findRandom(n)` / `findRandom(0.2)` | n random rows / a random ratio |
+| `findTop(n)` / `findTop(0.2)` | First n rows / first 20% (**greater than or equal to 1 means a row count**, integer part kept, less than 1 a ratio; must be greater than 0, ≤0 throws), ordered by `orderBy` |
+| `findRandom(n)` / `findRandom(0.2)` | n random rows / a random ratio (**greater than or equal to 1 means a row count**, integer part kept, less than 1 a ratio; must be greater than 0, ≤0 throws) |
 | `count()` / `exists()` | Row count / whether anything matches |
 
 ### Choosing a datasource (multiple datasources / read-write splitting)

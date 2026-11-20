@@ -85,9 +85,9 @@ The chain API is for scenarios needing "many parameters + explicit datasource + 
 | `findByQuery(QueryExecutor)` | Unified `QueryExecutor` entry | [Query API](en/query/sqltoy_query.md) |
 | `findPage(page, sqlOrSqlId, params[, resultType])` | Pagination | [Pagination](en/query/pagination.md) |
 | `findPageByQuery(page, QueryExecutor)` | Unified pagination entry | [Pagination](en/query/pagination.md) |
-| `findTop(sqlOrSqlId, params, topSize[, resultType])` | First N rows / N% | [Query API](en/query/sqltoy_query.md) |
+| `findTop(sqlOrSqlId, params, topSize[, resultType])` | First N rows / N% (topSize ≥1 means a row count, <1 a ratio) | [Query API](en/query/sqltoy_query.md) |
 | `findTopByQuery(QueryExecutor, topSize)` | Same, `QueryExecutor` form | [Query API](en/query/sqltoy_query.md) |
-| `findRandom(sqlOrSqlId, params, randomCount[, resultType])` | Random N rows / ratio | [Query API](en/query/sqltoy_query.md) |
+| `findRandom(sqlOrSqlId, params, randomCount[, resultType])` | Random N rows / by ratio (randomCount ≥1 means a row count, <1 a ratio) | [Query API](en/query/sqltoy_query.md) |
 | `findRandomByQuery(QueryExecutor, randomCount)` | Same, `QueryExecutor` form | [Query API](en/query/sqltoy_query.md) |
 | `findEntity(Class, EntityQuery[, resultType])` | Single-table entity query | [Query API](en/query/sqltoy_query.md) |
 | `findPageEntity(page, Class, EntityQuery[, resultType])` | Single-table entity pagination | [Query API](en/query/sqltoy_query.md) |

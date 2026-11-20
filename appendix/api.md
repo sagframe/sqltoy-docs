@@ -85,9 +85,9 @@
 | `findByQuery(QueryExecutor)` | `QueryExecutor` 统一入口 | [常规查询 API](query/sqltoy_query.md) |
 | `findPage(page, sqlOrSqlId, params[, resultType])` | 分页 | [分页优化](query/pagination.md) |
 | `findPageByQuery(page, QueryExecutor)` | 分页统一入口 | [分页优化](query/pagination.md) |
-| `findTop(sqlOrSqlId, params, topSize[, resultType])` | 前 N 条 / 前 N% | [常规查询 API](query/sqltoy_query.md) |
+| `findTop(sqlOrSqlId, params, topSize[, resultType])` | 前 N 条 / 前 N%（topSize ≥1 为条数，<1 为比例） | [常规查询 API](query/sqltoy_query.md) |
 | `findTopByQuery(QueryExecutor, topSize)` | 同上，`QueryExecutor` 形态 | [常规查询 API](query/sqltoy_query.md) |
-| `findRandom(sqlOrSqlId, params, randomCount[, resultType])` | 随机 N 条 / 比例 | [常规查询 API](query/sqltoy_query.md) |
+| `findRandom(sqlOrSqlId, params, randomCount[, resultType])` | 随机 N 条 / 按比例（randomCount ≥1 为条数，<1 为比例） | [常规查询 API](query/sqltoy_query.md) |
 | `findRandomByQuery(QueryExecutor, randomCount)` | 同上，`QueryExecutor` 形态 | [常规查询 API](query/sqltoy_query.md) |
 | `findEntity(Class, EntityQuery[, resultType])` | 单表实体查询 | [常规查询 API](query/sqltoy_query.md) |
 | `findPageEntity(page, Class, EntityQuery[, resultType])` | 单表实体分页 | [常规查询 API](query/sqltoy_query.md) |

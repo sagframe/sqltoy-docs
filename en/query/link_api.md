@@ -57,6 +57,8 @@ List top = lightDao.query().sql("sys_staff_find").resultType(StaffInfoVO.class).
 lightDao.query().sql(...).lock(LockMode.UPGRADE).queryTimeout(30).fetchSize(1000).find();
 ```
 
+`findTop(double)` / `findRandom(double)` follow the same semantics as the dao layer: **greater than or equal to 1 takes a fixed row count** (integer part kept), **less than 1 extracts by ratio**.
+
 `Query` supports fluent settings: `sql`, `names`, `values`, `entity`, `resultType`, `dataSource`, `fetchSize`, `maxRows`, `lock`, `lockWaitTimeout`, `queryTimeout`, `humpMapLabel` (whether Map result labels use camelCase).
 
 ---

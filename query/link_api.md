@@ -57,6 +57,8 @@ List top = lightDao.query().sql("sys_staff_find").resultType(StaffInfoVO.class).
 lightDao.query().sql(...).lock(LockMode.UPGRADE).queryTimeout(30).fetchSize(1000).find();
 ```
 
+`findTop(double)` / `findRandom(double)` 的取值语义与 dao 层一致：**大于等于 1 按固定条数**（取整数部分），**小于 1 按比例提取**。
+
 `Query` 可链式设置：`sql`、`names`、`values`、`entity`、`resultType`、`dataSource`、`fetchSize`、`maxRows`、`lock`、`lockWaitTimeout`、`queryTimeout`、`humpMapLabel`（Map 结果是否驼峰命名）。
 
 ---

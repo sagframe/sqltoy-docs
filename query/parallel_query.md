@@ -17,7 +17,7 @@
 public <T> List<QueryResult<T>> parallelQuery(List<ParallelQuery> parallelQueryList, Map<String, Object> paramsMap);
 ```
 
-`ParallelQuery` 链式构建：`create()`、`sql()`、`page()`、`topSize()`、`randomSize()`、`names()`、`values()`、`paramsMap()`、`resultType()`、`dataSource()`、`showSql()`、`contextData()`。
+`ParallelQuery` 链式构建：`create()`、`sql()`、`page()`、`topSize()`、`randomSize()`、`names()`、`values()`、`paramsMap()`、`resultType()`、`dataSource()`、`showSql()`、`contextData()`。`topSize()` / `randomSize()` 为 double，语义与 `findTop` / `findRandom` 一致：**大于等于 1 按固定条数**（取整数部分），**小于 1 按比例提取**。
 
 ## 三、使用范例
 

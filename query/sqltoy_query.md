@@ -64,11 +64,15 @@ Page<SysLog> page = lightDao.findPageEntity(new Page<>(10, 1), SysLog.class, Ent
 List<StaffInfo> list = lightDao.findTop("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class, 12);
 ```
 
+* `topSize`（double）取值语义：**大于等于 1 按固定条数提取**（取整数部分，如 `12.9` 取 12 条）；**小于 1 按比例提取**（如 `0.2` 取前 20%，内部先执行一次 count 换算条数，换算不足 1 条时返回空集合）。取值必须大于 0，返回顺序由 SQL 的 `order by` 决定。
+
 #### findRandom 随机查找N条记录
 
 ```java
 List<StaffInfo> list = lightDao.findRandom("sqltoy_staff_findlist", new StaffInfo(), StaffInfo.class, 12);
 ```
+
+* `randomCount`（double）取值语义：**大于等于 1 随机取固定条数**（取整数部分）；**小于 1 按比例随机提取**（如 `0.05` 表示随机取总量的 5%，内部先执行一次 count 换算条数；总记录数非零时换算不足 1 条保底取 1 条，总记录数为 0 返回空集合）。取值必须大于 0。
 
 #### getValue、getCount、isUnique 快捷查询
 
