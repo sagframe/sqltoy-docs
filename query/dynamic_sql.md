@@ -116,10 +116,12 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 
 | 标签 | 属性 | 说明 |
 | --- | --- | --- |
-| `<l-like>` | `params`、`append-str` | 参数非空时右边补 `%`（即 `xxx%`） |
-| `<r-like>` | `params`、`append-str` | 参数非空时左边补 `%`（即 `%xxx`） |
+| `<l-like>` | `params`、`append-str` | 参数非空时**左边**补 `%`（即 `%xxx`，后缀匹配；`l`/`r` 指 `%` 的落位方向，不是左/右前缀匹配）。`append-str` 拼在 `%` 与值之间，如 `append-str=","` 得 `%,xxx`，等价于 `like concat('%,', :param)` |
+| `<r-like>` | `params`、`append-str` | 参数非空时**右边**补 `%`（即 `xxx%`，前缀匹配，可利用索引）。`append-str` 拼在值与 `%` 之间 |
 | `<escapeLike>` | `params` | 对 like 参数中的特殊符号转义 |
-| `<like>` | `params`、`mode`(both/left/right，默认both)、`escape-mode`(raw/legacy，默认raw)、`escape-percent`(默认true)、`append-str` | **6.0.11 新增**：一步完成"转义 + 按方向补 `%`"。`escape-mode=raw` 为数据库无关的字面量语义（值中 `\`、`_` 均按字面字符，按 `escape-percent` 决定 `%` 是否转义）；`legacy` 为历史幂等转义口径。ESCAPE 子句由框架按方言自动追加（StarRocks/ClickHouse 等不支持 ESCAPE 的库自动适配），推荐省略手写 escape 子句 |
+| `<like>` | `params`、`mode`(both/left/right，默认both；别名 contains=both、suffix=left、prefix=right)、`escape-mode`(raw/legacy，默认raw)、`escape-percent`(默认true)、`append-str` | **6.0.11 新增**：一步完成"转义 + 按方向补 `%`"。`escape-mode=raw` 为数据库无关的字面量语义（值中 `\`、`_` 均按字面字符，按 `escape-percent` 决定 `%` 是否转义）；`legacy` 为历史幂等转义口径。ESCAPE 子句由框架按方言自动追加（StarRocks/ClickHouse 等不支持 ESCAPE 的库自动适配），推荐省略手写 escape 子句 |
+
+> `l-like`/`r-like` 没有“值已含 `%` 则跳过”的判断：值和 `append-str` 中的 `%` 一律转义为字面量（`\%`），通配符只由过滤器补充的 `%` 提供；“值已含未转义 `%` 则不再包裹”是 SQL 中 `like ?` 自动补 `%` 的规则，注意区分。
 
 ### 4.3 类型转换与格式化
 
@@ -264,7 +266,7 @@ List rows2 = lightDao.findByQuery(
         <to-string params="staffName" add-quote="single" />
         <!-- 对 like 参数中的特殊符号转义 -->
         <escapeLike params="staffName"/>
-        <!-- 左边/右边补 %（参数已含 % 则不处理） -->
+        <!-- l-like 左边补 %（%xxx）；r-like 右边补 %（xxx%） -->
         <l-like params="staffName"/>
         <r-like params="staffName"/>
         <!-- 缓存反向匹配：用名称 like 匹配出对应编码作为条件，实现精准查询 -->

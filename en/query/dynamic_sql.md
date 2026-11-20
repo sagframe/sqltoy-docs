@@ -116,10 +116,12 @@ List result = lightDao.findEntity(DeviceOrderVO.class, EntityQuery.create()
 
 | Tag | Attributes | Description |
 | --- | --- | --- |
-| `<l-like>` | `params`, `append-str` | Appends `%` on the right when the parameter is non-blank (i.e. `xxx%`) |
-| `<r-like>` | `params`, `append-str` | Prepends `%` on the left when the parameter is non-blank (i.e. `%xxx`) |
+| `<l-like>` | `params`, `append-str` | Prepends `%` on the **left** when the parameter is non-blank (i.e. `%xxx`, a suffix match; `l`/`r` denote which side the `%` lands on, not left/right-prefix matching). `append-str` sits between `%` and the value — e.g. `append-str=","` yields `%,xxx`, equivalent to `like concat('%,', :param)` |
+| `<r-like>` | `params`, `append-str` | Appends `%` on the **right** when the parameter is non-blank (i.e. `xxx%`, a prefix match that can leverage an index). `append-str` sits between the value and `%` |
 | `<escapeLike>` | `params` | Escapes special characters in like parameters |
-| `<like>` | `params`, `mode` (both/left/right, default both), `escape-mode` (raw/legacy, default raw), `escape-percent` (default true), `append-str` | **New in 6.0.11**: escaping and directional `%` padding in one step. `escape-mode=raw` gives database-independent literal semantics (`\` and `_` are literal characters; `escape-percent` controls whether `%` is escaped); `legacy` keeps the historical idempotent escaping. The ESCAPE clause is appended automatically per dialect (adapted for StarRocks/ClickHouse which reject it) — prefer omitting a hand-written escape clause |
+| `<like>` | `params`, `mode` (both/left/right, default both; aliases contains=both, suffix=left, prefix=right), `escape-mode` (raw/legacy, default raw), `escape-percent` (default true), `append-str` | **New in 6.0.11**: escaping and directional `%` padding in one step. `escape-mode=raw` gives database-independent literal semantics (`\` and `_` are literal characters; `escape-percent` controls whether `%` is escaped); `legacy` keeps the historical idempotent escaping. The ESCAPE clause is appended automatically per dialect (adapted for StarRocks/ClickHouse which reject it) — prefer omitting a hand-written escape clause |
+
+> `l-like`/`r-like` have no "skip if the value already contains `%`" check: any `%` in the value or `append-str` is escaped to a literal (`\%`), and the wildcard comes only from the `%` added by the filter. The "leave a value that already contains an unescaped `%` unwrapped" rule belongs to the automatic `%` wrapping of `like ?` in SQL text — keep the two apart.
 
 ### 4.3 Type Conversion and Formatting
 
@@ -264,7 +266,7 @@ Below is a `<sql>` element listing **all available child tags** (validated again
         <to-string params="staffName" add-quote="single" />
         <!-- Escape special characters in like parameters -->
         <escapeLike params="staffName"/>
-        <!-- Prepend/append % (skipped if the parameter already contains %) -->
+        <!-- l-like prepends % (%xxx); r-like appends % (xxx%) -->
         <l-like params="staffName"/>
         <r-like params="staffName"/>
         <!-- Reverse cache matching: matches names via like into the corresponding codes used as conditions, enabling precise queries -->
