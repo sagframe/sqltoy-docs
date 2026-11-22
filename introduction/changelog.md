@@ -4,6 +4,7 @@
 
 | 版本 | 要点 | 详见 |
 | --- | --- | --- |
+| **6.0.12** | **单实体对象化 updateFetch**（锁查询→回调修改→只更新不插入）；**lambda 编程式缓存翻译**（按查询声明，注解式共存、不受通道切换影响）；**数组/集合字段与参数**（元素组件类型解析、参数按元素列表渲染）；geometry 族 DDL 按目标库匹配转化 | [十四、6.0.12](introduction/upgrade_6.0.md) · [对象 CRUD](crud/sqltoy_crud.md) · [Lambda 条件](query/lambda_query.md) |
 | **6.0.11** | **多上下文/热部署资源治理**（翻译/动态缓存、主键生成器去 JVM 共享，静态缓存统一 ClassValue，静态配置首占回滚）；**LIKE 转义体系修复**（新增 `<like>` 过滤元素、反斜杠奇偶判定、lambda 与过滤器链口径统一）；**Elasticsearch rest5 客户端统一**（超时/字符集"endpoint 默认+语句覆盖"）；Solon 插件参数补齐；**5 处行为变化**（Short/Byte 口径、functionConverts 延迟生效、缓存管理器实例化、Solon 线程池、loop 空白过滤）；配套 quickvo-maven-plugin 2.0.7 | [十三、6.0.11](introduction/upgrade_6.0.md) · [动态 SQL](query/dynamic_sql.md) · [Elasticsearch](nosql/sqltoy_elasticsearch.md) |
 | **6.0.10** | **函数跨库适配体系大扩充**（新增 `substring_index` / `unix_timestamp` / `from_unixtime` / `truncate` / `week` 族五类转换器，内置 33 个函数类，300+ 真库实证测试）；**新增 TDengine 方言**（查询 + 对象插入）；sqlite 锁语义降级与日期双形态；分页 count 与多租户修复；**3 处行为口径变化**（`to_timestamp` 单参、整型文本转换、RSA 解密失败抛异常）；配套 quickvo-maven-plugin 2.0.6 | [十二、6.0.10](introduction/upgrade_6.0.md) · [TDengine](dialect/sqltoy_tdengine.md) · [方言与函数](dialect/sqltoy_function.md) |
 | **6.0.9** | CTE 物化 hint 跨库自适应（pg 系保留、其余库剔除）；函数适配真库实证修正（裸 `HH` 统一 24 小时制等）；分页 count 缓存按方言隔离；lambda `likeExact` 族 | [十一、6.0.9](introduction/upgrade_6.0.md) |

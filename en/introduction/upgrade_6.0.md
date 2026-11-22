@@ -323,7 +323,28 @@ JWT token cache: proactive expiry cleanup + size cap (fixes the refresh-window o
 
 The companion quickvo-maven-plugin is upgraded to **2.0.7**.
 
-## 14. Recommended Upgrade Steps
+## 14. What's New in 6.0.12
+
+6.0.12 continues the no-breaking-changes line — upgrading only requires bumping the version number.
+
+**1. Single-entity programmatic updateFetch**
+
+`LightDao`/`SqlToyDao`/`SqlToyLazyDao` add a single-entity overload `updateFetch(entity, callback)`: lock-query by the entity's unique properties → modify inside the callback → **update only, never insert**; a missing record returns `null` (the existing collection-form "insert when absent" semantics are unchanged). Suited to short lock-modify interactions such as stock deduction and balance payment — usage and caveats in [Object CRUD chapter 11](en/crud/sqltoy_crud.md).
+
+**2. Programmatic cache translation for lambda queries**
+
+Lambda queries previously relied on `@Translate` annotations on entities; since 6.0.12 translations can be **declared per query** (`.translate(...)`), and the two styles coexist. **Programmatic translation is unaffected by channel switching**: the single-table channel auto-appends the translation columns, and the join/SQL channels translate result columns in place — see [Lambda chapter 6-2](en/query/lambda_query.md).
+
+**3. Array/collection fields and parameters**
+
+- Entities support array/collection fields: the **element component type** is extracted at parse time (component class for typed arrays, generic actual argument for `List`/`Set`; `byte[]` is treated as binary and skipped), together with parse-time `nativeType` normalization of the special-type families (json/jsonb/bson/vector/geometry etc.) that promotes the JDBC type;
+- Array/collection parameters render as **element lists** in SQL log fitting (dispatch at comparison positions is enabled).
+
+**4. Geometry-family DDL types converted by target database**
+
+During DDL generation a `nativeType` that matches the target database's geometry type is used directly (preserving precision forms like `geometry(Point,4326)`); external spellings are normalized on pg-kernel databases (only geometry/geography are recognized), aligned with `specialCastType`.
+
+## 15. Recommended Upgrade Steps
 
 1. Upgrade the dependency version numbers uniformly to 6.0.12 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);
