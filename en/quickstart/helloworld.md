@@ -116,7 +116,7 @@ spring:
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-spring-starter</artifactId>
 	<!-- For JDK 8 use 5.6.98.jre8 (core synced with 6.0.11) -->
-	<version>6.0.11</version>
+	<version>6.0.12</version>
 </dependency>
 <!-- Cache translate (see the Cache Translate tutorial) needs a cache implementation;
      sqltoy supports ehcache by default (runtime scope so it is packaged into the boot jar) -->
@@ -133,7 +133,7 @@ spring:
 	<groupId>com.sagframe</groupId>
 	<artifactId>sagacity-sqltoy-solon-plugin</artifactId>
 	<!-- For JDK 8 use 5.6.98.jre8 (core synced with 6.0.11) -->
-	<version>6.0.11</version>
+	<version>6.0.12</version>
 </dependency>
 ```
 

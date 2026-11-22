@@ -1,13 +1,13 @@
 # 6.0 升级指南
 
-从 5.6.x 升级到 6.0.11（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
+从 5.6.x 升级到 6.0.12（6.0 线）的变更点与注意事项。变更内容均对照 6.0 源码核实。
 
 ## 一、环境要求
 
 | 项 | 要求 |
 | --- | --- |
 | JDK | **17+**（面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.98.jre8`（core 与 6.0.11 全量同步，含本指南第二/三节的 API 与包变更，支持 quickvo-maven-plugin 插件） |
-| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.11 |
+| 依赖坐标 | 不变：`com.sagframe:sagacity-sqltoy`（及 spring / spring-starter / solon-plugin），仅版本号升级为 6.0.12 |
 | 配置参数 | `spring.sqltoy.*` 在 6.0.2 的 58 个参数基础上新增 2 个：`realDialectFirst`（6.0.3 新增）、`ddlLowerOrUpper`（6.0.3 起暴露为 starter 属性），其余参数无增减（后续版本新增参数见下文各版本章节，均为可选项），存量配置无需调整 |
 
 ## 二、API 变更（需要改代码）
@@ -323,9 +323,30 @@ JWT token 缓存过期主动清理 + 容量上限（修复刷新窗口内旧 tok
 
 配套的 quickvo-maven-plugin 升级至 **2.0.7**。
 
-## 十四、升级步骤建议
+## 十四、6.0.12 更新说明
 
-1. 依赖版本号统一升级为 6.0.11（starter / spring / solon-plugin 与 core 同版本）；
+6.0.12 延续无破坏性变更路线，升级只需改版本号。
+
+**1. 单实体对象化 updateFetch**
+
+`LightDao`/`SqlToyDao`/`SqlToyLazyDao` 新增单实体重载 `updateFetch(entity, callback)`：按实体唯一属性锁查询→回调内修改→**只更新、不插入**，记录不存在返回 `null`（原集合形态的"不存在则插入"语义不变）。适合库存扣减、余额支付这类"查一行、改一行"的短交互场景，用法与注意事项见[对象 CRUD 第十一章](crud/sqltoy_crud.md)。
+
+**2. lambda 编程式缓存翻译**
+
+lambda 查询此前只能靠实体上的 `@Translate` 注解做缓存翻译；6.0.12 起支持**按查询临时声明**（`.translate(...)`），注解式与编程式可共存。**编程式翻译不受通道切换影响**：单表通道自动补查询列，join/SQL 通道支持结果列原地翻译，用法见[Lambda 第六章之二](query/lambda_query.md)。
+
+**3. 数组/集合字段与参数体系**
+
+- 实体支持数组/集合字段：解析期提取**元素组件类型**（定型数组取组件类，`List`/`Set` 取泛型实参；`byte[]` 按二进制语义处理、不提取），配合 `nativeType` 解析期归一特殊类型族（json/jsonb/bson/vector/geometry 等）上调 JDBC 类型；
+- 数组/集合参数在 SQL 日志拟合中按**元素列表**渲染（比较位置的分派已启用）。
+
+**4. geometry 族 DDL 类型按目标库匹配转化**
+
+DDL 生成时 `nativeType` 与目标库几何类型匹配则直接采用（保留 `geometry(Point,4326)` 这类精度形态）；pg 内核系外部拼写归一（仅 geometry/geography 认定），与 `specialCastType` 同口径。
+
+## 十五、升级步骤建议
+
+1. 依赖版本号统一升级为 6.0.12（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；
