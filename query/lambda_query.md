@@ -454,7 +454,75 @@ lightDao.lambdaDelete(StaffInfo.class)
 
 ---
 
-## 六之二、组合查询：CTE（WITH AS）/ @fast 分页下推 / UNION
+## 六之二、编程式缓存翻译（6.0.12 新增）
+
+> lambda 查询此前只能靠实体上的 `@Translate` 注解做缓存翻译；6.0.12 起支持**按查询临时声明**，注解式与编程式可共存。**编程式翻译不受通道切换影响**：单表通道自动补查询列，join/SQL 通道支持结果列原地翻译。
+
+### 1）字段引用形式（单表最常用）
+
+```java
+// key 属性值翻译后写入 target 属性,框架自动补充 "STAFF_ID AS STAFF_NAME" 查询列
+List<StaffInfo> list = lightDao.lambdaQuery(StaffInfo.class)
+        .translate("staffInfoCache", StaffInfo::getStaffId, StaffInfo::getStaffName)
+        .eq(StaffInfo::getStatus, 1)
+        .find();
+// staffName 属性即为翻译结果(原表无该列值)
+```
+
+### 2）同列原地翻译（单表/join 通道通用）
+
+```java
+// 该列原始值作为缓存key,翻译结果原地替换(不新增列);join通道要求该列已在select结果中
+List<StaffInfo> list = lightDao.lambdaQuery(StaffInfo.class)
+        .translate("dictStatusCache", StaffInfo::getStatusName)
+        .eq(StaffInfo::getStatus, 1)
+        .find();
+```
+
+### 3）完整模型 translates（多列/覆盖声明）
+
+```java
+// 与 EntityQuery/QueryExecutor 的 translates 参数模型一致,支持多列与详细声明
+List<StaffInfo> list = lightDao.lambdaQuery(StaffInfo.class)
+        .translates(
+                Translate.of("staffInfoCache", "staffId", "staffName"),
+                Translate.of("dictStatusCache", "statusName"))
+        .eq(StaffInfo::getStatus, 1)
+        .find();
+```
+
+### 4）join 通道（原地翻译 + 显式别名映射）
+
+```java
+// join/SQL通道仅支持结果列原地翻译:column须为select结果列别名(该列原始值即缓存key)
+List<OrderVO> list = lightDao.lambdaQuery(OrderInfo.class)
+        .select(OrderVO::getOrderNo, OrderVO::getStatusName)
+        .leftJoin(OrderItem.class).on(OrderInfo::getOrderId, OrderItem::getOrderId)
+        .translate("dictStatusCache", OrderVO::getStatusName)   // 原地翻译statusName
+        .find();
+
+// 需要key→target映射时,用JoinCol.of(key属性).as(column)显式产出key列后再原地翻译目标列
+List<OrderVO> list2 = lightDao.lambdaQuery(OrderInfo.class)
+        .select(JoinCol.of(OrderVO::getStatus).as("statusName"))
+        .translate("dictStatusCache", OrderVO::getStatusName)
+        .find();
+```
+
+### 5）语义边界（快速失败）
+
+| 场景 | 行为 |
+| --- | --- |
+| count / findColumns / 聚合终端(max/min/sum/avg) | 不支持翻译（count不携带,聚合抛异常） |
+| exists | 走 top1 数据查询,与 find 同口径（支持） |
+| union 分支 / CTE 内层 / fromFast 内层 | 禁止设置翻译（只在最终结果集翻译一次）,执行期校验抛异常 |
+| join 通道 keyColumn ≠ column | 抛异常并提示用 select 别名写法 |
+| 同列翻译 key=target | 不追加重复列,按真实列名命中翻译后原地替换 |
+
+> **同列翻译修复**：key 与 target 指向同一属性时不再追加重复列,且属性名与库列名的驼峰/下划线差异（如 staffLevel/STAFF_LEVEL）会自动转换为真实列名,保证翻译按结果列命中。
+
+---
+
+## 六之三、组合查询：CTE（WITH AS）/ @fast 分页下推 / UNION
 
 lambda 支持把**多个 lambdaQuery 组合**成一条大 SQL：CTE（`WITH ... AS`）、@fast 分页下推派生表、UNION/UNION ALL。组合时各分支**共享参数序号**（先装配内层、外层续号），参数名全局唯一不撞号。
 

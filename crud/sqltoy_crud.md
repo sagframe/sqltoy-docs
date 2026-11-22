@@ -653,3 +653,52 @@ List result = lightDao.updateFetch(
 >
 > 与上节 `updateSaveFetch` 互补：`updateSaveFetch` 以实体定位、不存在自动插入；`updateFetch` 修改**已存在**的记录，查询条件由 sql 自由定义。
 
+---
+
+## 11、updateFetch 对象化操作（按实体锁查询→校验修改→返回实体，一次交互，6.0.12 新增）
+
+上面第 10 节的 `updateFetch` 以 sql 自由定义查询；当检索条件就是实体的主键或唯一属性时，**对象化形态无需编写 sql**，直接操作实体 get/set：
+
+```java
+// 1) 按主键定位：stock 的 stockId 已赋值
+InvStock stock = lightDao.updateFetch(invStock, (entity, rowIndex) -> {
+    Integer stockNum = entity.getStockNum();
+    if (stockNum == null || stockNum < 10) {
+        // 逻辑校验不通过直接抛异常，本次修改整体回滚
+        throw new IllegalStateException("库存不足");
+    }
+    entity.setStockNum(stockNum - 10);
+});
+
+// 2) 按唯一属性定位（不设置则按主键）：
+StaffInfo staff = lightDao.updateFetch(queryStaff, (entity, rowIndex) -> {
+        entity.setEntryTime(LocalDateTime.now());
+}, "staffCode");  // 以 staffCode 唯一属性定位记录
+```
+
+**方法签名**
+
+```java
+public <T extends Serializable> T updateFetch(final T entity, final EntityUpdateCallback<T> callback,
+        final String... uniqueProps);
+```
+
+**语义要点**
+
+| 特性 | 说明 |
+| --- | --- |
+| 定位方式 | 按主键或 `uniqueProps` 声明的唯一属性值检索并锁定记录（for update） |
+| 记录存在 | 回调内直接 get/set 操作实体，返回**修改并回读后的实体**（一次数据库交互） |
+| 记录不存在 | 返回 `null`，**不执行 insert**（与 `updateSaveFetch`"不存在自动插入"的关键差异） |
+| 回调抛异常 | 本次修改整体回滚（适合库存扣减、余额校验等强一致场景） |
+| 回调接口 | `EntityUpdateCallback<T>`：`(T entity, int rowIndex)`，无 ResultSet，纯对象操作 |
+
+**三兄弟选型**
+
+| 方法 | 定位 | 记录不存在时 | 适用 |
+| --- | --- | --- | --- |
+| `update(entity)` | 主键 | 影响行数为 0 | 常规修改 |
+| `updateSaveFetch(entity, callback, uniqueProps)` | 主键/唯一属性 | **自动插入** | 存在即改、不存在即插（upsert + 校验） |
+| `updateFetch(entity, callback, uniqueProps)` | 主键/唯一属性 | **返回 null 不插入** | 记录必然存在、改前需校验（对象化） |
+| `updateFetch(QueryExecutor, UpdateRowHandler)` | sql 自由条件 | 返回空集合 | 复杂查询条件 + 锁策略 |
+
