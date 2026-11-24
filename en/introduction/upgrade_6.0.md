@@ -344,9 +344,60 @@ Lambda queries previously relied on `@Translate` annotations on entities; since 
 
 During DDL generation a `nativeType` that matches the target database's geometry type is used directly (preserving precision forms like `geometry(Point,4326)`); external spellings are normalized on pg-kernel databases (only geometry/geography are recognized), aligned with `specialCastType`.
 
-## 15. Recommended Upgrade Steps
+## 15. What's New in 6.0.13
 
-1. Upgrade the dependency version numbers uniformly to 6.0.12 (starter / spring / solon-plugin use the same version as core);
+6.0.13 has no API breakage, but it carries **3 output-visible behaviour changes** (item 6 below) — regression-test tree sorting, chain-relative/reverse calculators and cascade mapping after upgrading.
+
+**1. Tree and collection calculations: O(n²) → O(n)**
+
+`CollectionUtil.sortTreeList` extracts roots and attaches children by grouping on pid and walking once in pre-order; `TreeDataSort` locates parents during roll-up by "probe the preceding 16 rows first, build an id index only on a miss"; pivot builds a "category text → index list" map for the single-category-column case. Pre-order, sibling order and "attach once per id" are all unchanged; the index is enabled only for ordinary immutable JDK types where "same text means equal", every hit is still re-checked, and non-ordinary types fall back to a full scan.
+
+**2. Tolerant id/pid value types in tree data**
+
+Root detection and parent/child attachment now use lenient comparison (equals for identical types, text comparison across types), fixing the silent failure where **a bigint id against an int pid made every row a root, so neither the tree structure nor the roll-up actually happened**. "No root found" and "node id is null" now raise a descriptive `IllegalArgumentException` instead of an opaque index/null error; rows that cannot be attached (cycles or a missing parent) are still dropped as before, but now logged.
+
+**3. Composite keys no longer collide through concatenation**
+
+Multi-column link keys, pivot category dedup keys, one-to-many grouping keys and `in`-parameter dedup keys all move from "concatenated column text" to "a list of per-column text". This fixes collisions when values contain underscores or commas (e.g. `(1,23)` and `(12,3)` treated as the same category, losing data columns; one-to-many cascade master grouping going wrong). null is still handled as the string `"null"`; text-comparison semantics are unchanged.
+
+**4. Sorting no longer throws on mixed types**
+
+`ResultUtils.sortList` and `CollectionUtil.compareValue` now determine the type **per compared pair**: typed comparison only when both sides share the type, otherwise falling back to text comparison (length first). The old code fixed the type from the first non-null value and then cast unconditionally, throwing `ClassCastException` on a column mixing strings and numbers; results for homogeneous columns are byte-identical.
+
+**5. MapperUtils mapping fixes and cache consolidation**
+
+- Three fixes for dropped values / exceptions: walking the parent chain of an interface target threw NPE because `getSuperclass()` is null; values already assignable to the field type (subclass/implementation) were silently dropped (`Map←HashMap`, `Number←Integer`, `Object←String`, raw `List←ArrayList`); when recursive mapping yields nothing (`Locale`, collections and other classes without paired getters/setters) an assignable value is now assigned directly;
+- **Copy-semantics guarantee**: when the value type equals the field type, recursive mapping still produces an **independent copy** (the result never shares nested objects with the source); direct assignment happens only for strict subclasses or field types without a no-arg constructor (immutable objects, non-static inner classes);
+- Caching and regex (no change to resulting values): enum conversion memoizes hits by raw key text, getter cache keys simplified, setter metadata and raw parameter types cached, `@fast` and `splitRegex` patterns precompiled.
+
+**6. Behaviour changes (regression required)**
+
+| Change | Before | Now |
+| --- | --- | --- |
+| Negative `end-row` / `end-column` | Off by one, pointing at the second-to-last row/column | Python-style from the end: `-1` is the last row/column, consistent with `${dataWidth}-x` |
+| `reverse` swap count | Even-length ranges missed the middle pair; **2 rows were not reversed at all** | Half the range length — reverses correctly |
+| `rows-chain-relative` first/last row | With the default `group-size=1` the row stayed at its default/null | The last row (ascending) and first row (descending) now take part (`groupSize=2` results unchanged) |
+
+Three boundary behaviours were also tightened: with `groupSize>=3` an incomplete first/last group is skipped (previously it read outside the range and threw); a `relative-index` outside `[0, groupSize)` is skipped with a one-off warn log (previously silent, showing up as missing values); and the **infinite loop** caused by `group-size=0` when no data lies between the start and end rows is fixed (clamped to 1).
+
+## 16. What's New in 6.0.14
+
+A single capability top-up — **no core changes, no dependency changes**.
+
+**Solon plugin: `@Db` can inject `SqlToyDao`**
+
+`DbManager` adds `getSqlToyDao`, cached per DataSource (cleared together with the other caches when the context is switched), and `SqlToyDbInjector` handles the `SqlToyDao` type. Previously `@Db` supported only `SqlToyLazyDao` / `LightDao` / `SqlToyCRUDService`.
+
+```java
+@Db
+private SqlToyDao sqlToyDao;
+```
+
+The JDK 8 counterpart is **5.6.100.jre8**, which mirrors this release and additionally fills the long-missing `SqlToyDao` bean in the spring-boot-starter (Boot 2 users can now `@Autowired SqlToyDao` directly).
+
+## 17. Recommended Upgrade Steps
+
+1. Upgrade the dependency version numbers uniformly to 6.0.14 (starter / spring / solon-plugin use the same version as core);
 2. Search globally for `parallQuery` / `ParallQuery` and change them to `parallelQuery` / `ParallelQuery` (an IDE rename is enough);
 3. If you have custom `DataSourceCallbackHandler` implementations, adjust the `doConnection` signature to take a `DBProfile` parameter;
 4. If you reference the framework internal utility classes listed in the table above, adjust the imports to their new package locations;

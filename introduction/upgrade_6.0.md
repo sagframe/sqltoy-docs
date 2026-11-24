@@ -344,9 +344,60 @@ lambda 查询此前只能靠实体上的 `@Translate` 注解做缓存翻译；6.
 
 DDL 生成时 `nativeType` 与目标库几何类型匹配则直接采用（保留 `geometry(Point,4326)` 这类精度形态）；pg 内核系外部拼写归一（仅 geometry/geography 认定），与 `specialCastType` 同口径。
 
-## 十五、升级步骤建议
+## 十五、6.0.13 更新说明
 
-1. 依赖版本号统一升级为 6.0.12（starter / spring / solon-plugin 与 core 同版本）；
+6.0.13 无 API 破坏，但**有 3 处产物可见的行为变更**（见本节第 6 条），升级后请对树形排序、环比/反转计算、级联映射做回归。
+
+**1. 树形与集合计算由 O(n²) 改 O(n)**
+
+`CollectionUtil.sortTreeList` 的根节点提取与子节点挂接改为按 pid 分组、前序一次挂接；`TreeDataSort` 逐层汇总找父节点改为"先向前探测 16 行、未命中再建 id 索引"；数据旋转单类别列建立"类别文本→下标集合"索引。前序顺序、兄弟顺序、同一 id 只挂一次均与原先一致；索引只对"文本相同即相等"的常规 JDK 不可变类型启用，命中后仍逐项复核，遇非常规类型自动退回全扫描。
+
+**2. 树形 id/pid 取值类型容错**
+
+根节点判定与父子挂接改为宽松比较（类型相同按 equals、类型不同按文本），修复 **id 为 bigint 而 pid 为 int 时整批数据被当作根节点、树形结构与逐层汇总实际不发生**的静默错误。取不到根节点、节点 id 为 null 由无说明的越界/空指针改为带说明的 `IllegalArgumentException`；挂不到树的行（成环/父不存在）仍按既有行为丢弃，但给出告警。
+
+**3. 复合键消除拼接歧义**
+
+多列 link 键、行转列类别判重键、一对多分组键、in 参数判重键，一律由"各列文本拼接"改为"逐列文本组成的列表"。修复值含下划线/逗号时不同组合撞键（如 `(1,23)` 与 `(12,3)` 被判为同一类别导致数据列丢失、一对多级联主对象分组错乱）。null 仍按字符串 `"null"` 处理，按文本比较的语义不变。
+
+**4. 排序不再因混合类型抛异常**
+
+`ResultUtils.sortList` 与 `CollectionUtil.compareValue` 改为按**当前比较对**判型：两侧同类型才走类型化比较，否则退回文本比较（长度优先）。原实现仅由首个非空值定死类型后无条件强转，同一列混有字符串与数字即 `ClassCastException`；同构列结果逐字不变。
+
+**5. MapperUtils 映射修复与缓存收口**
+
+- 修复三处丢值/异常：目标类型是接口时 `getSuperclass()` 为 null 导致遍历父类抛空指针；值已是字段类型的子类/实现时被静默丢弃（`Map←HashMap`、`Number←Integer`、`Object←String`、raw `List←ArrayList`）；递归映射无结果（`Locale`、集合等无成对 get/set 属性的类）而值可赋值时兜底直赋；
+- **副本语义承诺**：值类型与字段类型相同时仍走递归映射产生**独立副本**（映射结果不与源对象共用嵌套对象），仅严格子类或字段类型无无参构造（不可变对象、非静态内部类）时直赋；
+- 缓存与正则（不改变取值结果）：枚举转换按原始 key 文本记忆命中结果、getter 缓存键简化、setter 元数据与原始参数类型缓存、`@fast` 与 `splitRegex` 正则预编译。
+
+**6. 行为变更（升级需回归）**
+
+| 变更点 | 原行为 | 现行为 |
+| --- | --- | --- |
+| 负数 `end-row` / `end-column` | 差 1，指向倒数第二行/列 | Python 式从末尾计，`-1` 即最后一行/列，与 `${dataWidth}-x` 表达式一致 |
+| `reverse` 反转交换次数 | 偶数长度漏换最中间一对，**2 行时完全不反转** | 取区间长度的一半，正确反转 |
+| `rows-chain-relative` 首/末行 | 默认 `group-size=1` 时该行恒为默认值/null | 升序末行、降序首行参与计算（`groupSize=2` 结果不变） |
+
+另有三处边界收敛：`groupSize>=3` 且首/末分组不完整时跳过该组（原先取到区间外的行抛越界）；`relative-index` 超出 `[0, groupSize)` 时跳过并给出一次性 warn 告警（原为静默跳过，表现为少算值）；起止行之间无数据致 `group-size=0` 的**死循环**已修复（钳到 1）。
+
+## 十六、6.0.14 更新说明
+
+仅一处功能补齐，**无 core 改动、无依赖变更**。
+
+**solon 插件 `@Db` 支持注入 `SqlToyDao`**
+
+`DbManager` 新增按数据源缓存的 `getSqlToyDao`（上下文切换时随其余缓存一并清空），`SqlToyDbInjector` 补齐 `SqlToyDao` 注入分支。此前 `@Db` 仅支持 `SqlToyLazyDao` / `LightDao` / `SqlToyCRUDService`。
+
+```java
+@Db
+private SqlToyDao sqlToyDao;
+```
+
+JDK 8 线对应 **5.6.100.jre8**，同步本版内容，并补齐了 spring-boot-starter 的 `SqlToyDao` bean（Boot2 用户可直接 `@Autowired SqlToyDao`）。
+
+## 十七、升级步骤建议
+
+1. 依赖版本号统一升级为 6.0.14（starter / spring / solon-plugin 与 core 同版本）；
 2. 全局搜索 `parallQuery` / `ParallQuery`，改为 `parallelQuery` / `ParallelQuery`（IDE 重命名即可）；
 3. 如有自定义 `DataSourceCallbackHandler` 实现，把 `doConnection` 签名调整为 `DBProfile` 参数；
 4. 如引用了上表所列框架内部工具类，按新包位置调整 import；
