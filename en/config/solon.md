@@ -46,6 +46,7 @@ On Solon you do not use `@Autowired`; injection goes through `org.sagacity.sqlto
 | --- | --- |
 | `javax.sql.DataSource` | Inject the datasource directly |
 | `SqlToyLazyDao` | Full-featured Dao |
+| `SqlToyDao` | Full-featured Dao with conventional method names (`@Db` injection since 6.0.14) |
 | `LightDao` | Lightweight Dao (recommended for direct use in Services) |
 | `SqlToyCRUDService` | Generic CRUD service |
 

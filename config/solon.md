@@ -46,6 +46,7 @@ Solon 侧不使用 `@Autowired`，而是通过 `org.sagacity.sqltoy.solon.annota
 | --- | --- |
 | `javax.sql.DataSource` | 直接注入数据源 |
 | `SqlToyLazyDao` | 全功能 Dao |
+| `SqlToyDao` | 规范命名的全功能 Dao（6.0.14 起支持 `@Db` 注入） |
 | `LightDao` | 轻量 Dao（推荐 Service 中直接使用） |
 | `SqlToyCRUDService` | 通用 CRUD 服务 |
 
