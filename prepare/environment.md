@@ -4,7 +4,7 @@
 
 | 项 | 要求 |
 | --- | --- |
-| JDK | **17+**（6.0 线要求 JDK 17，面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.98.jre8`（core 与 6.0.11 全量同步，支持 quickvo-maven-plugin 插件） |
+| JDK | **17+**（6.0 线要求 JDK 17，面向 Spring Boot 3/4）；JDK 8 项目请使用 `5.6.100.jre8`（core 与 6.0.14 全量同步，支持 quickvo-maven-plugin 插件） |
 | 构建工具 | Maven 3.6+ 或 Gradle |
 | 数据库 | 任意 JDBC 数据库（MySQL/Oracle/PostgreSQL/达梦/高斯/SQL Server/DB2 等，详见[支持的数据库](introduction/db_list.md)） |
 | 连接池 | Druid、HikariCP 等任意连接池（sqltoy 不绑定连接池） |
@@ -22,7 +22,7 @@
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring-starter</artifactId>
-    <version>6.0.12</version>
+    <version>6.0.14</version>
 </dependency>
 ```
 
@@ -32,7 +32,7 @@
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring</artifactId>
-    <version>6.0.12</version>
+    <version>6.0.14</version>
 </dependency>
 ```
 
@@ -42,7 +42,7 @@
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-    <version>6.0.12</version>
+    <version>6.0.14</version>
 </dependency>
 ```
 

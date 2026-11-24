@@ -4,7 +4,7 @@
 
 | Item | Requirement |
 | --- | --- |
-| JDK | **17+** (the 6.0 line requires JDK 17 and targets Spring Boot 3/4); for JDK 8 projects use `5.6.98.jre8` (core fully synced with 6.0.11, also works with the quickvo-maven-plugin) |
+| JDK | **17+** (the 6.0 line requires JDK 17 and targets Spring Boot 3/4); for JDK 8 projects use `5.6.100.jre8` (core fully synced with 6.0.14, also works with the quickvo-maven-plugin) |
 | Build tool | Maven 3.6+ or Gradle |
 | Database | Any JDBC database (MySQL/Oracle/PostgreSQL/Dameng/GaussDB/SQL Server/DB2, etc.; see [Supported Databases](en/introduction/db_list.md)) |
 | Connection pool | Druid, HikariCP or any other connection pool (sqltoy is not bound to a connection pool) |
@@ -22,7 +22,7 @@ Choose the corresponding artifact according to the framework you use (the groupI
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring-starter</artifactId>
-    <version>6.0.12</version>
+    <version>6.0.14</version>
 </dependency>
 ```
 
@@ -32,7 +32,7 @@ Choose the corresponding artifact according to the framework you use (the groupI
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-spring</artifactId>
-    <version>6.0.12</version>
+    <version>6.0.14</version>
 </dependency>
 ```
 
@@ -42,7 +42,7 @@ Choose the corresponding artifact according to the framework you use (the groupI
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-    <version>6.0.12</version>
+    <version>6.0.14</version>
 </dependency>
 ```
 

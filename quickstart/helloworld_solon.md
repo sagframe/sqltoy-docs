@@ -18,7 +18,7 @@
 <dependency>
     <groupId>com.sagframe</groupId>
     <artifactId>sagacity-sqltoy-solon-plugin</artifactId>
-    <version>6.0.12</version>
+    <version>6.0.14</version>
 </dependency>
 ```
 
